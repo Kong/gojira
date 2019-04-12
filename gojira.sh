@@ -11,6 +11,7 @@ OPENRESTY=1.13.6.2
 KONG_PLUGINS=bundled
 
 EXTRA=""
+AUTO_DEPS=1
 
 function parse_args {
   ACTION=$1
@@ -24,6 +25,7 @@ function parse_args {
         ;;
       -k|--kong)
         KONG_PATH=$2
+        KONG_LOC_PATH=1
         shift
         ;;
       -t|--tag)
@@ -34,8 +36,8 @@ function parse_args {
         PREFIX=$2
         shift
         ;;
-      --auto)
-        AUTO_DEPS=1
+      --no-auto)
+        AUTO_DEPS=0
         ;;
       *)
         EXTRA="$EXTRA $1"
@@ -61,24 +63,6 @@ function parse_args {
     fi
   fi
 
-  if [ -n "$AUTO_DEPS" ]; then
-    # XXX: This is terrible
-    if [ -z "$KONG_PATH" ]; then create_kong; fi
-    LUAROCKS=$(yaml_find $KONG_PATH/.travis.yml LUAROCKS)
-    if [ $? -ne 0 ]; then exit 1; fi
-    OPENSSL=$(yaml_find $KONG_PATH/.travis.yml OPENSSL)
-    if [ $? -ne 0 ]; then exit 1; fi
-    OPENRESTY=$(yaml_find $KONG_PATH/.travis.yml OPENRESTY_BASE)
-    if [ $? -ne 0 ]; then exit 1; fi
-  fi
-
-  IMAGE_NAME=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
-  KONG_IMAGE=$IMAGE_NAME
-
-  # Surely, there's abetter way
-  COMPOSE_ENVS="export KONG_IMAGE=$KONG_IMAGE \
-                       KONG_PATH=$KONG_PATH \
-                       KONG_PLUGINS=$KONG_PLUGINS"
 }
 
 
@@ -123,7 +107,7 @@ Options:
   -t, --tag     git tag to mount kong on (default: master)
   -p, --prefix  prefix to use for namespacing
   -k, --kong    PATH for a kong folder, will ignore tag
-  --auto        try to read dependency versions from .travis file
+  --no-auto     do not try to read dependency versions from .travis file
   -h, --help    display this help
 
 Commands:
@@ -144,11 +128,32 @@ Commands:
 
   shell         get a shell on a running container
 
+  cd            cd into a kong repo
+
 EOF
 }
 
 
 function build {
+  if [ $AUTO_DEPS -eq 1 ]; then
+    # XXX: This is terrible
+    if [ -z "$KONG_LOC_PATH" ]; then create_kong; fi
+    LUAROCKS=$(yaml_find $KONG_PATH/.travis.yml LUAROCKS)
+    if [ $? -ne 0 ]; then exit 1; fi
+    OPENSSL=$(yaml_find $KONG_PATH/.travis.yml OPENSSL)
+    if [ $? -ne 0 ]; then exit 1; fi
+    OPENRESTY=$(yaml_find $KONG_PATH/.travis.yml OPENRESTY_BASE)
+    if [ $? -ne 0 ]; then exit 1; fi
+  fi
+
+  IMAGE_NAME=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
+  KONG_IMAGE=$IMAGE_NAME
+
+  # Surely, there's abetter way
+  COMPOSE_ENVS="export KONG_IMAGE=$KONG_IMAGE \
+                       KONG_PATH=$KONG_PATH \
+                       KONG_PLUGINS=$KONG_PLUGINS"
+
   BUILD_ARGS="--build-arg LUAROCKS=$LUAROCKS \
               --build-arg OPENSSL=$OPENSSL \
               --build-arg OPENRESTY=$OPENRESTY"
