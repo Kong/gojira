@@ -20,7 +20,7 @@ Options:
   -t, --tag     git tag to mount kong on (default: master)
   -p, --prefix  prefix to use for namespacing
   -k, --kong    PATH for a kong folder, will ignore tag
-  --auto        try to read dependency versions from .travis file
+  --no-auto     do not try to read dependency versions from .travis file
   -h, --help    display this help
 
 Commands:
@@ -41,4 +41,29 @@ Commands:
 
   shell         get a shell on a running container
 
+  cd            cd into a kong repo
+
+```
+
+# gojira
+
+gojira has come a long way to put an end to `vagrant up`, `vagrant destroy` and
+`vagrant wait ten hours`.
+
+Spin up as many kong instances as you want. On different commits at the same
+time. With different openssl, openresty and luarocks versions. Run a shell
+inside of the containers, make kong roar. Make kong fail, cd into the repo, fix
+it. Make kong start again. Commit it. Push it, ship it!
+
+In all seriousness, use this tool only for development, for anything serious
+use [kong-build-tools].
+
+[kong-build-tools]: https://github.com/Kong/kong-build-tools
+
+
+## Installation
+
+```
+git clone git@github.com:Kong/kong-gojira.git
+ln -s kong-gojira/gojira.sh ~/.local/bin/gojira
 ```
