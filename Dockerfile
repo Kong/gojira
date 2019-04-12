@@ -21,8 +21,6 @@ ENV PATH=$PATH:${OPENRESTY_INSTALL}/nginx/sbin:${OPENRESTY_INSTALL}/bin:${LUAROC
 ENV LD_LIBRARY_PATH=${OPENSSL_INSTALL}/lib:${LD_LIBRARY_PATH}
 
 RUN bash -x setup_env.sh
+RUN echo "`luarocks path`" > $HOME/.bashrc
 
 WORKDIR /kong
-RUN echo "`luarocks path`" > $HOME/.bashrc
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
