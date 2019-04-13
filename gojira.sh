@@ -13,6 +13,11 @@ KONG_PLUGINS=bundled
 EXTRA=""
 AUTO_DEPS=1
 
+unset PREFIX
+unset KONG_TAG
+unset KONG_PATH
+unset KONG_LOC_PATH
+
 function parse_args {
   ACTION=$1
   shift
