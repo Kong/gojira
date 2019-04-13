@@ -128,7 +128,13 @@ Commands:
 
   shell         get a shell on a running container
 
-  cd            cd into a kong repo
+  cd            cd into a kong prefix repo
+
+  images        list gojira images
+
+  ps            list running prefixes
+
+  ls            list stored prefixes in \$GOJIRA_KONGS
 
 EOF
 }
@@ -214,6 +220,18 @@ cd)
   ;;
 run)
   ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -i -c "$EXTRA"
+  ;;
+images)
+  docker images --filter=reference='gojira*' $EXTRA
+  ;;
+ps)
+  docker ps --filter "label=com.docker.compose.project" -q \
+      | xargs docker inspect --format='{{index .Config.Labels "com.docker.compose.project"}}' \
+      | uniq \
+      | xargs -I pref docker-compose -f $COMPOSE_FILE -p pref ps $EXTRA 2> /dev/null
+  ;;
+ls)
+  ls -1 $EXTRA $KONGS
   ;;
 *)
   usage

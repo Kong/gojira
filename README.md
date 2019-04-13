@@ -41,7 +41,13 @@ Commands:
 
   shell         get a shell on a running container
 
-  cd            cd into a kong repo
+  cd            cd into a kong prefix repo
+
+  images        list gojira images
+
+  ps            list running prefixes
+
+  ls            list stored prefixes in $GOJIRA_KONGS
 
 ```
 
