@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 GOJIRA_PATH=$(dirname $(realpath $0))
 DOCKER_FILE=$GOJIRA_PATH/Dockerfile
 COMPOSE_FILE=$GOJIRA_PATH/docker-compose.yml
-KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 
-LUAROCKS=3.0.4
-OPENSSL=1.1.1a
-OPENRESTY=1.13.6.2
-KONG_PLUGINS=bundled
+KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
+LUAROCKS=${LUAROCKS:-3.0.4}
+OPENSSL=${OPENSSL:-1.1.1a}
+OPENRESTY=${OPENRESTY:-1.13.6.2}
+KONG_PLUGINS=${KONG_PLUGINS:-bundled}
 
 EXTRA=""
 AUTO_DEPS=1
