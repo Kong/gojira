@@ -1,8 +1,34 @@
-FROM kong:ubuntu-xenial
+FROM ubuntu:xenial
 
+# Build tools
 RUN apt-get update && \
-    apt-get install -y libpcre3 libpcre3-dev
-RUN apt-get install -y jq httpie libyaml-dev
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        curl \
+        gettext-base \
+        libgd-dev \
+        libgeoip-dev \
+        libncurses5-dev \
+        libperl-dev \
+        libreadline-dev \
+        libxslt1-dev \
+        make \
+        perl \
+        unzip \
+        zlib1g-dev \
+        libssl-dev \
+        git \
+        m4 \
+        libpcre3 \
+        libpcre3-dev
+
+# Extra tools
+RUN apt-get update && \
+    apt-get install -y  \
+        jq \
+        httpie \
+        libyaml-dev
 
 ADD setup_env.sh .
 
