@@ -15,13 +15,13 @@ mkdir -p $OPENSSL_DOWNLOAD $OPENRESTY_DOWNLOAD $LUAROCKS_DOWNLOAD
 
 if [ ! "$(ls -A $OPENSSL_DOWNLOAD)" ]; then
   pushd $DOWNLOAD_CACHE
-    curl -k -s -S -L http://www.openssl.org/source/openssl-$OPENSSL.tar.gz | tar xz
+    curl -s -S -L http://www.openssl.org/source/openssl-$OPENSSL.tar.gz | tar xz
   popd
 fi
 
 if [ ! "$(ls -A $OPENRESTY_DOWNLOAD)" ]; then
   pushd $DOWNLOAD_CACHE
-    curl -k -s -S -L https://openresty.org/download/openresty-$OPENRESTY.tar.gz | tar xz
+    curl -s -S -L https://openresty.org/download/openresty-$OPENRESTY.tar.gz | tar xz
   popd
 fi
 
@@ -84,22 +84,5 @@ export OPENSSL_DIR=$OPENSSL_INSTALL # for LuaSec install
 
 export PATH=$PATH:$OPENRESTY_INSTALL/nginx/sbin:$OPENRESTY_INSTALL/bin:$LUAROCKS_INSTALL/bin
 export LD_LIBRARY_PATH=$OPENSSL_INSTALL/lib:$LD_LIBRARY_PATH # for openssl's CLI invoked in the test suite
-
-eval `luarocks path`
-
-# -------------------------------------
-# Install ccm & setup Cassandra cluster
-# -------------------------------------
-if [[ -n "$CASSANDRA" ]]; then
-  pip install --user PyYAML six ccm &> build.log || (cat build.log && exit 1)
-  ccm create test -v $CASSANDRA -n 1 -d
-  ccm start -v --wait-for-binary-proto
-  ccm status
-fi
-
-nginx -V
-resty -V
-luarocks --version
-openssl version
 
 set +e
