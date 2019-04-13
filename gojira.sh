@@ -175,6 +175,14 @@ function build {
               --build-arg OPENSSL=$OPENSSL \
               --build-arg OPENRESTY=$OPENRESTY"
   >&2 echo "Building $IMAGE_NAME"
+  >&2 echo ""
+  >&2 echo "       Version info"
+  >&2 echo "=========================="
+  >&2 echo " * OpenSSL:     $OPENSSL"
+  >&2 echo " * OpenResty:   $OPENRESTY"
+  >&2 echo " * LuaRocks:    $LUAROCKS"
+  >&2 echo "=========================="
+  >&2 echo ""
   docker build -f $DOCKER_FILE -t $IMAGE_NAME $BUILD_ARGS $GOJIRA_PATH
 }
 
