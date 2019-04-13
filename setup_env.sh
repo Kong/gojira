@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Blatantly stolen from kong-ci
+# Add here as many hacks as needed to get certain versions installed
+
 #---------
 # Download
 #---------
