@@ -1,15 +1,15 @@
 ```
-                            _,-}}-._          
-                           /\   }  /\         
-                          _|(O\_ _/O)        
-                        _|/  (__''__)         
-                      _|\/    WVVVVW     RAWR 
-                     \ _\     \MMMM/_         
-                   _|\_\     _ '---; \_       
-              /\   \ _\/      \_   /   \      
-             / (    _\/     \   \  |'VVV      
-            (  '-,._\_.(      'VVV /          
-             \         /   _) /   _)          
+                            _,-}}-._ 
+                           /\   }  /\ 
+                          _|(O\_ _/O) 
+                        _|/  (__''__) 
+                      _|\/    WVVVVW    tasty vagrant!
+                     \ _\     \MMMM/_ 
+                   _|\_\     _ '---; \_ 
+              /\   \ _\/      \_   /   \ 
+             / (    _\/     \   \  |'VVV 
+            (  '-,._\_.(      'VVV / 
+             \         /   _) /   _) 
               '....--''\__vvv)\__vvv)      ldb
 
                       Gojira (Godzilla)
@@ -53,7 +53,7 @@ Commands:
 
 # gojira
 
-gojira has come a long way to put an end to `vagrant up`, `vagrant destroy` and
+gojira comes from far away to put an end to `vagrant up`, `vagrant destroy` and
 `vagrant wait ten hours`.
 
 Spin up as many kong instances as you want. On different commits at the same

@@ -88,20 +88,26 @@ function get_branch {
   popd
 }
 
+function rawr {
+  ROARS=("RAWR" "urhghh" "tasty vagrant" "...")
+  echo ${ROARS[$RANDOM % ${#ROARS[@]}]}
+}
+
 
 function usage {
 cat << EOF
-                            _,-}}-._          
-                           /\   }  /\         
-                          _|(O\\_ _/O)        
-                        _|/  (__''__)         
-                      _|\/    WVVVVW     RAWR 
-                     \ _\     \MMMM/_         
-                   _|\_\     _ '---; \_       
-              /\   \ _\/      \_   /   \      
-             / (    _\/     \   \  |'VVV      
-            (  '-,._\_.(      'VVV /          
-             \         /   _) /   _)          
+
+                            _,-}}-._ 
+                           /\   }  /\ 
+                          _|(O\\_ _/O) 
+                        _|/  (__''__) 
+                      _|\/    WVVVVW    $(rawr)!
+                     \ _\     \MMMM/_ 
+                   _|\_\     _ '---; \_ 
+              /\   \ _\/      \_   /   \ 
+             / (    _\/     \   \  |'VVV 
+            (  '-,._\_.(      'VVV / 
+             \         /   _) /   _) 
               '....--''\__vvv)\__vvv)      ldb
 
                       Gojira (Godzilla)
