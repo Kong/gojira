@@ -235,7 +235,7 @@ down)
   docker-compose -f $COMPOSE_FILE -p $PREFIX down
   ;;
 shell)
-  docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash
+  docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i
   ;;
 build)
   build
@@ -248,7 +248,7 @@ cd)
   usage
   ;;
 run)
-  ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -i -c "$EXTRA"
+  ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i -c "$EXTRA"
   ;;
 images)
   docker images --filter=reference='gojira*' $EXTRA
