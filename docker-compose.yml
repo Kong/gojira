@@ -6,13 +6,15 @@ services:
     command: "tail -f /dev/null"
     volumes:
       - ${KONG_PATH:-./kong}:/kong
-      - ${KONG_PLUGIN_DIR:-./kong-plugin}:/kong-plugin
+      - ${KONG_PLUGIN_PATH:-./kong-plugin}:/kong-plugin
     depends_on:
       db:
         condition: service_healthy
     environment:
       KONG_PREFIX: /kong/servroot
       KONG_PLUGINS: ${KONG_PLUGINS:-bundled}
+      KONG_PATH: /kong
+      KONG_PLUGIN_PATH: /kong-plugin
       KONG_ADMIN_LISTEN: '0.0.0.0:8001'
       KONG_TEST_DATABASE: postgres
       KONG_DATABASE: postgres

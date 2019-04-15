@@ -17,6 +17,8 @@ unset PREFIX
 unset KONG_TAG
 unset KONG_PATH
 unset KONG_LOC_PATH
+unset KONG_PLUGIN_PATH
+
 
 function parse_args {
   ACTION=$1
@@ -31,6 +33,10 @@ function parse_args {
       -k|--kong)
         KONG_PATH=$2
         KONG_LOC_PATH=1
+        shift
+        ;;
+      -kp|--kong-plugin)
+        KONG_PLUGIN_PATH=$2
         shift
         ;;
       -t|--tag)
@@ -169,21 +175,25 @@ function build {
   # Surely, there's abetter way
   COMPOSE_ENVS="export KONG_IMAGE=$KONG_IMAGE \
                        KONG_PATH=$KONG_PATH \
+                       KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH \
                        KONG_PLUGINS=$KONG_PLUGINS"
 
-  BUILD_ARGS="--build-arg LUAROCKS=$LUAROCKS \
-              --build-arg OPENSSL=$OPENSSL \
-              --build-arg OPENRESTY=$OPENRESTY"
+  BUILD_ARGS=(
+    "--build-arg LUAROCKS=$LUAROCKS"
+    "--build-arg OPENSSL=$OPENSSL"
+    "--build-arg OPENRESTY=$OPENRESTY"
+  )
   >&2 echo "Building $IMAGE_NAME"
   >&2 echo ""
   >&2 echo "       Version info"
   >&2 echo "=========================="
-  >&2 echo " * OpenSSL:     $OPENSSL"
+  >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
-  >&2 echo " * LuaRocks:    $LUAROCKS"
+  >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo "=========================="
   >&2 echo ""
-  docker build -f $DOCKER_FILE -t $IMAGE_NAME $BUILD_ARGS $GOJIRA_PATH
+
+  docker build -f $DOCKER_FILE -t $IMAGE_NAME ${BUILD_ARGS[*]} $GOJIRA_PATH
 }
 
 
