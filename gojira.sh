@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+GOJIRA=$(basename $0)
 GOJIRA_PATH=$(dirname $(realpath $0))
 DOCKER_FILE=$GOJIRA_PATH/Dockerfile
 COMPOSE_FILE=$GOJIRA_PATH/docker-compose.yml
@@ -118,7 +119,7 @@ cat << EOF
 
                       Gojira (Godzilla)
 
-Usage: $0 action [options...]
+Usage: $GOJIRA action [options...]
 
 Options:
   -t,  --tag            git tag to mount kong on (default: master)
@@ -162,14 +163,19 @@ EOF
 
 function build {
   if [ $AUTO_DEPS -eq 1 ]; then
-    # XXX: This is terrible
     if [ -z "$KONG_LOC_PATH" ]; then create_kong; fi
-    LUAROCKS=$(yaml_find $KONG_PATH/.travis.yml LUAROCKS)
-    if [ $? -ne 0 ]; then exit 1; fi
-    OPENSSL=$(yaml_find $KONG_PATH/.travis.yml OPENSSL)
-    if [ $? -ne 0 ]; then exit 1; fi
-    OPENRESTY=$(yaml_find $KONG_PATH/.travis.yml OPENRESTY_BASE)
-    if [ $? -ne 0 ]; then exit 1; fi
+
+    TRAVIS_YAML=$KONG_PATH/.travis.yml
+    LUAROCKS=$(yaml_find $TRAVIS_YAML LUAROCKS)
+    OPENSSL=$(yaml_find $TRAVIS_YAML OPENSSL)
+    OPENRESTY=$(yaml_find $TRAVIS_YAML OPENRESTY_BASEE)
+
+    if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
+      >&2 echo "${GOJIRA}: Could not guess version dependencies in" \
+               "$TRAVIS_YAML. try using --no-auto"
+
+     exit 1
+    fi
   fi
 
   IMAGE_NAME=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
@@ -201,25 +207,7 @@ function build {
 
 
 function yaml_find {
-  # Do you miss the days of PHP interop interpolation? I do sometimes
-  # I was so excited trying to know if I could, that I did not ponder if I
-  # should
-  CMD=`cat <<EOF
-import yaml
-import sys
-
-travis = yaml.load(open('$1'))
-global_envs = {
-  k: v for k, v in map(lambda e: e.split('='), travis['env']['global'])
-}
-sys.stdout.write(global_envs["$2"])
-EOF
-  `
-  YAML_ENV=$(python3 -c "$CMD" 2>/dev/null)
-  if [ $? -ne 0 ]; then
-    exit 1
-  fi
-  echo $YAML_ENV
+  echo $(cat $1 | grep $2 | head -n 1 | sed 's/.*=//')
 }
 
 
