@@ -17,11 +17,12 @@
 Usage: gojira action [options...]
 
 Options:
-  -t, --tag     git tag to mount kong on (default: master)
-  -p, --prefix  prefix to use for namespacing
-  -k, --kong    PATH for a kong folder, will ignore tag
-  --no-auto     do not try to read dependency versions from .travis file
-  -h, --help    display this help
+  -t,  --tag            git tag to mount kong on (default: master)
+  -p,  --prefix         prefix to use for namespacing
+  -k,  --kong           PATH for a kong folder, will ignore tag
+  -kp, --kong-plugin    PATH for a kong-plugin folder
+  --no-auto             do not try to read dependency versions from .travis.yml
+  -h,  --help           display this help
 
 Commands:
   up            start a kong. if no -k path is specified, it will download
@@ -31,6 +32,8 @@ Commands:
   down          bring down the docker-compose thingie running in -t tag.
                 remove it, nuke it from space. something went wrong, and you
                 want a clear start or a less buggy tool to use.
+
+  stop          stop the docker-compose thingie running in -t tag.
 
   build         build a docker image with the specified VERSIONS
 
@@ -73,3 +76,4 @@ use [kong-build-tools].
 git clone git@github.com:Kong/kong-gojira.git
 ln -s kong-gojira/gojira.sh ~/.local/bin/gojira
 ```
+
