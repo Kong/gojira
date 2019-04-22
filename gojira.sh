@@ -168,7 +168,7 @@ function build {
     TRAVIS_YAML=$KONG_PATH/.travis.yml
     LUAROCKS=$(yaml_find $TRAVIS_YAML LUAROCKS)
     OPENSSL=$(yaml_find $TRAVIS_YAML OPENSSL)
-    OPENRESTY=$(yaml_find $TRAVIS_YAML OPENRESTY_BASEE)
+    OPENRESTY=$(yaml_find $TRAVIS_YAML OPENRESTY_BASE)
 
     if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
       >&2 echo "${GOJIRA}: Could not guess version dependencies in" \
