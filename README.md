@@ -77,3 +77,9 @@ git clone git@github.com:Kong/kong-gojira.git
 ln -s kong-gojira/gojira.sh ~/.local/bin/gojira
 ```
 
+### Additional for OS X
+
+```
+brew install coreutils
+```
+
