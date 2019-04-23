@@ -21,6 +21,7 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -kp, --kong-plugin    PATH for a kong-plugin folder
+  -n,  --network        use network with provided name
   --no-auto             do not try to read dependency versions from .travis.yml
   -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help

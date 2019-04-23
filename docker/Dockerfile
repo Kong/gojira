@@ -30,7 +30,7 @@ RUN apt-get update && \
         httpie \
         libyaml-dev
 
-ADD setup_env.sh .
+ADD docker/setup_env.sh .
 
 ARG LUAROCKS=3.0.4
 ARG OPENSSL=1.1.1a
@@ -52,6 +52,6 @@ ENV OPENSSL_LIBDIR=${OPENSSL_INSTALL}
 ENV PATH=$PATH:${OPENRESTY_INSTALL}/nginx/sbin:${OPENRESTY_INSTALL}/bin:${LUAROCKS_INSTALL}/bin
 ENV PATH=${OPENSSL_INSTALL}/bin:$PATH
 ENV LD_LIBRARY_PATH=${OPENSSL_INSTALL}/lib:${LD_LIBRARY_PATH}
-COPY bashrc /root/.bashrc
+COPY docker/bashrc /root/.bashrc
 
 WORKDIR /kong

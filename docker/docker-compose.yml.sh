@@ -1,4 +1,7 @@
-version: '2.1'
+#!/usr/bin/env bash
+
+cat << EOF
+version: '3.5'
 services:
   kong:
     image: ${KONG_IMAGE:-kong:ubuntu-xenial}
@@ -6,10 +9,17 @@ services:
     command: "tail -f /dev/null"
     volumes:
       - ${KONG_PATH:-./kong}:/kong
+EOF
+
+if [[ ! -z $KONG_PLUGIN_PATH ]]; then
+cat << EOF
       - ${KONG_PLUGIN_PATH:-./kong-plugin}:/kong-plugin
+EOF
+fi
+
+cat << EOF
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       KONG_PREFIX: /kong/servroot
       KONG_PLUGINS: ${KONG_PLUGINS:-bundled}
@@ -24,6 +34,8 @@ services:
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_ANONYMOUS_REPORTS: "false"
     restart: on-failure
+    networks:
+      - gojira
   db:
     image: postgres:9.5
     environment:
@@ -37,3 +49,18 @@ services:
     restart: on-failure
     stdin_open: true
     tty: true
+    networks:
+      - gojira
+
+networks:
+  gojira:
+EOF
+if [[ ! -z $GOJIRA_NETWORK ]]; then
+cat << EOF
+    name: ${GOJIRA_NETWORK}
+EOF
+fi
+
+cat << EOF
+
+EOF

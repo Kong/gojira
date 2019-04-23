@@ -2,8 +2,8 @@
 
 GOJIRA=$(basename $0)
 GOJIRA_PATH=$(dirname $(realpath $0))
-DOCKER_FILE=$GOJIRA_PATH/Dockerfile
-COMPOSE_FILE=$GOJIRA_PATH/docker-compose.yml
+DOCKER_FILE=$GOJIRA_PATH/docker/Dockerfile
+COMPOSE_FILE=$GOJIRA_PATH/docker/docker-compose.yml.sh
 
 KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 LUAROCKS=${LUAROCKS:-3.0.4}
@@ -54,6 +54,11 @@ function parse_args {
       --no-auto)
         AUTO_DEPS=0
         ;;
+      -n|--network)
+        GOJIRA_NETWORK=$2
+        shift
+        ;;
+
       *)
         EXTRA="$EXTRA $1"
         ;;
@@ -78,6 +83,14 @@ function parse_args {
     fi
   fi
 
+}
+
+function get_envs {
+  echo "export KONG_IMAGE=$KONG_IMAGE \
+               KONG_PATH=$KONG_PATH \
+               KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH \
+               KONG_PLUGINS=$KONG_PLUGINS \
+               GOJIRA_NETWORK=$GOJIRA_NETWORK"
 }
 
 
@@ -126,6 +139,7 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -kp, --kong-plugin    PATH for a kong-plugin folder
+  -n,  --network        use network with provided name
   --no-auto             do not try to read dependency versions from .travis.yml
   -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help
@@ -174,7 +188,6 @@ function build {
     if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
       >&2 echo "${GOJIRA}: Could not guess version dependencies in" \
                "$TRAVIS_YAML. try using --no-auto"
-
      exit 1
     fi
   fi
@@ -182,17 +195,12 @@ function build {
   IMAGE_NAME=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
   KONG_IMAGE=$IMAGE_NAME
 
-  # Surely, there's abetter way
-  COMPOSE_ENVS="export KONG_IMAGE=$KONG_IMAGE \
-                       KONG_PATH=$KONG_PATH \
-                       KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH \
-                       KONG_PLUGINS=$KONG_PLUGINS"
-
   BUILD_ARGS=(
     "--build-arg LUAROCKS=$LUAROCKS"
     "--build-arg OPENSSL=$OPENSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
   )
+
   >&2 echo "Building $IMAGE_NAME"
   >&2 echo ""
   >&2 echo "       Version info"
@@ -212,6 +220,16 @@ function yaml_find {
 }
 
 
+function  p_compose {
+  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) -p $PREFIX $@
+}
+
+
+function compose {
+  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) $@
+}
+
+
 main() {
   parse_args $@
 
@@ -221,17 +239,17 @@ main() {
       create_kong
     fi
     build
-    ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX up -d
+    p_compose up -d
     ;;
   down)
-    docker-compose -f $COMPOSE_FILE -p $PREFIX kill
-    docker-compose -f $COMPOSE_FILE -p $PREFIX down
+    p_compose kill
+    p_compose down
     ;;
   stop)
-    docker-compose -f $COMPOSE_FILE -p $PREFIX stop
+    p_compose stop
     ;;
   shell)
-    docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i
+    p_compose exec kong bash -l -i
     ;;
   build)
     build
@@ -244,16 +262,20 @@ main() {
     usage
     ;;
   run)
-    ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i -c "$EXTRA"
+    p_compose exec kong bash -l -i -c "$EXTRA"
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA
     ;;
   ps)
-    docker ps --filter "label=com.docker.compose.project" -q \
-        | xargs docker inspect --format='{{index .Config.Labels "com.docker.compose.project"}}' \
-        | uniq \
-        | xargs -I pref docker-compose -f $COMPOSE_FILE -p pref ps $EXTRA 2> /dev/null
+    PREFIXES=$(
+      docker ps --filter "label=com.docker.compose.project" -q \
+      | xargs docker inspect --format='{{index .Config.Labels "com.docker.compose.project"}}' \
+      | uniq
+    )
+    for pref in $PREFIXES; do
+      compose -p $pref ps $EXTRA
+    done
     ;;
   ls)
     ls -1 $EXTRA $KONGS
@@ -262,6 +284,6 @@ main() {
     usage
     ;;
   esac
-  }
+}
 
 main $*
