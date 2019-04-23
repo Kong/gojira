@@ -212,52 +212,56 @@ function yaml_find {
 }
 
 
-parse_args $@
+main() {
+  parse_args $@
 
-case $ACTION in
-up)
-  if [[ ! -d "$KONG_PATH" ]]; then
-    create_kong
-  fi
-  build
-  ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX up -d
-  ;;
-down)
-  docker-compose -f $COMPOSE_FILE -p $PREFIX kill
-  docker-compose -f $COMPOSE_FILE -p $PREFIX down
-  ;;
-stop)
-  docker-compose -f $COMPOSE_FILE -p $PREFIX stop
-  ;;
-shell)
-  docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i
-  ;;
-build)
-  build
-  ;;
-cd)
-  echo $KONG_PATH
-  cd $KONG_PATH
-  ;;
--h|--help|help)
-  usage
-  ;;
-run)
-  ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i -c "$EXTRA"
-  ;;
-images)
-  docker images --filter=reference='gojira*' $EXTRA
-  ;;
-ps)
-  docker ps --filter "label=com.docker.compose.project" -q \
-      | xargs docker inspect --format='{{index .Config.Labels "com.docker.compose.project"}}' \
-      | uniq \
-      | xargs -I pref docker-compose -f $COMPOSE_FILE -p pref ps $EXTRA 2> /dev/null
-  ;;
-ls)
-  ls -1 $EXTRA $KONGS
-  ;;
-*)
-  usage
-  ;;
-esac
+  case $ACTION in
+  up)
+    if [[ ! -d "$KONG_PATH" ]]; then
+      create_kong
+    fi
+    build
+    ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX up -d
+    ;;
+  down)
+    docker-compose -f $COMPOSE_FILE -p $PREFIX kill
+    docker-compose -f $COMPOSE_FILE -p $PREFIX down
+    ;;
+  stop)
+    docker-compose -f $COMPOSE_FILE -p $PREFIX stop
+    ;;
+  shell)
+    docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i
+    ;;
+  build)
+    build
+    ;;
+  cd)
+    echo $KONG_PATH
+    cd $KONG_PATH
+    ;;
+  -h|--help|help)
+    usage
+    ;;
+  run)
+    ${COMPOSE_ENVS} ; docker-compose -f $COMPOSE_FILE -p $PREFIX exec kong bash -l -i -c "$EXTRA"
+    ;;
+  images)
+    docker images --filter=reference='gojira*' $EXTRA
+    ;;
+  ps)
+    docker ps --filter "label=com.docker.compose.project" -q \
+        | xargs docker inspect --format='{{index .Config.Labels "com.docker.compose.project"}}' \
+        | uniq \
+        | xargs -I pref docker-compose -f $COMPOSE_FILE -p pref ps $EXTRA 2> /dev/null
+    ;;
+  ls)
+    ls -1 $EXTRA $KONGS
+    ;;
+  *)
+    usage
+    ;;
+  esac
+  }
+
+main $*
