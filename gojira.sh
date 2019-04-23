@@ -84,10 +84,7 @@ function parse_args {
 function create_kong {
   mkdir -p $KONGS
   pushd $KONGS
-    git clone git@github.com:Kong/kong.git $PREFIX
-    pushd $PREFIX
-      git checkout ${KONG_TAG}
-    popd
+    git clone -b ${KONG_TAG} git@github.com:Kong/kong.git $PREFIX || exit
   popd
 }
 
@@ -99,7 +96,7 @@ function get_branch {
 }
 
 function rawr {
-  ROARS=("RAWR" "urhghh" "tasty vagrant" "...")
+  ROARS=("RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom")
   echo ${ROARS[$RANDOM % ${#ROARS[@]}]}
 }
 
