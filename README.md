@@ -22,6 +22,7 @@ Options:
   -k,  --kong           PATH for a kong folder, will ignore tag
   -kp, --kong-plugin    PATH for a kong-plugin folder
   --no-auto             do not try to read dependency versions from .travis.yml
+  -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
 Commands:
