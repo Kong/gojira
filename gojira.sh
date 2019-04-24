@@ -178,7 +178,10 @@ EOF
 
 function build {
   if [ $AUTO_DEPS -eq 1 ]; then
-    if [ -z "$KONG_LOC_PATH" ]; then create_kong; fi
+    # No supplied local kong path and kong prefix does not exist
+    if [[ -z "$KONG_LOC_PATH" && ! -d "$KONGS/$PREFIX" ]]; then
+      create_kong
+    fi
 
     TRAVIS_YAML=$KONG_PATH/.travis.yml
     LUAROCKS=$(yaml_find $TRAVIS_YAML LUAROCKS)
@@ -235,10 +238,10 @@ main() {
 
   case $ACTION in
   up)
-    if [[ ! -d "$KONG_PATH" ]]; then
-      create_kong
-    fi
     build
+    # kong path does not exist. This means we are upping a build that came
+    # with no auto deps, most probably
+    if [[ ! -d "$KONG_PATH" ]]; then create_kong; fi
     p_compose up -d
     ;;
   down)
