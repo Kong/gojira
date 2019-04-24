@@ -4,7 +4,10 @@ cat << EOF
 version: '3.5'
 services:
   kong:
-    image: ${KONG_IMAGE:-kong:ubuntu-xenial}
+    # Purposeful empty image as default. If no KONG_IMAGE is set up at the
+    # right context, we did something wrong. There are acceptable cases
+    # where image is not needed (compose down, kill, etc)
+    image: ${KONG_IMAGE:-scratch}
     user: root
     command: "tail -f /dev/null"
     volumes:
