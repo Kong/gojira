@@ -2,8 +2,9 @@
 
 GOJIRA=$(basename $0)
 GOJIRA_PATH=$(dirname $(realpath $0))
-DOCKER_FILE=$GOJIRA_PATH/docker/Dockerfile
-COMPOSE_FILE=$GOJIRA_PATH/docker/docker-compose.yml.sh
+DOCKER_PATH=$GOJIRA_PATH/docker
+DOCKER_FILE=$DOCKER_PATH/Dockerfile
+COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
 KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 LUAROCKS=${LUAROCKS:-3.0.4}
@@ -216,7 +217,7 @@ function build {
   >&2 echo "=========================="
   >&2 echo ""
 
-  docker build -f $DOCKER_FILE -t $IMAGE_NAME ${BUILD_ARGS[*]} $GOJIRA_PATH
+  docker build -f $DOCKER_FILE -t $IMAGE_NAME ${BUILD_ARGS[*]} $DOCKER_PATH
 }
 
 
