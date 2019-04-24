@@ -86,11 +86,13 @@ function parse_args {
 }
 
 function get_envs {
-  echo "export KONG_IMAGE=$KONG_IMAGE \
-               KONG_PATH=$KONG_PATH \
-               KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH \
-               KONG_PLUGINS=$KONG_PLUGINS \
-               GOJIRA_NETWORK=$GOJIRA_NETWORK"
+  # Maybe there's a better way. Plz tell
+  printf "export KONG_IMAGE=$KONG_IMAGE "
+  printf        "KONG_PATH=$KONG_PATH "
+  printf        "KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH "
+  printf        "KONG_PLUGINS=$KONG_PLUGINS "
+  printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
+  printf        "\n"
 }
 
 
@@ -223,7 +225,7 @@ function yaml_find {
 }
 
 
-function  p_compose {
+function p_compose {
   docker-compose -f <($(get_envs) ; $COMPOSE_FILE) -p $PREFIX $@
 }
 
