@@ -40,9 +40,6 @@ Commands:
   build         build a docker image with the specified VERSIONS
 
   run           run a command on a running container
-                  *  gojira run -t tag make dev
-                  *  gojira run -t tag bin/kong roar
-                  *  gojira run -t tag bin/kong start
 
   shell         get a shell on a running container
 
