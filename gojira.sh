@@ -224,12 +224,12 @@ function yaml_find {
 
 
 function p_compose {
-  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) -p $PREFIX $@
+  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) -p $PREFIX "$@"
 }
 
 
 function compose {
-  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) $@
+  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) "$@"
 }
 
 
