@@ -20,25 +20,34 @@ cat << EOF
 EOF
 done
 
+if [[ ! -z $GOJIRA_DATABASE ]]; then
 cat << EOF
     depends_on:
       - db
+EOF
+fi
+cat << EOF
     environment:
       KONG_PREFIX: /kong/servroot
       KONG_PLUGINS: ${KONG_PLUGINS:-bundled}
       KONG_PATH: /kong
       KONG_PLUGIN_PATH: /kong-plugin
       KONG_ADMIN_LISTEN: '0.0.0.0:8001'
-      KONG_TEST_DATABASE: postgres
-      KONG_DATABASE: postgres
+      KONG_TEST_DATABASE: ${GOJIRA_DATABASE:-postgres}
+      KONG_DATABASE: ${GOJIRA_DATABASE:-postgres}
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong_tests}
       KONG_PG_HOST: db
       KONG_TEST_PG_HOST: db
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_ANONYMOUS_REPORTS: "false"
+      KONG_CASSANDRA_CONTACT_POINTS: db
     restart: on-failure
     networks:
       - gojira
+EOF
+
+if [[ $GOJIRA_DATABASE == "postgres" ]]; then
+cat << EOF
   db:
     image: postgres:9.5
     environment:
@@ -52,12 +61,23 @@ cat << EOF
     restart: on-failure
     stdin_open: true
     tty: true
+EOF
+elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
+cat << EOF
+  db:
+    image: cassandra:3.9
+    restart: always
+EOF
+fi
+
+cat << EOF
     networks:
       - gojira
 
 networks:
   gojira:
 EOF
+
 if [[ ! -z $GOJIRA_NETWORK ]]; then
 cat << EOF
     name: ${GOJIRA_NETWORK}

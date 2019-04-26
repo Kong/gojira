@@ -14,6 +14,7 @@ OPENRESTY=${OPENRESTY:-1.13.6.2}
 EXTRA=""
 AUTO_DEPS=1
 GOJIRA_VOLUMES=""
+GOJIRA_DATABASE=postgres
 
 unset PREFIX
 unset KONG_TAG
@@ -58,6 +59,12 @@ function parse_args {
         GOJIRA_VOLUMES+=$2,
         shift
         ;;
+      --cassandra)
+        GOJIRA_DATABASE=cassandra
+        ;;
+      --alone)
+        GOJIRA_DATABASE=
+        ;;
       *)
         EXTRA="$EXTRA $1"
         ;;
@@ -81,7 +88,6 @@ function parse_args {
       PREFIX=$BRANCH_NAME
     fi
   fi
-
 }
 
 function get_envs {
@@ -91,6 +97,7 @@ function get_envs {
   printf        "KONG_PLUGINS=$KONG_PLUGINS "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
+  printf        "GOJIRA_DATABASE=$GOJIRA_DATABASE "
   printf        "\n"
 }
 
@@ -110,8 +117,11 @@ function get_branch {
 }
 
 function rawr {
-  ROARS=("RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom")
-  echo ${ROARS[$RANDOM % ${#ROARS[@]}]}
+  ROARS=(
+    "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
+    "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
+  )
+  echo -e ${ROARS[$RANDOM % ${#ROARS[@]}]}
 }
 
 
@@ -142,6 +152,8 @@ Options:
   -n,  --network        use network with provided name
   --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml
+  --cassandra           use cassandra
+  --alone               do not spin up any db
   -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -285,6 +297,10 @@ main() {
     ;;
   compose)
     p_compose $EXTRA
+    ;;
+  debug)
+    >&2 build
+    cat <($(get_envs) ; $COMPOSE_FILE)
     ;;
   *)
     usage
