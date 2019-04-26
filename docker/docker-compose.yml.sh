@@ -49,7 +49,7 @@ EOF
 if [[ $GOJIRA_DATABASE == "postgres" ]]; then
 cat << EOF
   db:
-    image: postgres:9.5
+    image: postgres:${POSTGRES:-9.5}
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong_tests}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -65,7 +65,7 @@ EOF
 elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
 cat << EOF
   db:
-    image: cassandra:3.9
+    image: cassandra:${CASSANDRA:-3.9}
     restart: always
 EOF
 fi
