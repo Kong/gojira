@@ -66,7 +66,15 @@ elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
 cat << EOF
   db:
     image: cassandra:${CASSANDRA:-3.9}
-    restart: always
+    environment:
+      MAX_HEAP_SIZE: 256M
+      HEAP_NEWSIZE: 128M
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "describe keyspaces"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    restart: on-failure
 EOF
 fi
 
