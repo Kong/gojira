@@ -10,7 +10,6 @@ KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 LUAROCKS=${LUAROCKS:-3.0.4}
 OPENSSL=${OPENSSL:-1.1.1a}
 OPENRESTY=${OPENRESTY:-1.13.6.2}
-KONG_PLUGINS=${KONG_PLUGINS:-bundled}
 
 EXTRA=""
 AUTO_DEPS=1
@@ -20,7 +19,6 @@ unset PREFIX
 unset KONG_TAG
 unset KONG_PATH
 unset KONG_LOC_PATH
-unset KONG_PLUGIN_PATH
 
 
 function parse_args {
@@ -39,10 +37,6 @@ function parse_args {
       -k|--kong)
         KONG_PATH=$2
         KONG_LOC_PATH=1
-        shift
-        ;;
-      -kp|--kong-plugin)
-        KONG_PLUGIN_PATH=$2
         shift
         ;;
       -t|--tag)
@@ -94,7 +88,6 @@ function get_envs {
   # Maybe there's a better way. Plz tell
   printf "export KONG_IMAGE=$KONG_IMAGE "
   printf        "KONG_PATH=$KONG_PATH "
-  printf        "KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH "
   printf        "KONG_PLUGINS=$KONG_PLUGINS "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
@@ -146,7 +139,6 @@ Options:
   -t,  --tag            git tag to mount kong on (default: master)
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
-  -kp, --kong-plugin    PATH for a kong-plugin folder
   -n,  --network        use network with provided name
   --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml

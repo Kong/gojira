@@ -14,12 +14,6 @@ services:
       - ${KONG_PATH:-./kong}:/kong
 EOF
 
-if [[ ! -z $KONG_PLUGIN_PATH ]]; then
-cat << EOF
-      - ${KONG_PLUGIN_PATH:-./kong-plugin}:/kong-plugin
-EOF
-fi
-
 for volume in $(echo $GOJIRA_VOLUMES | tr "," " "); do
 cat << EOF
       - $volume
