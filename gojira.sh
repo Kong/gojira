@@ -94,7 +94,6 @@ function get_envs {
   # Maybe there's a better way. Plz tell
   printf "export KONG_IMAGE=$KONG_IMAGE "
   printf        "KONG_PATH=$KONG_PATH "
-  printf        "KONG_PLUGINS=$KONG_PLUGINS "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
   printf        "GOJIRA_DATABASE=$GOJIRA_DATABASE "
