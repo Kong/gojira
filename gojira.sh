@@ -14,6 +14,7 @@ KONG_PLUGINS=${KONG_PLUGINS:-bundled}
 
 EXTRA=""
 AUTO_DEPS=1
+GOJIRA_VOLUMES=""
 
 unset PREFIX
 unset KONG_TAG
@@ -59,7 +60,10 @@ function parse_args {
         GOJIRA_NETWORK=$2
         shift
         ;;
-
+      --volume)
+        GOJIRA_VOLUMES+=$2,
+        shift
+        ;;
       *)
         EXTRA="$EXTRA $1"
         ;;
@@ -93,6 +97,7 @@ function get_envs {
   printf        "KONG_PLUGIN_PATH=$KONG_PLUGIN_PATH "
   printf        "KONG_PLUGINS=$KONG_PLUGINS "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
+  printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
   printf        "\n"
 }
 
@@ -143,6 +148,7 @@ Options:
   -k,  --kong           PATH for a kong folder, will ignore tag
   -kp, --kong-plugin    PATH for a kong-plugin folder
   -n,  --network        use network with provided name
+  --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml
   -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help

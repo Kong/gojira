@@ -20,6 +20,12 @@ cat << EOF
 EOF
 fi
 
+for volume in $(echo $GOJIRA_VOLUMES | tr "," " "); do
+cat << EOF
+      - $volume
+EOF
+done
+
 cat << EOF
     depends_on:
       - db
