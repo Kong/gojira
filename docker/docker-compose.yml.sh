@@ -51,7 +51,7 @@ cat << EOF
   db:
     image: postgres:${POSTGRES:-9.5}
     environment:
-      POSTGRES_DB: ${KONG_PG_DATABASE:-kong_tests}
+      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]
