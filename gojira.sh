@@ -172,6 +172,8 @@ Commands:
 
   ls            list stored prefixes in \$GOJIRA_KONGS
 
+  compose       alias for docker-compose, try: gojira compose help
+
 EOF
 }
 
@@ -282,6 +284,9 @@ main() {
     ;;
   ls)
     ls -1 $EXTRA $KONGS
+    ;;
+  compose)
+    p_compose $EXTRA
     ;;
   *)
     usage
