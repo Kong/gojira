@@ -47,14 +47,17 @@ cat << EOF
       KONG_PATH: /kong
       KONG_PLUGIN_PATH: /kong-plugin
       KONG_ADMIN_LISTEN: '0.0.0.0:8001'
-      KONG_TEST_DATABASE: ${GOJIRA_DATABASE:-postgres}
-      KONG_DATABASE: ${GOJIRA_DATABASE:-postgres}
+      KONG_DATABASE: ${GOJIRA_DATABASE:-$KONG_DATABASE}
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_HOST: db
-      KONG_TEST_PG_HOST: db
       KONG_PG_USER: ${KONG_PG_USER:-kong}
       KONG_ANONYMOUS_REPORTS: "false"
       KONG_CASSANDRA_CONTACT_POINTS: db
+      KONG_TEST_DATABASE: ${GOJIRA_DATABASE:-$KONG_DATABASE}
+      KONG_TEST_PG_HOST: db
+      KONG_TEST_PG_DATABASE: ${KONG_TEST_PG_DATABASE:-kong_tests}
+      KONG_TEST_CASSANDRA_CONTACT_POINTS: db
+
     restart: on-failure
     networks:
       - gojira
@@ -64,8 +67,10 @@ if [[ $GOJIRA_DATABASE == "postgres" ]]; then
 cat << EOF
   db:
     image: postgres:${POSTGRES:-9.5}
+    volumes:
+      - ${DOCKER_CTX}/pg-entrypoint:/docker-entrypoint-initdb.d
     environment:
-      POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
+      POSTGRES_DBS: ${KONG_PG_DATABASE:-kong},${KONG_TEST_PG_DATABASE:-kong_tests}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${KONG_PG_USER:-kong}"]

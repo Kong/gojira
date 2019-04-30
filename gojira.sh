@@ -15,7 +15,7 @@ EXTRA=""
 AUTO_DEPS=1
 GOJIRA_VOLUMES=""
 GOJIRA_PORTS=""
-GOJIRA_DATABASE=postgres
+GOJIRA_DATABASE=${KONG_DATABASE:-postgres}
 
 unset PREFIX
 unset KONG_TAG
@@ -103,6 +103,7 @@ function get_envs {
   printf        "GOJIRA_PORTS=$GOJIRA_PORTS "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
   printf        "GOJIRA_DATABASE=$GOJIRA_DATABASE "
+  printf        "DOCKER_CTX=$DOCKER_PATH "
   printf        "\n"
 }
 
