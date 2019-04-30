@@ -10,6 +10,20 @@ services:
     image: ${KONG_IMAGE:-scratch}
     user: root
     command: "tail -f /dev/null"
+EOF
+
+if [[ ! -z $GOJIRA_PORTS ]]; then
+cat << EOF
+    ports:
+EOF
+  for port in $(echo $GOJIRA_PORTS | tr "," " "); do
+cat << EOF
+      - $port
+EOF
+  done
+fi
+
+cat << EOF
     volumes:
       - ${KONG_PATH:-./kong}:/kong
 EOF
@@ -35,7 +49,7 @@ cat << EOF
       KONG_ADMIN_LISTEN: '0.0.0.0:8001'
       KONG_TEST_DATABASE: ${GOJIRA_DATABASE:-postgres}
       KONG_DATABASE: ${GOJIRA_DATABASE:-postgres}
-      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong_tests}
+      KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
       KONG_PG_HOST: db
       KONG_TEST_PG_HOST: db
       KONG_PG_USER: ${KONG_PG_USER:-kong}
