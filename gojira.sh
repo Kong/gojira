@@ -14,7 +14,7 @@ OPENRESTY=${OPENRESTY:-1.13.6.2}
 EXTRA=""
 AUTO_DEPS=1
 GOJIRA_VOLUMES=""
-GOJIRA_DATABASE=postgres
+GOJIRA_DATABASE=${KONG_DATABASE:-postgres}
 
 unset PREFIX
 unset KONG_TAG
@@ -97,6 +97,7 @@ function get_envs {
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
   printf        "GOJIRA_DATABASE=$GOJIRA_DATABASE "
+  printf        "DOCKER_CTX=$DOCKER_PATH "
   printf        "\n"
 }
 
