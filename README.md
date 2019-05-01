@@ -22,6 +22,7 @@ Options:
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
   -pp, --port           expose a port for a kong container
+  --image               image to use for kong
   --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml
   --cassandra           use cassandra

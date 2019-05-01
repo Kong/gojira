@@ -70,6 +70,10 @@ function parse_args {
       --alone)
         GOJIRA_DATABASE=
         ;;
+      --image)
+        KONG_IMAGE=$2
+        shift
+        ;;
       *)
         EXTRA="$EXTRA $1"
         ;;
@@ -157,6 +161,7 @@ Options:
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
   -pp, --port           expose a port for a kong container
+  --image               image to use for kong
   --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml
   --cassandra           use cassandra
@@ -196,6 +201,10 @@ EOF
 
 
 function build {
+  if [[ ! -z $KONG_IMAGE ]]; then
+    return
+  fi
+
   if [ $AUTO_DEPS -eq 1 ]; then
     # No supplied local kong path and kong prefix does not exist
     if [[ -z "$KONG_LOC_PATH" && ! -d "$KONGS/$PREFIX" ]]; then
