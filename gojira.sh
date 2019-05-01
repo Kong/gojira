@@ -14,6 +14,7 @@ OPENRESTY=${OPENRESTY:-1.13.6.2}
 EXTRA=""
 AUTO_DEPS=1
 GOJIRA_VOLUMES=""
+GOJIRA_PORTS=""
 GOJIRA_DATABASE=${KONG_DATABASE:-postgres}
 
 unset PREFIX
@@ -50,6 +51,10 @@ function parse_args {
         ;;
       --no-auto)
         AUTO_DEPS=0
+        ;;
+      -pp|--port)
+        GOJIRA_PORTS+=$2,
+        shift
         ;;
       -n|--network)
         GOJIRA_NETWORK=$2
@@ -95,6 +100,7 @@ function get_envs {
   printf "export KONG_IMAGE=$KONG_IMAGE "
   printf        "KONG_PATH=$KONG_PATH "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
+  printf        "GOJIRA_PORTS=$GOJIRA_PORTS "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
   printf        "GOJIRA_DATABASE=$GOJIRA_DATABASE "
   printf        "DOCKER_CTX=$DOCKER_PATH "
@@ -150,6 +156,7 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
+  -pp, --port           expose a port for a kong container
   --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml
   --cassandra           use cassandra

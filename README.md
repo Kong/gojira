@@ -21,6 +21,7 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
+  -pp, --port           expose a port for a kong container
   --volume              add a volume to kong container
   --no-auto             do not try to read dependency versions from .travis.yml
   --cassandra           use cassandra

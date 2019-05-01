@@ -10,6 +10,20 @@ services:
     image: ${KONG_IMAGE:-scratch}
     user: root
     command: "tail -f /dev/null"
+EOF
+
+if [[ ! -z $GOJIRA_PORTS ]]; then
+cat << EOF
+    ports:
+EOF
+  for port in $(echo $GOJIRA_PORTS | tr "," " "); do
+cat << EOF
+      - $port
+EOF
+  done
+fi
+
+cat << EOF
     volumes:
       - ${KONG_PATH:-./kong}:/kong
 EOF
