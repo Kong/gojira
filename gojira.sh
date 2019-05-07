@@ -76,22 +76,23 @@ function parse_args {
     shift
   done
 
-  if [ -z "$GOJIRA_KONG_PATH" ]; then
-    GOJIRA_TAG=${GOJIRA_TAG:-master}
-    if [ -n "$PREFIX" ]; then
-      PREFIX=$PREFIX-$GOJIRA_TAG
-    else
-      PREFIX=$GOJIRA_TAG
-    fi
-    GOJIRA_KONG_PATH=$GOJIRA_KONGS/$PREFIX
-  else
-    get_branch
-    if [ -n "$PREFIX" ]; then
-      PREFIX=$PREFIX-$BRANCH_NAME
-    else
-      PREFIX=$BRANCH_NAME
-    fi
+  if [ ! -z "$GOJIRA_KONG_PATH" ]; then
+    GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
+    pushd $GOJIRA_KONG_PATH
+      GOJIRA_TAG=$(git rev-parse --abbrev-ref HEAD)
+    popd
   fi
+
+  if [ -n "$PREFIX" ]; then
+    PREFIX=$PREFIX-$GOJIRA_REPO-$GOJIRA_TAG
+  else
+    PREFIX=$GOJIRA_REPO-$GOJIRA_TAG
+  fi
+
+  # Allowed docker image characters / compose container naming
+  PREFIX=$(echo $PREFIX | sed "s:[^a-zA-Z0-9_.-]:-:g")
+
+  GOJIRA_KONG_PATH=${GOJIRA_KONG_PATH:-$GOJIRA_KONGS/$PREFIX}
 }
 
 function get_envs {
@@ -114,12 +115,6 @@ function create_kong {
   popd
 }
 
-
-function get_branch {
-  pushd $GOJIRA_KONG_PATH
-    BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
-  popd
-}
 
 function rawr {
   ROARS=(
