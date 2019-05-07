@@ -7,12 +7,8 @@ DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
 KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
-LUAROCKS=${LUAROCKS:-3.0.4}
-OPENSSL=${OPENSSL:-1.1.1a}
-OPENRESTY=${OPENRESTY:-1.13.6.2}
 
 EXTRA=""
-AUTO_DEPS=1
 GOJIRA_VOLUMES=""
 GOJIRA_PORTS=""
 GOJIRA_DATABASE=${KONG_DATABASE:-postgres}
@@ -48,9 +44,6 @@ function parse_args {
       -p|--prefix)
         PREFIX=$2
         shift
-        ;;
-      --no-auto)
-        AUTO_DEPS=0
         ;;
       -pp|--port)
         GOJIRA_PORTS+=$2,
@@ -163,7 +156,6 @@ Options:
   -pp, --port           expose a port for a kong container
   --image               image to use for kong
   --volume              add a volume to kong container
-  --no-auto             do not try to read dependency versions from .travis.yml
   --cassandra           use cassandra
   --alone               do not spin up any db
   -v,  --verbose        echo every command that gets executed
@@ -205,22 +197,26 @@ function build {
     return
   fi
 
-  if [ $AUTO_DEPS -eq 1 ]; then
+
+  # No supplied dependency versions
+  if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
     # No supplied local kong path and kong prefix does not exist
     if [[ -z "$KONG_LOC_PATH" && ! -d "$KONGS/$PREFIX" ]]; then
       create_kong
     fi
+  fi
 
-    TRAVIS_YAML=$KONG_PATH/.travis.yml
-    LUAROCKS=$(yaml_find $TRAVIS_YAML LUAROCKS)
-    OPENSSL=$(yaml_find $TRAVIS_YAML OPENSSL)
-    OPENRESTY=$(yaml_find $TRAVIS_YAML OPENRESTY_BASE)
+  # Get dependencies from travis.yml unless suplied
+  local travis_yaml=$KONG_PATH/.travis.yml
+  LUAROCKS=${LUAROCKS:-$(yaml_find $travis_yaml LUAROCKS)}
+  OPENSSL=${OPENSSL:-$(yaml_find $travis_yaml OPENSSL)}
+  OPENRESTY=${OPENRESTY:-$(yaml_find $travis_yaml OPENRESTY_BASE)}
 
-    if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
-      >&2 echo "${GOJIRA}: Could not guess version dependencies in" \
-               "$TRAVIS_YAML. try using --no-auto"
-     exit 1
-    fi
+  if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
+    >&2 echo "${GOJIRA}: Could not guess version dependencies in" \
+             "$travis_yaml. Specify versions as LUAROCKS, OPENSSL and"\
+             "OPENRESTY envs"
+    exit 1
   fi
 
   GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL

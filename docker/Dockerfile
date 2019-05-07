@@ -30,9 +30,9 @@ RUN apt-get update && \
         httpie \
         libyaml-dev
 
-ARG LUAROCKS=3.0.4
-ARG OPENSSL=1.1.1a
-ARG OPENRESTY=1.13.6.2
+ARG LUAROCKS
+ARG OPENSSL
+ARG OPENRESTY
 
 ENV DOWNLOAD_CACHE=/tmp/download-cache
 ENV INSTALL_CACHE=/tmp/install-cache

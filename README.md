@@ -24,7 +24,6 @@ Options:
   -pp, --port           expose a port for a kong container
   --image               image to use for kong
   --volume              add a volume to kong container
-  --no-auto             do not try to read dependency versions from .travis.yml
   --cassandra           use cassandra
   --alone               do not spin up any db
   -v,  --verbose        echo every command that gets executed
