@@ -40,8 +40,6 @@ Commands:
                 remove it, nuke it from space. something went wrong, and you
                 want a clear start or a less buggy tool to use.
 
-  stop          stop the docker-compose thingie running in -t tag.
-
   build         build a docker image with the specified VERSIONS
 
   run           run a command on a running container
@@ -55,6 +53,8 @@ Commands:
   ps            list running prefixes
 
   ls            list stored prefixes in $GOJIRA_KONGS
+
+  snapshot      make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
 
