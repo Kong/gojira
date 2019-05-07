@@ -265,7 +265,7 @@ main() {
 
   case $ACTION in
   up)
-    build
+    build || exit 1
     # kong path does not exist. This means we are upping a build that came
     # with no auto deps, most probably
     if [[ ! -d "$KONG_PATH" ]]; then create_kong; fi
