@@ -22,6 +22,7 @@ Options:
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
   -pp, --port           expose a port for a kong container
+  --repo                use another kong repo
   --image               image to use for kong
   --volume              add a volume to kong container
   --cassandra           use cassandra
