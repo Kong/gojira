@@ -21,6 +21,7 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
+  -f,  --file           execute file instead of arg commands on gojira run
   -pp, --port           expose a port for a kong container
   --repo                use another kong repo
   --image               image to use for kong
