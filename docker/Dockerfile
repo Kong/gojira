@@ -24,19 +24,27 @@ RUN apt-get update && \
         libpcre3-dev \
         libyaml-dev
 
+# LuaRocks - OpenSSL - OpenResty
 ARG LUAROCKS
 ARG OPENSSL
 ARG OPENRESTY
+ARG BUILD_TOOLS=master
 
-ENV DOWNLOAD_CACHE=/build/download-cache
-ENV INSTALL_CACHE=/build/install-cache
+ENV BUILD_PREFIX=/build
+ENV BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/openresty-build-tools
 
-ENV OPENSSL_INSTALL=${INSTALL_CACHE}/openssl-$OPENSSL
-ENV OPENRESTY_INSTALL=${INSTALL_CACHE}/openresty-$OPENRESTY
-ENV LUAROCKS_INSTALL=${INSTALL_CACHE}/luarocks-$LUAROCKS
+ENV OPENSSL_INSTALL=${BUILD_PREFIX}/openssl
+ENV OPENRESTY_INSTALL=${BUILD_PREFIX}/openresty
+ENV LUAROCKS_INSTALL=${BUILD_PREFIX}/luarocks
 
-ADD setup_env.sh .
-RUN bash -x setup_env.sh
+RUN mkdir -p ${BUILD_TOOLS_INSTALL}
+RUN curl -sSL https://github.com/kong/openresty-build-tools/archive/${BUILD_TOOLS}.tar.gz \
+                | tar -v -C ${BUILD_TOOLS_INSTALL} -xz --strip-components=1
+RUN ${BUILD_TOOLS_INSTALL}/kong-ngx-build --prefix    ${BUILD_PREFIX} \
+                                          --openresty ${OPENRESTY} \
+                                          --openssl   ${OPENSSL} \
+                                          --luarocks  ${LUAROCKS} \
+                                          --no-openresty-patches
 
 ENV OPENSSL_DIR=${OPENSSL_INSTALL}
 ENV OPENSSL_LIBDIR=${OPENSSL_INSTALL}
