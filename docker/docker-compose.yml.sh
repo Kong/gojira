@@ -25,7 +25,7 @@ fi
 
 cat << EOF
     volumes:
-      - ${KONG_PATH:-./kong}:/kong
+      - ${GOJIRA_KONG_PATH}:${KONG_PATH:-/kong}
 EOF
 
 for volume in $(echo $GOJIRA_VOLUMES | tr "," " "); do
@@ -42,21 +42,22 @@ EOF
 fi
 cat << EOF
     environment:
-      KONG_PREFIX: /kong/servroot
+      KONG_PREFIX: ${KONG_PREFIX:-/kong/servroot}
       KONG_PLUGINS: ${KONG_PLUGINS:-bundled}
-      KONG_PATH: /kong
-      KONG_PLUGIN_PATH: /kong-plugin
-      KONG_ADMIN_LISTEN: '0.0.0.0:8001'
+      KONG_CUSTOM_PLUGINS: ${KONG_CUSTOM_PLUGINS}
+      KONG_PATH: ${KONG_PATH:-/kong}
+      KONG_PLUGIN_PATH: ${KONG_PLUGIN_PATH:-/kong-plugin}
+      KONG_ADMIN_LISTEN: ${KONG_ADMIN_LISTEN:-0.0.0.0:8001}
       KONG_DATABASE: ${GOJIRA_DATABASE:-$KONG_DATABASE}
       KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
-      KONG_PG_HOST: db
+      KONG_PG_HOST: ${KONG_PG_HOST:-db}
       KONG_PG_USER: ${KONG_PG_USER:-kong}
-      KONG_ANONYMOUS_REPORTS: "false"
-      KONG_CASSANDRA_CONTACT_POINTS: db
+      KONG_ANONYMOUS_REPORTS: "${KONG_ANONYMOUS_REPORTS:-false}"
+      KONG_CASSANDRA_CONTACT_POINTS: ${KONG_CASSANDRA_CONTACT_POINTS:-db}
       KONG_TEST_DATABASE: ${GOJIRA_DATABASE:-$KONG_DATABASE}
-      KONG_TEST_PG_HOST: db
+      KONG_TEST_PG_HOST: ${KONG_TEST_PG_HOST:-db}
       KONG_TEST_PG_DATABASE: ${KONG_TEST_PG_DATABASE:-kong_tests}
-      KONG_TEST_CASSANDRA_CONTACT_POINTS: db
+      KONG_TEST_CASSANDRA_CONTACT_POINTS: ${KONG_TEST_CASSANDRA_CONTACT_POINTS:-db}
 
     restart: on-failure
     networks:

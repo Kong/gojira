@@ -6,17 +6,19 @@ DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
-KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
+# Defaults
+GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
+GOJIRA_DATABASE=postgres
+GOJIRA_REPO=kong
+GOJIRA_TAG=master
 
-EXTRA=""
+EXTRA_ARGS=""
 GOJIRA_VOLUMES=""
 GOJIRA_PORTS=""
-GOJIRA_DATABASE=${KONG_DATABASE:-postgres}
 
 unset PREFIX
-unset KONG_TAG
-unset KONG_PATH
-unset KONG_LOC_PATH
+unset GOJIRA_KONG_PATH
+unset GOJIRA_LOC_PATH
 
 
 function parse_args {
@@ -33,12 +35,12 @@ function parse_args {
         usage
         ;;
       -k|--kong)
-        KONG_PATH=$2
-        KONG_LOC_PATH=1
+        GOJIRA_KONG_PATH=$2
+        GOJIRA_LOC_PATH=1
         shift
         ;;
       -t|--tag)
-        KONG_TAG=$2
+        GOJIRA_TAG=$2
         shift
         ;;
       -p|--prefix)
@@ -68,20 +70,20 @@ function parse_args {
         shift
         ;;
       *)
-        EXTRA="$EXTRA $1"
+        EXTRA_ARGS+="$1 "
         ;;
     esac
     shift
   done
 
-  if [ -z "$KONG_PATH" ]; then
-    KONG_TAG=${KONG_TAG:-master}
+  if [ -z "$GOJIRA_KONG_PATH" ]; then
+    GOJIRA_TAG=${GOJIRA_TAG:-master}
     if [ -n "$PREFIX" ]; then
-      PREFIX=$PREFIX-$KONG_TAG
+      PREFIX=$PREFIX-$GOJIRA_TAG
     else
-      PREFIX=$KONG_TAG
+      PREFIX=$GOJIRA_TAG
     fi
-    KONG_PATH=$KONGS/$PREFIX
+    GOJIRA_KONG_PATH=$GOJIRA_KONGS/$PREFIX
   else
     get_branch
     if [ -n "$PREFIX" ]; then
@@ -95,7 +97,7 @@ function parse_args {
 function get_envs {
   # Maybe there's a better way. Plz tell
   printf "export GOJIRA_IMAGE=$GOJIRA_IMAGE "
-  printf        "KONG_PATH=$KONG_PATH "
+  printf        "GOJIRA_KONG_PATH=$GOJIRA_KONG_PATH "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
   printf        "GOJIRA_PORTS=$GOJIRA_PORTS "
   printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
@@ -106,15 +108,15 @@ function get_envs {
 
 
 function create_kong {
-  mkdir -p $KONGS
-  pushd $KONGS
-    git clone -b ${KONG_TAG} git@github.com:Kong/kong.git $PREFIX || exit
+  mkdir -p $GOJIRA_KONGS
+  pushd $GOJIRA_KONGS
+    git clone -b ${GOJIRA_TAG} git@github.com:kong/$GOJIRA_REPO.git $PREFIX || exit
   popd
 }
 
 
 function get_branch {
-  pushd $KONG_PATH
+  pushd $GOJIRA_KONG_PATH
     BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
   popd
 }
@@ -207,7 +209,7 @@ function build {
   fi
 
   # Get dependencies from travis.yml unless suplied
-  local travis_yaml=$KONG_PATH/.travis.yml
+  local travis_yaml=$GOJIRA_KONG_PATH/.travis.yml
   LUAROCKS=${LUAROCKS:-$(yaml_find $travis_yaml LUAROCKS)}
   OPENSSL=${OPENSSL:-$(yaml_find $travis_yaml OPENSSL)}
   OPENRESTY=${OPENRESTY:-$(yaml_find $travis_yaml OPENRESTY_BASE)}
@@ -264,7 +266,7 @@ main() {
     build || exit 1
     # kong path does not exist. This means we are upping a build that came
     # with no auto deps, most probably
-    if [[ ! -d "$KONG_PATH" ]]; then create_kong; fi
+    if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
     p_compose up -d
     ;;
   down)
@@ -281,17 +283,17 @@ main() {
     build
     ;;
   cd)
-    echo $KONG_PATH
-    cd $KONG_PATH
+    echo $GOJIRA_KONG_PATH
+    cd $GOJIRA_KONG_PATH
     ;;
   -h|--help|help)
     usage
     ;;
   run)
-    p_compose exec kong bash -l -i -c "$EXTRA"
+    p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
     ;;
   images)
-    docker images --filter=reference='gojira*' $EXTRA
+    docker images --filter=reference='gojira*' $EXTRA_ARGS
     ;;
   ps)
     PREFIXES=$(
@@ -300,14 +302,14 @@ main() {
       | uniq
     )
     for pref in $PREFIXES; do
-      compose -p $pref ps $EXTRA
+      compose -p $pref ps $EXTRA_ARGS
     done
     ;;
   ls)
-    ls -1 $EXTRA $KONGS
+    ls -1 $EXTRA_ARGS $GOJIRA_KONGS
     ;;
   compose)
-    p_compose $EXTRA
+    p_compose $EXTRA_ARGS
     ;;
   debug)
     >&2 build
