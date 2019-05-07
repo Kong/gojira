@@ -211,7 +211,7 @@ function build {
   # No supplied dependency versions
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
     # No supplied local kong path and kong prefix does not exist
-    if [[ -z "$KONG_LOC_PATH" && ! -d "$KONGS/$PREFIX" ]]; then
+    if [[ -z "$KONG_LOC_PATH" && ! -d "$GOJIRA_KONGS/$PREFIX" ]]; then
       create_kong
     fi
   fi
