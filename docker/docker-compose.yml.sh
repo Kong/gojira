@@ -7,7 +7,7 @@ services:
     # Purposeful empty image as default. If no KONG_IMAGE is set up at the
     # right context, we did something wrong. There are acceptable cases
     # where image is not needed (compose down, kill, etc)
-    image: ${KONG_IMAGE:-scratch}
+    image: ${GOJIRA_IMAGE:-scratch}
     user: root
     command: "tail -f /dev/null"
 EOF

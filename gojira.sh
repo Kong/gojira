@@ -71,7 +71,7 @@ function parse_args {
         GOJIRA_DATABASE=
         ;;
       --image)
-        KONG_IMAGE=$2
+        GOJIRA_IMAGE=$2
         shift
         ;;
       *)
@@ -101,7 +101,7 @@ function parse_args {
 
 function get_envs {
   # Maybe there's a better way. Plz tell
-  printf "export KONG_IMAGE=$KONG_IMAGE "
+  printf "export GOJIRA_IMAGE=$GOJIRA_IMAGE "
   printf        "KONG_PATH=$KONG_PATH "
   printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
   printf        "GOJIRA_PORTS=$GOJIRA_PORTS "
@@ -201,7 +201,7 @@ EOF
 
 
 function build {
-  if [[ ! -z $KONG_IMAGE ]]; then
+  if [[ ! -z $GOJIRA_IMAGE ]]; then
     return
   fi
 
@@ -223,8 +223,7 @@ function build {
     fi
   fi
 
-  IMAGE_NAME=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
-  KONG_IMAGE=$IMAGE_NAME
+  GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
 
   BUILD_ARGS=(
     "--build-arg LUAROCKS=$LUAROCKS"
@@ -232,7 +231,7 @@ function build {
     "--build-arg OPENRESTY=$OPENRESTY"
   )
 
-  >&2 echo "Building $IMAGE_NAME"
+  >&2 echo "Building $GOJIRA_IMAGE"
   >&2 echo ""
   >&2 echo "       Version info"
   >&2 echo "=========================="
@@ -242,7 +241,7 @@ function build {
   >&2 echo "=========================="
   >&2 echo ""
 
-  docker build -f $DOCKER_FILE -t $IMAGE_NAME ${BUILD_ARGS[*]} $DOCKER_PATH
+  docker build -f $DOCKER_FILE -t $GOJIRA_IMAGE ${BUILD_ARGS[*]} $DOCKER_PATH
 }
 
 
