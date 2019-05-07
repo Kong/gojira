@@ -131,6 +131,7 @@ function rawr {
   ROARS=(
     "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
     "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
+    "\e[38;5;206m love ❤  \e[0m"
   )
   echo -e ${ROARS[$RANDOM % ${#ROARS[@]}]}
 }
