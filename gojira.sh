@@ -20,6 +20,7 @@ unset PREFIX
 unset GOJIRA_KONG_PATH
 unset GOJIRA_LOC_PATH
 unset GOJIRA_RUN_FILE
+unset GOJIRA_SNAPSHOT
 
 
 function parse_args {
@@ -102,6 +103,7 @@ function parse_args {
   PREFIX=$(echo $PREFIX | sed "s:[^a-zA-Z0-9_.-]:-:g")
 
   GOJIRA_KONG_PATH=${GOJIRA_KONG_PATH:-$GOJIRA_KONGS/$PREFIX}
+  GOJIRA_SNAPSHOT=gojira:${EXTRA_ARGS:-$PREFIX}
 }
 
 function get_envs {
@@ -191,6 +193,8 @@ Commands:
   ps            list running prefixes
 
   ls            list stored prefixes in \$GOJIRA_KONGS
+
+  snapshot      make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
 
@@ -319,6 +323,22 @@ main() {
   debug)
     >&2 build
     cat <($(get_envs) ; $COMPOSE_FILE)
+    ;;
+  snapshot)
+    local cmd='cat /proc/self/cgroup | head -1 | sed "s/.*docker\///"'
+    local c_id=$(p_compose exec kong bash -l -i -c "$cmd" | tr -d '\r')
+    docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
+    >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
+    ;;
+  snapshot\?)
+    local has_image=$(docker images "--filter=reference=$GOJIRA_SNAPSHOT" -q)
+    if [[ -z $has_image ]]; then
+      exit 1
+    fi
+    echo $GOJIRA_SNAPSHOT
+    ;;
+  snapshot\!)
+    docker rmi $GOJIRA_SNAPSHOT || exit 1
     ;;
   *)
     usage
