@@ -178,8 +178,6 @@ Commands:
                 remove it, nuke it from space. something went wrong, and you
                 want a clear start or a less buggy tool to use.
 
-  stop          stop the docker-compose thingie running in -t tag.
-
   build         build a docker image with the specified VERSIONS
 
   run           run a command on a running container
@@ -278,9 +276,6 @@ main() {
   down)
     p_compose kill
     p_compose down
-    ;;
-  stop)
-    p_compose stop
     ;;
   shell)
     p_compose exec kong bash -l -i
