@@ -281,7 +281,7 @@ main() {
     ;;
   down)
     p_compose kill
-    p_compose down
+    p_compose down -v
     ;;
   shell)
     p_compose exec kong bash -l -i
