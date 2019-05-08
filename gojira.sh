@@ -321,10 +321,6 @@ main() {
   compose)
     p_compose $EXTRA_ARGS
     ;;
-  debug)
-    >&2 build
-    cat <($(get_envs) ; $COMPOSE_FILE)
-    ;;
   snapshot)
     local cmd='cat /proc/self/cgroup | head -1 | sed "s/.*docker\///"'
     local c_id=$(p_compose exec kong bash -l -i -c "$cmd" | tr -d '\r')
