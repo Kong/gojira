@@ -52,5 +52,6 @@ ENV PATH=${OPENSSL_INSTALL}/bin:$PATH
 ENV LD_LIBRARY_PATH=${OPENSSL_INSTALL}/lib:${LD_LIBRARY_PATH}
 
 COPY bashrc /root/.bashrc
+COPY follow-log.sh /bin/follow-kong-log
 
 WORKDIR /kong

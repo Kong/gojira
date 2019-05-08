@@ -9,7 +9,7 @@ services:
     # where image is not needed (compose down, kill, etc)
     image: ${GOJIRA_IMAGE:-scratch}
     user: root
-    command: "tail -f /dev/null"
+    command: "follow-kong-log"
 EOF
 
 if [[ ! -z $GOJIRA_PORTS ]]; then
