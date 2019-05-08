@@ -19,7 +19,6 @@ GOJIRA_PORTS=""
 unset PREFIX
 unset GOJIRA_KONG_PATH
 unset GOJIRA_LOC_PATH
-unset GOJIRA_RUN_FILE
 unset GOJIRA_SNAPSHOT
 
 
@@ -75,8 +74,8 @@ function parse_args {
         GOJIRA_REPO=$2
         shift
         ;;
-      -f|--file)
-        GOJIRA_RUN_FILE=$2
+      -)
+        EXTRA_ARGS+="$(cat $2) "
         shift
         ;;
       *)
@@ -162,7 +161,6 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
-  -f,  --file           execute file instead of arg commands on gojira run
   -pp, --port           expose a port for a kong container
   --repo                use another kong repo
   --image               image to use for kong
@@ -299,11 +297,7 @@ main() {
     usage
     ;;
   run)
-    if [[ -z $GOJIRA_RUN_FILE ]]; then
-      p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
-    else
-      p_compose exec kong bash -l -i -c "$(cat $GOJIRA_RUN_FILE)"
-    fi
+    p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
