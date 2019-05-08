@@ -122,7 +122,7 @@ function get_envs {
 function create_kong {
   mkdir -p $GOJIRA_KONGS
   pushd $GOJIRA_KONGS
-    git clone -b ${GOJIRA_TAG} git@github.com:kong/$GOJIRA_REPO.git $PREFIX || exit
+    git clone -b ${GOJIRA_TAG} https://github.com/kong/$GOJIRA_REPO.git $PREFIX || exit
   popd
 }
 
