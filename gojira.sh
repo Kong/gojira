@@ -344,6 +344,11 @@ main() {
   snapshot\!)
     docker rmi $GOJIRA_SNAPSHOT || exit 1
     ;;
+  logs)
+    # Once we use getopts / fix argument hijacking, we can remove this action
+    # for gojira compose logs ...
+    p_compose logs -f $EXTRA_ARGS
+    ;;
   *)
     usage
     ;;
