@@ -202,13 +202,7 @@ Commands:
 EOF
 }
 
-
-function build {
-  if [[ ! -z $GOJIRA_IMAGE ]]; then
-    return
-  fi
-
-
+function image_name {
   # No supplied dependency versions
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
     # No supplied local kong path and kong prefix does not exist
@@ -231,6 +225,15 @@ function build {
   fi
 
   GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
+}
+
+
+function build {
+  if [[ ! -z $GOJIRA_IMAGE ]]; then
+    return
+  fi
+
+  image_name
 
   BUILD_ARGS=(
     "--build-arg LUAROCKS=$LUAROCKS"
@@ -305,6 +308,10 @@ main() {
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
     ;;
+  image)
+    image_name 2> /dev/null
+    echo $GOJIRA_IMAGE
+    ;;
   ps)
     PREFIXES=$(
       docker ps --filter "label=com.docker.compose.project" -q \
@@ -342,5 +349,8 @@ main() {
     ;;
   esac
 }
+
+pushd() { builtin pushd $1 > /dev/null; }
+popd() { builtin popd > /dev/null; }
 
 main $*
