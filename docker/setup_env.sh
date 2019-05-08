@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# Number of processors or JOBS env
+NPROC=${JOBS:-$(nproc)}
+
 # Blatantly stolen from kong-ci
 # Add here as many hacks as needed to get certain versions installed
 
@@ -26,7 +29,9 @@ if [ ! "$(ls -A $OPENRESTY_DOWNLOAD)" ]; then
 fi
 
 if [ ! "$(ls -A $LUAROCKS_DOWNLOAD)" ]; then
-  git clone -q https://github.com/keplerproject/luarocks.git $LUAROCKS_DOWNLOAD
+  pushd $DOWNLOAD_CACHE
+    curl -s -S -L https://github.com/luarocks/luarocks/archive/v$LUAROCKS.tar.gz | tar xz
+  popd
 fi
 
 #--------
@@ -61,28 +66,22 @@ if [ ! "$(ls -A $OPENRESTY_INSTALL)" ]; then
 
   pushd $OPENRESTY_DOWNLOAD
     eval ./configure ${OPENRESTY_OPTS[*]} &> build.log || (cat build.log && exit 1)
-    make &> build.log || (cat build.log && exit 1)
+    make -j$NPROC &> build.log || (cat build.log && exit 1)
     make install &> build.log || (cat build.log && exit 1)
   popd
 fi
 
 if [ ! "$(ls -A $LUAROCKS_INSTALL)" ]; then
   pushd $LUAROCKS_DOWNLOAD
-    git checkout -q v$LUAROCKS
     ./configure \
       --prefix=$LUAROCKS_INSTALL \
       --lua-suffix=jit \
       --with-lua=$OPENRESTY_INSTALL/luajit \
       --with-lua-include=$OPENRESTY_INSTALL/luajit/include/luajit-2.1 \
       &> build.log || (cat build.log && exit 1)
-    make build &> build.log || (cat build.log && exit 1)
+    make build -j$NPROC &> build.log || (cat build.log && exit 1)
     make install &> build.log || (cat build.log && exit 1)
   popd
 fi
-
-export OPENSSL_DIR=$OPENSSL_INSTALL # for LuaSec install
-
-export PATH=$PATH:$OPENRESTY_INSTALL/nginx/sbin:$OPENRESTY_INSTALL/bin:$LUAROCKS_INSTALL/bin
-export LD_LIBRARY_PATH=$OPENSSL_INSTALL/lib:$LD_LIBRARY_PATH # for openssl's CLI invoked in the test suite
 
 set +e
