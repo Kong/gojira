@@ -314,6 +314,18 @@ main() {
     image_name 2> /dev/null
     echo $GOJIRA_IMAGE
     ;;
+  image\?)
+    image_name 2> /dev/null
+    local has_image=$(docker images "--filter=reference=$GOJIRA_IMAGE" -q)
+    if [[ -z $has_image ]]; then
+      exit 1
+    fi
+    echo $GOJIRA_IMAGE
+    ;;
+  image\!)
+    image_name 2> /dev/null
+    docker rmi $GOJIRA_IMAGE || exit 1
+    ;;
   ps)
     PREFIXES=$(
       docker ps --filter "label=com.docker.compose.project" -q \
