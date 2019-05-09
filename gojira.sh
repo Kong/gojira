@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 GOJIRA=$(basename $0)
+GOJIRA_VERSION=0.1.0
 GOJIRA_PATH=$(dirname $(realpath $0))
 DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
@@ -352,6 +353,9 @@ main() {
     ;;
   roar)
     echo; roar; echo
+    ;;
+  version)
+    echo $GOJIRA $GOJIRA_VERSION
     ;;
   *)
     usage
