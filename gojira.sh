@@ -299,7 +299,7 @@ main() {
     ;;
   cd)
     echo $GOJIRA_KONG_PATH
-    cd $GOJIRA_KONG_PATH
+    cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
   -h|--help|help)
     usage
