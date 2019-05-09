@@ -37,7 +37,7 @@ function parse_args {
         usage
         ;;
       -k|--kong)
-        GOJIRA_KONG_PATH=$2
+        GOJIRA_KONG_PATH=$(realpath $2)
         GOJIRA_LOC_PATH=1
         shift
         ;;
