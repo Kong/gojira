@@ -130,15 +130,14 @@ function rawr {
   ROARS=(
     "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
     "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
-    "\e[38;5;206m love ❤  \e[0m"
+    "\e[38;5;206m❤ \e[0m" "ゴジラ"
   )
   echo -e ${ROARS[$RANDOM % ${#ROARS[@]}]}
 }
 
 
-function usage {
+function roar {
 cat << EOF
-
                             _,-}}-._
                            /\   }  /\\
                           _|(O\\_ _/O)
@@ -151,6 +150,14 @@ cat << EOF
             (  '-,._\_.(      'VVV /
              \         /   _) /   _)
               '....--''\__vvv)\__vvv)      ldb
+EOF
+}
+
+
+function usage {
+cat << EOF
+
+$(roar)
 
                       Gojira (Godzilla)
 
@@ -342,6 +349,9 @@ main() {
     # Once we use getopts / fix argument hijacking, we can remove this action
     # for gojira compose logs ...
     p_compose logs -f $EXTRA_ARGS
+    ;;
+  roar)
+    echo; roar; echo
     ;;
   *)
     usage
