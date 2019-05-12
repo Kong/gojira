@@ -27,6 +27,7 @@ Options:
   --volume              add a volume to kong container
   --cassandra           use cassandra
   --alone               do not spin up any db
+  --host                specify hostname for kong container
   -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -47,6 +48,8 @@ Commands:
 
   cd            cd into a kong prefix repo
 
+  image         show current gojira image
+
   images        list gojira images
 
   ps            list running prefixes
@@ -56,6 +59,10 @@ Commands:
   snapshot      make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
+
+  roar          make gojira go all gawo wowo
+
+  logs          follow container logs
 
 ```
 
