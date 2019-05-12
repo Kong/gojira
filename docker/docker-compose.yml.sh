@@ -12,6 +12,12 @@ services:
     command: "follow-kong-log"
 EOF
 
+if [[ ! -z $GOJIRA_HOSTNAME ]]; then
+cat << EOF
+    hostname: ${GOJIRA_HOSTNAME}
+EOF
+fi
+
 if [[ ! -z $GOJIRA_PORTS ]]; then
 cat << EOF
     ports:
@@ -61,8 +67,15 @@ cat << EOF
 
     restart: on-failure
     networks:
-      - gojira
+      gojira:
 EOF
+
+if [[ ! -z $GOJIRA_HOSTNAME ]]; then
+cat << EOF
+        aliases:
+          - ${GOJIRA_HOSTNAME}
+EOF
+fi
 
 if [[ $GOJIRA_DATABASE == "postgres" ]]; then
 cat << EOF
@@ -81,6 +94,8 @@ cat << EOF
     restart: on-failure
     stdin_open: true
     tty: true
+    networks:
+      - gojira
 EOF
 elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
 cat << EOF
@@ -95,12 +110,12 @@ cat << EOF
       timeout: 10s
       retries: 10
     restart: on-failure
+    networks:
+      - gojira
 EOF
 fi
 
 cat << EOF
-    networks:
-      - gojira
 
 networks:
   gojira:

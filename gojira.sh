@@ -21,6 +21,7 @@ unset PREFIX
 unset GOJIRA_KONG_PATH
 unset GOJIRA_LOC_PATH
 unset GOJIRA_SNAPSHOT
+unset GOJIRA_HOSTNAME
 
 
 function parse_args {
@@ -71,6 +72,10 @@ function parse_args {
         GOJIRA_IMAGE=$2
         shift
         ;;
+      --host)
+        GOJIRA_HOSTNAME=$2
+        shift
+        ;;
       -r|--repo)
         GOJIRA_REPO=$2
         shift
@@ -107,15 +112,14 @@ function parse_args {
 }
 
 function get_envs {
-  # Maybe there's a better way. Plz tell
-  printf "export GOJIRA_IMAGE=$GOJIRA_IMAGE "
-  printf        "GOJIRA_KONG_PATH=$GOJIRA_KONG_PATH "
-  printf        "GOJIRA_NETWORK=$GOJIRA_NETWORK "
-  printf        "GOJIRA_PORTS=$GOJIRA_PORTS "
-  printf        "GOJIRA_VOLUMES=$GOJIRA_VOLUMES "
-  printf        "GOJIRA_DATABASE=$GOJIRA_DATABASE "
-  printf        "DOCKER_CTX=$DOCKER_PATH "
-  printf        "\n"
+  export GOJIRA_IMAGE
+  export GOJIRA_KONG_PATH
+  export GOJIRA_NETWORK
+  export GOJIRA_PORTS
+  export GOJIRA_VOLUMES
+  export GOJIRA_DATABASE
+  export DOCKER_CTX=$DOCKER_PATH
+  export GOJIRA_HOSTNAME
 }
 
 
@@ -267,12 +271,14 @@ function yaml_find {
 
 
 function p_compose {
-  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) -p $PREFIX "$@"
+  get_envs
+  docker-compose -f <($COMPOSE_FILE) -p $PREFIX "$@"
 }
 
 
 function compose {
-  docker-compose -f <($(get_envs) ; $COMPOSE_FILE) "$@"
+  get_envs
+  docker-compose -f <($COMPOSE_FILE) "$@"
 }
 
 
@@ -298,6 +304,7 @@ main() {
     build
     ;;
   cd)
+    if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
     echo $GOJIRA_KONG_PATH
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
@@ -340,6 +347,7 @@ main() {
     ls -1 $EXTRA_ARGS $GOJIRA_KONGS
     ;;
   compose)
+    get_envs
     p_compose $EXTRA_ARGS
     ;;
   snapshot)
