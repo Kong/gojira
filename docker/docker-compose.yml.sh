@@ -34,6 +34,7 @@ fi
 cat << EOF
     volumes:
       - ${GOJIRA_KONG_PATH}:${KONG_PATH:-/kong}
+      - ${GOJIRA_HOME}/:/root/
 EOF
 
 for volume in $(echo $GOJIRA_VOLUMES | tr "," " "); do

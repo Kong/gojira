@@ -9,6 +9,7 @@ COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
 # Defaults
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
+GOJIRA_HOME=${GOJIRA_HOME:-$GOJIRA_KONGS/.gojira-home/}
 GOJIRA_DATABASE=postgres
 GOJIRA_REPO=kong
 GOJIRA_TAG=master
@@ -136,11 +137,14 @@ function get_envs {
   export GOJIRA_DATABASE
   export DOCKER_CTX=$DOCKER_PATH
   export GOJIRA_HOSTNAME
+  export GOJIRA_HOME
 }
 
 
 function create_kong {
   mkdir -p $GOJIRA_KONGS
+  [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
+
   pushd $GOJIRA_KONGS
     local $remote
     if [[ "$GOJIRA_GIT_HTTPS" = 1 ]]; then
