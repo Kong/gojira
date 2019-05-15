@@ -12,6 +12,7 @@ GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 GOJIRA_DATABASE=postgres
 GOJIRA_REPO=kong
 GOJIRA_TAG=master
+GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 
 EXTRA_ARGS=""
 GOJIRA_VOLUMES=""
@@ -80,6 +81,9 @@ function parse_args {
         GOJIRA_REPO=$2
         shift
         ;;
+      --git-https)
+        GOJIRA_GIT_HTTPS=1
+        ;;
       -)
         EXTRA_ARGS+="$(cat $2) "
         shift
@@ -126,7 +130,13 @@ function get_envs {
 function create_kong {
   mkdir -p $GOJIRA_KONGS
   pushd $GOJIRA_KONGS
-    git clone -b ${GOJIRA_TAG} https://github.com/kong/$GOJIRA_REPO.git $PREFIX || exit
+    local $remote
+    if [[ "$GOJIRA_GIT_HTTPS" = 1 ]]; then
+      remote="https://github.com/kong"
+    else
+      remote="git@github.com:kong"
+    fi
+    git clone -b ${GOJIRA_TAG} $remote/$GOJIRA_REPO.git $PREFIX || exit
   popd
 }
 
