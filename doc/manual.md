@@ -31,10 +31,19 @@
 
 - `gojira up -t 0.34-1 --image bintray.....`
 
-### store an image in the current state
+### store an image with the state of the current kong service container
 
 - `gojira up -t master`
 - `gojira run apt-get install iputils-ping -t master`
 - `gojira snapshot -t master`
 - `gojira up -t branch --image $snapshot_hash_or_id`
 - `gojira run ping db`
+
+### fallback to docker-compose
+
+- `gojira compose config  # useful for debugging`
+
+Note that `gojira compose run X` and `gojira run X` mean different
+things as docker-compose run will spawn a new container and gojira
+will effectively exec into kong service. More or less:
+`gojira compose exec kong top` == `gojira run top`
