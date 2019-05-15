@@ -28,6 +28,7 @@ RUN apt-get update && \
     apt-get install -y  \
         jq \
         httpie \
+        iputils-ping  \
         libyaml-dev
 
 ARG LUAROCKS
