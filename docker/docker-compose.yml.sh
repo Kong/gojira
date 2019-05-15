@@ -46,6 +46,7 @@ if [[ ! -z $GOJIRA_DATABASE ]]; then
 cat << EOF
     depends_on:
       - db
+      - redis
 EOF
 fi
 cat << EOF
@@ -66,6 +67,7 @@ cat << EOF
       KONG_TEST_PG_HOST: ${KONG_TEST_PG_HOST:-db}
       KONG_TEST_PG_DATABASE: ${KONG_TEST_PG_DATABASE:-kong_tests}
       KONG_TEST_CASSANDRA_CONTACT_POINTS: ${KONG_TEST_CASSANDRA_CONTACT_POINTS:-db}
+      KONG_REDIS_HOST: ${KONG_REDIS_HOST:-redis}
 
     restart: on-failure
     networks:
@@ -118,6 +120,21 @@ EOF
     restart: on-failure
 EOF
   fi
+fi
+
+if [[ ! -z $GOJIRA_DATABASE ]]; then # --alone means alone
+cat << EOF
+  redis:
+    image: redis:5.0.4-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: on-failure
+    networks:
+      - gojira
+EOF
 fi
 
 cat << EOF
