@@ -19,7 +19,7 @@
 | term1                                            | term2                                                                                                                       |
 |--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | `gojira up -t 0.34-1 -n network1`                | `gojira up -t master -n network1 --alone`                                                                                   |
-| `gojira run make dev -t 0.34-1 -n network1`      | `gojira make dev -t master -n network1 --alone`                                                                             |
+| `gojira run make dev -t 0.34-1 -n network1`      | `gojira run make dev -t master -n network1 --alone`                                                                             |
 |                                                  | `gojira run bin/kong migrations bootstrap -t master -n network1`                                                            |
 | `gojira run bin/kong start -t 0.34-1`            | `gojira run bin/kong start -t master`                                                                                       |
 |                                                  | `gojira shell -t master`                                                                                                    |
