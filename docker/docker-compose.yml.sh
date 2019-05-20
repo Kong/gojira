@@ -134,6 +134,8 @@ cat << EOF
     restart: on-failure
     networks:
       - gojira
+    labels:
+      com.konghq.gojira: True
 EOF
 fi
 
