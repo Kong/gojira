@@ -88,7 +88,8 @@ use [kong-build-tools].
 
 ```
 git clone git@github.com:Kong/kong-gojira.git
-ln -s kong-gojira/gojira.sh ~/.local/bin/gojira
+mkdir -p ~/.local/bin
+ln -s $(realpath kong-gojira/gojira.sh) ~/.local/bin/gojira
 ```
 
 ### Additional for OS X
