@@ -86,7 +86,13 @@ use [kong-build-tools].
 
 ## Installation
 
+gojira depends on docker (18.09.02) and docker-compose (1.23.2). As usual, the
+most recent, the better.
+
+> Note you need `~/.local/bin` on your `$PATH`.
+
 ```
+PATH=$PATH:~/.local/bin
 git clone git@github.com:Kong/kong-gojira.git
 mkdir -p ~/.local/bin
 ln -s $(realpath kong-gojira/gojira.sh) ~/.local/bin/gojira
