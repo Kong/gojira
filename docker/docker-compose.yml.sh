@@ -10,6 +10,8 @@ services:
     image: ${GOJIRA_IMAGE:-scratch}
     user: root
     command: "follow-kong-log"
+    labels:
+      com.konghq.gojira: True
 EOF
 
 if [[ ! -z $GOJIRA_HOSTNAME ]]; then
@@ -77,9 +79,16 @@ cat << EOF
 EOF
 fi
 
-if [[ $GOJIRA_DATABASE == "postgres" ]]; then
+if [[ ! -z $GOJIRA_DATABASE ]]; then
 cat << EOF
   db:
+    networks:
+      - gojira
+    labels:
+      com.konghq.gojira: True
+EOF
+  if [[ $GOJIRA_DATABASE == "postgres" ]]; then
+    cat << EOF
     image: postgres:${POSTGRES:-9.5}
     volumes:
       - ${DOCKER_CTX}/pg-entrypoint:/docker-entrypoint-initdb.d
@@ -94,12 +103,9 @@ cat << EOF
     restart: on-failure
     stdin_open: true
     tty: true
-    networks:
-      - gojira
 EOF
-elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
-cat << EOF
-  db:
+  elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
+    cat << EOF
     image: cassandra:${CASSANDRA:-3.9}
     environment:
       MAX_HEAP_SIZE: 256M
@@ -110,9 +116,8 @@ cat << EOF
       timeout: 10s
       retries: 10
     restart: on-failure
-    networks:
-      - gojira
 EOF
+  fi
 fi
 
 cat << EOF

@@ -351,14 +351,7 @@ main() {
     docker rmi $GOJIRA_IMAGE || exit 1
     ;;
   ps)
-    PREFIXES=$(
-      docker ps --filter "label=com.docker.compose.project" -q \
-      | xargs docker inspect --format='{{index .Config.Labels "com.docker.compose.project"}}' \
-      | uniq
-    )
-    for pref in $PREFIXES; do
-      compose -p $pref ps $EXTRA_ARGS
-    done
+    docker ps --filter "label=com.konghq.gojira" $EXTRA_ARGS
     ;;
   ls)
     ls -1 $EXTRA_ARGS $GOJIRA_KONGS
