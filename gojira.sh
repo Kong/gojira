@@ -88,12 +88,19 @@ function parse_args {
         EXTRA_ARGS+="$(cat $2) "
         shift
         ;;
+      --)
+        shift
+        EXTRA_ARGS+="$@ "
+        break
+        ;;
       *)
         EXTRA_ARGS+="$1 "
         ;;
     esac
     shift
   done
+
+  eval set -- "$EXTRA_ARGS"
 
   if [ ! -z "$GOJIRA_KONG_PATH" ]; then
     GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
