@@ -1,5 +1,14 @@
 #!/bin/bash
 
+pg_conf_file=/var/lib/postgresql/data/postgresql.conf
+
+echo "\
+log_statement = 'all'
+log_disconnections = on
+log_duration = on
+log_min_duration_statement = -1
+" >>$pg_conf_file
+
 for database in $(echo $POSTGRES_DBS | tr ',' ' '); do
   echo "Creating database $database"
   psql -U $POSTGRES_USER <<-EOSQL
