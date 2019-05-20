@@ -183,13 +183,14 @@ Options:
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
+  -r,  --repo           repo to clone kong from
   -pp, --port           expose a port for a kong container
-  --repo                use another kong repo
   --image               image to use for kong
   --volume              add a volume to kong container
   --cassandra           use cassandra
   --alone               do not spin up any db
   --host                specify hostname for kong container
+  --git-https           use https to clone repos
   -v,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
