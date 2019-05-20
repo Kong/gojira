@@ -128,9 +128,9 @@ cat << EOF
     image: redis:5.0.4-alpine
     healthcheck:
       test: ["CMD", "redis-cli","ping"]
-      interval: 30s
+      interval: 5s
       timeout: 10s
-      retries: 3
+      retries: 10
     restart: on-failure
     networks:
       - gojira
