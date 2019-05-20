@@ -21,14 +21,7 @@ RUN apt-get update && \
         git \
         m4 \
         libpcre3 \
-        libpcre3-dev
-
-# Extra tools
-RUN apt-get update && \
-    apt-get install -y  \
-        jq \
-        httpie \
-        iputils-ping  \
+        libpcre3-dev \
         libyaml-dev
 
 ARG LUAROCKS
@@ -51,6 +44,13 @@ ENV OPENSSL_LIBDIR=${OPENSSL_INSTALL}
 ENV PATH=$PATH:${OPENRESTY_INSTALL}/nginx/sbin:${OPENRESTY_INSTALL}/bin:${LUAROCKS_INSTALL}/bin
 ENV PATH=${OPENSSL_INSTALL}/bin:$PATH
 ENV LD_LIBRARY_PATH=${OPENSSL_INSTALL}/lib:${LD_LIBRARY_PATH}
+
+# Extra tools
+RUN apt-get update && \
+    apt-get install -y  \
+        jq \
+        httpie \
+        iputils-ping
 
 COPY bashrc /root/.bashrc
 COPY follow-log.sh /bin/follow-kong-log
