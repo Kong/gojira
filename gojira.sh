@@ -290,10 +290,24 @@ function build {
 
   image_name
 
+  # Always include patches by default. Only avoid them on unsupported openssl
+  # versions
+  local with_patches
+  local openresty_patches
+  if [[ $OPENSSL == 1.0.* ]]; then
+    openresty_patches="--no-openresty-patches"
+    with_patches="no"
+  else
+    openresty_patches=""
+    # It's always master on openresty-build-tools
+    with_patches="master"
+  fi
+
   BUILD_ARGS=(
     "--build-arg LUAROCKS=$LUAROCKS"
     "--build-arg OPENSSL=$OPENSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
+    "--build-arg OPENRESTY_PATCHES=$openresty_patches"
   )
 
   >&2 echo "Building $GOJIRA_IMAGE"
@@ -302,6 +316,7 @@ function build {
   >&2 echo "=========================="
   >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
+  >&2 echo "    > patches   $with_patches"
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo "=========================="
   >&2 echo ""

@@ -28,7 +28,8 @@ RUN apt-get update && \
 ARG LUAROCKS
 ARG OPENSSL
 ARG OPENRESTY
-ARG BUILD_TOOLS=master
+ARG OPENRESTY_PATCHES
+ARG BUILD_TOOLS=3d9b265
 
 ENV BUILD_PREFIX=/build
 ENV BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/openresty-build-tools
@@ -38,14 +39,14 @@ ENV OPENRESTY_INSTALL=${BUILD_PREFIX}/openresty
 ENV LUAROCKS_INSTALL=${BUILD_PREFIX}/luarocks
 
 RUN mkdir -p ${BUILD_TOOLS_INSTALL}
+
 RUN curl -sSL https://github.com/kong/openresty-build-tools/archive/${BUILD_TOOLS}.tar.gz \
                 | tar -v -C ${BUILD_TOOLS_INSTALL} -xz --strip-components=1
 RUN ${BUILD_TOOLS_INSTALL}/kong-ngx-build --prefix    ${BUILD_PREFIX} \
                                           --openresty ${OPENRESTY} \
                                           --openssl   ${OPENSSL} \
                                           --luarocks  ${LUAROCKS} \
-                                          --no-openresty-patches
-
+                                          ${OPENRESTY_PATCHES}
 ENV OPENSSL_DIR=${OPENSSL_INSTALL}
 ENV OPENSSL_LIBDIR=${OPENSSL_INSTALL}
 
