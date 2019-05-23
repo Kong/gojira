@@ -176,6 +176,19 @@ cat << EOF
 EOF
 }
 
+function booom {
+cat << EOF
+                     \         .  ./
+                   \      .:";'.:.."   /
+                       (M^^.^~~:.'").
+                 -   (/  .    . . \ \)  -
+                    ((| :. ~ ^  :. .|))
+                 -   (\- |  \ /  |  /)  -
+                      -\  \     /  /-
+                 .......\  \   /  /
+EOF
+}
+
 
 function usage {
 cat << EOF
@@ -234,6 +247,8 @@ Commands:
   roar          make gojira go all gawo wowo
 
   logs          follow container logs
+
+  nuke          remove all running gojiras
 
 EOF
 }
@@ -395,6 +410,11 @@ main() {
     ;;
   version)
     echo $GOJIRA $GOJIRA_VERSION
+    ;;
+  nuke)
+    docker rm -fv $(gojira ps -aq)
+    docker network prune -f
+    echo; booom; echo
     ;;
   *)
     usage

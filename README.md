@@ -66,6 +66,8 @@ Commands:
 
   logs          follow container logs
 
+  nuke          remove all running gojiras
+
 ```
 
 # gojira
