@@ -412,7 +412,7 @@ main() {
     echo $GOJIRA $GOJIRA_VERSION
     ;;
   nuke)
-    docker rm -fv $(gojira ps -aq)
+    docker rm -fv $($GOJIRA ps -aq)
     docker network prune -f
     echo; booom; echo
     ;;
