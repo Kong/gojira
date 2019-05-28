@@ -17,8 +17,8 @@ GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 EXTRA_ARGS=""
 GOJIRA_VOLUMES=""
 GOJIRA_PORTS=""
-FORCE=
 
+unset FORCE
 unset PREFIX
 unset GOJIRA_KONG_PATH
 unset GOJIRA_LOC_PATH
@@ -427,7 +427,7 @@ main() {
   nuke)
     docker rm -fv $($GOJIRA ps -aq)
     docker network prune -f
-    [ -n "$FORCE" ] || rm -fr $GOJIRA_KONGS/* ;
+    [ -n "$FORCE" ] && rm -fr $GOJIRA_KONGS/* ;
     echo; booom; echo
     ;;
   *)
