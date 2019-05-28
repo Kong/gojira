@@ -317,12 +317,6 @@ function p_compose {
 }
 
 
-function compose {
-  get_envs
-  docker-compose -f <($COMPOSE_FILE) "$@"
-}
-
-
 main() {
   parse_args $@
 
