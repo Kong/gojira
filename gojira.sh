@@ -17,6 +17,7 @@ GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 EXTRA_ARGS=""
 GOJIRA_VOLUMES=""
 GOJIRA_PORTS=""
+FORCE=
 
 unset PREFIX
 unset GOJIRA_KONG_PATH
@@ -81,6 +82,9 @@ function parse_args {
       -r|--repo)
         GOJIRA_REPO=$2
         shift
+        ;;
+      -f|--force)
+        FORCE=1
         ;;
       --git-https)
         GOJIRA_GIT_HTTPS=1
@@ -248,7 +252,7 @@ Commands:
 
   logs          follow container logs
 
-  nuke          remove all running gojiras
+  nuke [-f]     remove all running gojiras. -f for removing all files
 
 EOF
 }
@@ -408,6 +412,7 @@ main() {
   nuke)
     docker rm -fv $($GOJIRA ps -aq)
     docker network prune -f
+    [ -n "$FORCE" ] || rm -fr $GOJIRA_KONGS/* ;
     echo; booom; echo
     ;;
   *)
