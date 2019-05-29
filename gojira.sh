@@ -143,8 +143,6 @@ function get_envs {
 
 function create_kong {
   mkdir -p $GOJIRA_KONGS
-  [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
-
   pushd $GOJIRA_KONGS
     local $remote
     if [[ "$GOJIRA_GIT_HTTPS" = 1 ]]; then
@@ -349,6 +347,7 @@ main() {
     # kong path does not exist. This means we are upping a build that came
     # with no auto deps, most probably
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
+    [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
     p_compose up -d
     ;;
   down)
