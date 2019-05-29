@@ -24,13 +24,6 @@ RUN apt-get update && \
         libpcre3-dev \
         libyaml-dev
 
-# Extra tools
-RUN apt-get update && \
-    apt-get install -y  \
-        jq \
-        httpie \
-        iputils-ping
-
 # LuaRocks - OpenSSL - OpenResty
 ARG LUAROCKS
 ARG OPENSSL
@@ -60,6 +53,14 @@ ENV PATH=$PATH:${OPENRESTY_INSTALL}/nginx/sbin:${OPENRESTY_INSTALL}/bin:${LUAROC
 ENV PATH=${OPENSSL_INSTALL}/bin:$PATH
 ENV LD_LIBRARY_PATH=${OPENSSL_INSTALL}/lib:${LD_LIBRARY_PATH}
 
+# Extra tools
+RUN apt-get update && \
+    apt-get install -y  \
+        jq \
+        httpie \
+        iputils-ping
+
+COPY 42-kong-envs.sh /etc/profile.d/
 COPY follow-log.sh /bin/follow-kong-log
 
 WORKDIR /kong
