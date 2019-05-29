@@ -428,7 +428,7 @@ main() {
     echo $GOJIRA $GOJIRA_VERSION
     ;;
   nuke)
-    docker rm -fv $($GOJIRA ps -aq)
+    docker rm -fv $($0 ps -aq)
     docker network prune -f
     [ -n "$FORCE" ] && rm -fr $GOJIRA_KONGS/* ;
     echo; booom; echo
