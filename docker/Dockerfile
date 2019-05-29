@@ -29,7 +29,7 @@ ARG LUAROCKS
 ARG OPENSSL
 ARG OPENRESTY
 ARG OPENRESTY_PATCHES
-ARG BUILD_TOOLS=d7f7323
+ARG BUILD_TOOLS=e582100
 ENV BUILD_PREFIX=/build
 ENV BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/openresty-build-tools
 
@@ -37,17 +37,22 @@ ENV OPENSSL_INSTALL=${BUILD_PREFIX}/openssl
 ENV OPENRESTY_INSTALL=${BUILD_PREFIX}/openresty
 ENV LUAROCKS_INSTALL=${BUILD_PREFIX}/luarocks
 
-RUN mkdir -p ${BUILD_TOOLS_INSTALL}
+ENV KONG_NGX_MODULE=${BUILD_PREFIX}/lua-kong-nginx-module
+COPY lib/lua-kong-nginx-module ${KONG_NGX_MODULE}
 
+RUN mkdir -p ${BUILD_TOOLS_INSTALL}
 RUN curl -sSL https://github.com/kong/openresty-build-tools/archive/${BUILD_TOOLS}.tar.gz \
                 | tar -v -C ${BUILD_TOOLS_INSTALL} -xz --strip-components=1
-RUN ${BUILD_TOOLS_INSTALL}/kong-ngx-build --prefix    ${BUILD_PREFIX} \
-                                          --openresty ${OPENRESTY} \
-                                          --openssl   ${OPENSSL} \
-                                          --luarocks  ${LUAROCKS} \
-                                          ${OPENRESTY_PATCHES}
+RUN ${BUILD_TOOLS_INSTALL}/kong-ngx-build --prefix     ${BUILD_PREFIX} \
+                                          --openresty  ${OPENRESTY} \
+                                          --openssl    ${OPENSSL} \
+                                          --luarocks   ${LUAROCKS} \
+                                          --add-module ${KONG_NGX_MODULE} \
+                                                       ${OPENRESTY_PATCHES}
 ENV OPENSSL_DIR=${OPENSSL_INSTALL}
 ENV OPENSSL_LIBDIR=${OPENSSL_INSTALL}
+
+RUN make -C ${KONG_NGX_MODULE} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
 
 ENV PATH=$PATH:${OPENRESTY_INSTALL}/nginx/sbin:${OPENRESTY_INSTALL}/bin:${LUAROCKS_INSTALL}/bin
 ENV PATH=${OPENSSL_INSTALL}/bin:$PATH
