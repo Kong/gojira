@@ -47,3 +47,10 @@ Note that `gojira compose run X` and `gojira run X` mean different
 things as docker-compose run will spawn a new container and gojira
 will effectively exec into kong service. More or less:
 `gojira compose exec kong top` == `gojira run top`
+
+### plugin development
+
+```
+KONG_PLUGINS=rate-limiting-advanced gojira up --volume /absolute/path/:/kong-plugin/ --volume /kong/servroot
+gojira run bin/busted ../kong-plugin/specs/
+```
