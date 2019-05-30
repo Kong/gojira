@@ -67,6 +67,20 @@ Again, we can access the path where this kong prefix is stored by
 . gojira cd -t 0.34-1
 ```
 
+### Using two gojiras with the same version
+
+gojira has the notion of prefixes. With the `-p | --prefix` flag you can avoid
+overlapping on the namespaces. Each prefix is completely separate of the other
+
+```
+gojira up -p foo
+gojira up -p bar
+gojira run -p foo kong roar
+gojira run -p bar kong roar
+. gojira cd -p foo
+. gojira cd -p bar
+```
+
 ### link 2 gojiras to the same db
 
 | term1                                            | term2                                                                                                                       |
@@ -84,13 +98,102 @@ Again, we can access the path where this kong prefix is stored by
 
 - `gojira up -t 0.34-1 --image bintray.....`
 
-### store an image with the state of the current kong service container
+### Using snapshots to store the state of a running container
 
-- `gojira up -t master`
-- `gojira run apt-get install iputils-ping -t master`
-- `gojira snapshot -t master`
-- `gojira up -t branch --image $snapshot_hash_or_id`
-- `gojira run ping db`
+It's possible to create snapshots of running containers. Snapshots are useful
+to keep a copy of the system environment running on a kong prefix. It's boring
+to run `make dev` over and over again.
+
+```
+$ gojira up
+$ gojira run make dev
+$ gojira run apt install iputils-ping
+$ gojira snapshot
+...
+Created snapshot: gojira:7c52c791796bd9de81ecc3aa4e5df78e0b80fa57
+```
+
+From now on, we can use this snapshot instead of any other image
+
+```
+$ gojira up --image gojira:7c52c791796bd9de81ecc3aa4e5df78e0b80fa57
+$ gojira run kong roar
+$ gojira run ping db
+```
+
+By default, the snapshot name is a sha composed of the base image sha and the
+sha of the kong rockspec file. This gives a valid default as a compromise on
+what kind of snapshot we can consider valid between runs. If either the base
+dependencies or the rockspec changes, the snapshot becomes invalid. Of course,
+shas are not very readable, so you can manually instead specify a snapshot
+name.
+
+```
+$ gojira snapshot much-better-name
+...
+Created snapshot: much-better-name
+$ gojira up --image much-better-name
+```
+
+It's also possible to ask gojira if a snapshot exists
+
+```
+$ gojira snapshot?
+gojira:7c52c791796bd9de81ecc3aa4e5df78e0b80fa57
+$ gojira snapshot? much-better-name
+much-better-name
+$ gojira snapshot? non-existent
+X $
+```
+
+Thus, theoretically you can run the following and always get a container using
+the image you snapshotted, without having to run `make dev` again.
+```
+$ gojira up --image $(gojira snapshot?)
+$ gojira run kong roar
+```
+
+We hear you - This is neat! I do not want to type `make dev` again. Make this
+the default - and we got you covered. This feature is nifty, but comes with
+some compromises that might be non obvious, therefore it comes disabled by
+default. Even if enabled, it will not do anything if an `--image` is provided.
+
+All you need to do, is `export GOJIRA_USE_SNAPSHOT=1`
+
+The following will always try to use an snapshot if it is available. Notice
+how you can install more tools and overwrite the snapshot at any time.
+
+```
+export GOJIRA_USE_SNAPSHOT=1
+
+gojira up
+gojira run make dev
+gojira snapshot
+gojira down
+
+gojira up
+gojira run kong roar
+gojira apt install postgresql-client
+gojira snapshot
+gojira down
+
+gojira up
+gojira run kong roar
+gojira run psql -U kong -h db
+```
+
+Snapshots can be deleted by
+
+```
+$ gojira snapshot!
+Untagged: gojira:7c52c791796bd9de81ecc3aa4e5df78e0b80fa57
+Deleted: sha256:adf1489719318319e99a3ae1bf88ea8649d610d4546eab15be69882427e9cdc7
+Deleted: sha256:3bceff26f6b1b4ac07bf097af1947591ce03ed4948c711a940fb21d97d695fdf
+$ gojira snapshot! much-better-name
+Untagged: much-better-name:latest
+Deleted: sha256:4a65afc276faae30bcf9c7e2f412f8282ad16fdeb4cfb47c62b28a7d1ec4d889
+Deleted: sha256:bbad8e16eab22ac4538f282b4a5ed63cd0f91f03b76ae1327f8318e9f3504522
+```
 
 ### fallback to docker-compose
 
