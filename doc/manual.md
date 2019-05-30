@@ -50,7 +50,13 @@ will effectively exec into kong service. More or less:
 
 ### plugin development
 
+Set `KONG_PLUGINS` and mount your plugin path to `/kong-plugin/`
+
 ```
-KONG_PLUGINS=rate-limiting-advanced gojira up --volume /absolute/path/:/kong-plugin/ --volume /kong/servroot
+KONG_PLUGINS=rate-limiting-advanced gojira up --volume /absolute/path/:/kong-plugin/
 gojira run bin/busted ../kong-plugin/specs/
+gojira shell
+  bin/kong migrations bootstrap
+  bin/kong start
+  http :8001/ | jq '.["plugins"]["available_on_server"]["rate-limiting-advanced"]  # true!
 ```
