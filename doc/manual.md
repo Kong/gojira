@@ -2,17 +2,70 @@
 
 ## Usage patterns
 
-### Work on a branch
+### Start kong (master)
 
-- `gojira up -t 0.34-1`.
-- `gojira run make dev -t 0.34-1`
-- `gojira run bin/kong migrations bootstrap -t 0.34-1`
-- `gojira run bin/kong roar -t 0.34-1`
-- `gojira shell -t 0.34-1`
-- `curl http://localhost:8001`
-- `. gojira cd -t 0.34-1`
+By default, gojira uses `master` as the default branch.
 
+```
+$ gojira up
+Building gojira:luarocks-3.0.4-openresty-1.13.6.2-openssl-1.1.1a
 
+       Version info
+==========================
+[...]
+Creating network "kong-master_gojira" with the default driver
+Creating kong-master_redis_1 ... done
+Creating kong-master_db_1    ... done
+Creating kong-master_kong_1  ... done
+```
+
+```
+gojira run make dev
+gojira run kong migrations bootstrap
+gojira run kong start
+gojira run kong roar
+gojira run http :8001
+```
+
+We can access the path where kong is stored by
+
+```
+. gojira cd
+```
+
+### Using a branch
+
+Specify a branch name using the `-t | --tag` flag
+
+```
+gojira up -t 0.34-1
+```
+
+From now on, this gojira is referenced by this tag. Starting kong now will be:
+
+```
+gojira run -t 0.34-1 make dev
+gojira run -t 0.34-1 kong migrations up
+gojira run -t 0.34-1 kong start
+gojira run -t 0.34-1 kong roar
+gojira run -t 0.34-1 http :8001
+```
+
+Note how you can also get a shell on it to do the same:
+
+```
+$ gojira shell -t 0.34-1
+root@a02194e2ab87:/kong#
+root@a02194e2ab87:/kong# make dev
+root@a02194e2ab87:/kong# kong migrations up
+...
+```
+
+Again, we can access the path where this kong prefix is stored by
+
+```
+. gojira cd -t 0.34-1
+```
 
 ### link 2 gojiras to the same db
 
