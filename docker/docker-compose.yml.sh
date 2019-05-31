@@ -70,6 +70,7 @@ cat << EOF
       KONG_TEST_PG_HOST: ${KONG_TEST_PG_HOST:-db}
       KONG_TEST_PG_DATABASE: ${KONG_TEST_PG_DATABASE:-kong_tests}
       KONG_TEST_CASSANDRA_CONTACT_POINTS: ${KONG_TEST_CASSANDRA_CONTACT_POINTS:-db}
+      KONG_TEST_REDIS_HOST: ${KONG_TEST_REDIS_HOST:-redis}
       # DNS resolution on docker always has this ip. Since we have a qualified
       # name for the db server, we need to set up the DNS resolver, is set
       # to 8.8.8.8 on the spec conf
