@@ -4,7 +4,7 @@ pg_conf_file=/var/lib/postgresql/data/postgresql.conf
 
 echo "\
 log_statement = 'all'
-log_disconnections = on
+log_disconnections = off
 log_duration = on
 log_min_duration_statement = -1
 " >>$pg_conf_file
