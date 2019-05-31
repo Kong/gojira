@@ -14,6 +14,7 @@ GOJIRA_DATABASE=postgres
 GOJIRA_REPO=kong
 GOJIRA_TAG=master
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
+GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-0}
 
 EXTRA_ARGS=""
 GOJIRA_VOLUMES=""
@@ -286,10 +287,6 @@ function image_name {
 
 
 function build {
-  if [[ ! -z $GOJIRA_IMAGE ]]; then
-    return
-  fi
-
   image_name
 
   # Always include patches by default. Only avoid them on unsupported openssl
@@ -356,16 +353,34 @@ function snapshot_image_name {
 }
 
 
+function setup {
+  mkdir -p $GOJIRA_KONGS
+  [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
+  # Ideally we figure out when we need to have a GOJIRA_KONG_PATH or not
+  # so we can create it from here.
+}
+
+
 main() {
   parse_args $@
+  setup
 
   case $ACTION in
   up)
-    build || exit 1
     # kong path does not exist. This means we are upping a build that came
     # with no auto deps, most probably
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
-    [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
+
+    if [[ -z $GOJIRA_IMAGE ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
+      snapshot_image_name
+      if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
+        GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
+      fi
+    fi
+
+    if [[ -z $GOJIRA_IMAGE ]]; then
+      build || exit 1
+    fi
     p_compose up -d
     ;;
   down)
