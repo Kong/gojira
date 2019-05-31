@@ -33,6 +33,7 @@ fi
 
 cat << EOF
     volumes:
+      - ${KONG_PREFIX:-/kong/servroot}
       - ${GOJIRA_KONG_PATH}:${KONG_PATH:-/kong}
       - ${GOJIRA_HOME}/:/root/
 EOF
