@@ -336,8 +336,9 @@ function p_compose {
 
 
 function query_image {
-  [[ ! -z $(docker images "--filter=reference=$1" -q) ]] || return 1
-  echo $1
+  local image_sha=$(docker images "--filter=reference=$1" -q)
+  [[ ! -z $image_sha ]] || return 1
+  echo $image_sha
 }
 
 
@@ -345,11 +346,12 @@ function snapshot_image_name {
   if [[ ! -z $1 ]]; then GOJIRA_SNAPSHOT=$1; return; fi
   image_name
   local sha
+  local base_sha=$(query_image $GOJIRA_IMAGE)
   pushd $GOJIRA_KONG_PATH
     sha=$(git hash-object kong-*.rockspec)
   popd
-  sha=$(echo $GOJIRA_IMAGE-$sha | sha1sum | awk '{printf $1}')
-  GOJIRA_SNAPSHOT=gojira:$sha
+  sha=$(echo $base_sha:$sha | sha1sum | awk '{printf $1}')
+  GOJIRA_SNAPSHOT=gojira:snap-$sha
 }
 
 
@@ -372,6 +374,7 @@ main() {
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
     if [[ -z $GOJIRA_IMAGE ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
+      build
       snapshot_image_name
       if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
         GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
