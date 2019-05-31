@@ -106,3 +106,9 @@ ln -s $(realpath kong-gojira/gojira.sh) ~/.local/bin/gojira
 brew install coreutils
 ```
 
+
+### Usage
+
+For the time being, we have a [guide].
+
+[guide]: doc/manual.md
