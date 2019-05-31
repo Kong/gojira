@@ -397,6 +397,7 @@ main() {
     ls -1 $EXTRA_ARGS $GOJIRA_KONGS
     ;;
   compose)
+    image_name
     get_envs
     p_compose $EXTRA_ARGS
     ;;
