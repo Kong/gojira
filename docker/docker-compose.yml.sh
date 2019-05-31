@@ -54,7 +54,7 @@ fi
 cat << EOF
     environment:
       KONG_PREFIX: ${KONG_PREFIX:-/kong/servroot}
-      KONG_PLUGINS: bundled,$KONG_PLUGINS
+      KONG_PLUGINS: bundled${KONG_PLUGINS+,}$KONG_PLUGINS
       KONG_CUSTOM_PLUGINS: ${KONG_CUSTOM_PLUGINS}
       KONG_PATH: ${KONG_PATH:-/kong}
       KONG_PLUGIN_PATH: ${KONG_PLUGIN_PATH:-/kong-plugin}
