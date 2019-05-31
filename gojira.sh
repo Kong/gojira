@@ -125,7 +125,6 @@ function parse_args {
   PREFIX=$(echo $PREFIX | sed "s:[^a-zA-Z0-9_.-]:-:g")
 
   GOJIRA_KONG_PATH=${GOJIRA_KONG_PATH:-$GOJIRA_KONGS/$PREFIX}
-  GOJIRA_SNAPSHOT=gojira:${EXTRA_ARGS:-$PREFIX}
 }
 
 function get_envs {
@@ -259,6 +258,7 @@ Commands:
 EOF
 }
 
+
 function image_name {
   # No supplied dependency versions
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
@@ -338,6 +338,24 @@ function p_compose {
 }
 
 
+function query_image {
+  [[ ! -z $(docker images "--filter=reference=$1" -q) ]] || return 1
+  echo $1
+}
+
+
+function snapshot_image_name {
+  if [[ ! -z $1 ]]; then GOJIRA_SNAPSHOT=$1; return; fi
+  image_name
+  local sha
+  pushd $GOJIRA_KONG_PATH
+    sha=$(git hash-object kong-*.rockspec)
+  popd
+  sha=$(echo $GOJIRA_IMAGE-$sha | sha1sum | awk '{printf $1}')
+  GOJIRA_SNAPSHOT=gojira:$sha
+}
+
+
 main() {
   parse_args $@
 
@@ -365,9 +383,6 @@ main() {
     echo $GOJIRA_KONG_PATH
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
-  -h|--help|help)
-    usage
-    ;;
   run)
     p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
     ;;
@@ -380,11 +395,7 @@ main() {
     ;;
   image\?)
     image_name 2> /dev/null
-    local has_image=$(docker images "--filter=reference=$GOJIRA_IMAGE" -q)
-    if [[ -z $has_image ]]; then
-      exit 1
-    fi
-    echo $GOJIRA_IMAGE
+    query_image $GOJIRA_IMAGE || exit 1
     ;;
   image\!)
     image_name 2> /dev/null
@@ -402,19 +413,18 @@ main() {
     p_compose $EXTRA_ARGS
     ;;
   snapshot)
+    snapshot_image_name $EXTRA_ARGS
     local cmd='cat /proc/self/cgroup | head -1 | sed "s/.*docker\///"'
     local c_id=$(p_compose exec kong bash -l -i -c "$cmd" | tr -d '\r')
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
   snapshot\?)
-    local has_image=$(docker images "--filter=reference=$GOJIRA_SNAPSHOT" -q)
-    if [[ -z $has_image ]]; then
-      exit 1
-    fi
-    echo $GOJIRA_SNAPSHOT
+    snapshot_image_name $EXTRA_ARGS
+    query_image $GOJIRA_SNAPSHOT || exit 1
     ;;
   snapshot\!)
+    snapshot_image_name $EXTRA_ARGS
     docker rmi $GOJIRA_SNAPSHOT || exit 1
     ;;
   logs)
