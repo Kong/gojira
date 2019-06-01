@@ -276,10 +276,9 @@ function image_name {
   OPENRESTY=${OPENRESTY:-$(yaml_find $travis_yaml OPENRESTY_BASE)}
 
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
-    >&2 echo "${GOJIRA}: Could not guess version dependencies in" \
-             "$travis_yaml. Specify versions as LUAROCKS, OPENSSL and"\
-             "OPENRESTY envs"
-    exit 1
+    err "${GOJIRA}: Could not guess version dependencies in" \
+        "$travis_yaml. Specify versions as LUAROCKS, OPENSSL and"\
+        "OPENRESTY envs"
   fi
 
   GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
@@ -368,6 +367,12 @@ function setup {
 }
 
 
+function err {
+  >&2 echo $@
+  exit 1
+}
+
+
 main() {
   parse_args $@
   setup
@@ -443,7 +448,7 @@ main() {
     ;;
   snapshot\?)
     snapshot_image_name $EXTRA_ARGS
-    query_image $GOJIRA_SNAPSHOT || exit 1
+    query_image $GOJIRA_SNAPSHOT || err "$GOJIRA_SNAPSHOT not found"
     ;;
   snapshot\!)
     snapshot_image_name $EXTRA_ARGS
