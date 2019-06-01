@@ -336,6 +336,11 @@ function p_compose {
 
 
 function query_image {
+  [[ ! -z $(query_sha $1) ]] || return 1
+  echo $1
+}
+
+function query_sha {
   local image_sha=$(docker images "--filter=reference=$1" -q)
   [[ ! -z $image_sha ]] || return 1
   echo $image_sha
@@ -346,7 +351,7 @@ function snapshot_image_name {
   if [[ ! -z $1 ]]; then GOJIRA_SNAPSHOT=$1; return; fi
   image_name
   local sha
-  local base_sha=$(query_image $GOJIRA_IMAGE)
+  local base_sha=$(query_sha $GOJIRA_IMAGE)
   pushd $GOJIRA_KONG_PATH
     sha=$(git hash-object kong-*.rockspec)
   popd
