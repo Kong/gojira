@@ -427,7 +427,6 @@ main() {
     ;;
   compose)
     image_name
-    get_envs
     p_compose $EXTRA_ARGS
     ;;
   snapshot)
