@@ -167,31 +167,35 @@ function rawr {
 
 function roar {
 cat << EOF
-                            _,-}}-._
-                           /\   }  /\\
-                          _|(O\\_ _/O)
-                        _|/  (__''__)
-                      _|\/    WVVVVW    $(rawr)!
-                     \ _\     \MMMM/_
-                   _|\_\     _ '---; \_
-              /\   \ _\/      \_   /   \\
-             / (    _\/     \   \  |'VVV
-            (  '-,._\_.(      'VVV /
-             \         /   _) /   _)
-              '....--''\__vvv)\__vvv)      ldb
+                 _,-}}-._
+                /\   }  /\\
+               _|(O\\_ _/O)
+             _|/  (__''__)
+           _|\/    WVVVVW    $(rawr)!
+          \ _\     \MMMM/_
+        _|\_\     _ '---; \_
+   /\   \ _\/      \_   /   \\
+  / (    _\/     \   \  |'VVV
+ (  '-,._\_.(      'VVV /
+  \         /   _) /   _)
+   '....--''\__vvv)\__vvv)      ldb
 EOF
 }
 
 function booom {
 cat << EOF
-                     \         .  ./
-                   \      .:";'.:.."   /
-                       (M^^.^~~:.'").
-                 -   (/  .    . . \ \)  -
-                    ((| :. ~ ^  :. .|))
-                 -   (\- |  \ /  |  /)  -
-                      -\  \     /  /-
-                 .......\  \   /  /
+
+
+
+
+    \         .  ./
+  \      .:";'.:.."   /
+      (M^^.^~~:.'").
+-   (/  .    . . \ \)  -
+   ((| :. ~ ^  :. .|))
+-   (\- |  \ /  |  /)  -
+     -\  \     /  /-
+       \  \   /  /......
 EOF
 }
 
@@ -199,7 +203,7 @@ EOF
 function usage {
 cat << EOF
 
-$(roar)
+$(roar | sed -e 's/^/           /')
 
                       Gojira (Godzilla)
 
@@ -458,7 +462,11 @@ main() {
     p_compose logs -f --tail=100 $EXTRA_ARGS
     ;;
   roar)
-    echo; roar; echo
+      if [[ $(($RANDOM % 5)) -eq "0" ]] ; then
+          echo; paste <(echo "$(booom)") <($0 roar) | expand -t30
+      else
+          echo; roar; echo
+      fi
     ;;
   version)
     echo $GOJIRA $GOJIRA_VERSION
@@ -467,7 +475,7 @@ main() {
     docker rm -fv $($0 ps -aq)
     docker network prune -f
     [ -n "$FORCE" ] && rm -fr $GOJIRA_KONGS/* ;
-    echo; booom; echo
+    echo; (booom | sed -e 's/^/          /'); echo
     ;;
   *)
     usage
