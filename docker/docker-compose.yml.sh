@@ -76,6 +76,7 @@ cat << EOF
       # name for the db server, we need to set up the DNS resolver, is set
       # to 8.8.8.8 on the spec conf
       KONG_TEST_DNS_RESOLVER: 127.0.0.11
+      GOJIRA_HOSTNAME: ${GOJIRA_HOSTNAME:-${GOJIRA_KONG_PATH/*\//}}
 
     restart: on-failure
     networks:
