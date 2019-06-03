@@ -5,7 +5,7 @@ use Cwd qw(cwd);
 
 repeat_each(2);
 
-plan tests => repeat_each() * (blocks() * 5);
+plan tests => repeat_each() * (blocks() * 5 + 1);
 
 my $pwd = cwd();
 
@@ -494,3 +494,30 @@ uibeZgK1Yk7YQKXdvbZvXwrgTcAjCdbppw2L6e0Uy+OGgNjnIps8K460SdaIiA==
 --- no_error_log
 [error]
 [alert]
+
+
+
+=== TEST 6: calling get_full_client_certificate_chain in plain text request,
+error is returned
+--- http_config
+    lua_package_path "../lua-resty-core/lib/?.lua;lualib/?.lua;;";
+--- config
+    location /t {
+        content_by_lua_block {
+            local res, err = require("resty.kong.tls").get_full_client_certificate_chain()
+            ngx.say(res, ', ', err)
+        }
+    }
+
+--- request
+GET /t
+--- response_body
+nil, connection is not TLS or TLS support for Nginx not enabled
+
+--- error_log
+
+--- no_error_log
+[error]
+[alert]
+[warn]
+[crit]
