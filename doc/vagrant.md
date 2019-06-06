@@ -114,7 +114,6 @@ use cqlsh inside the cassandra container too
 
 ```
 $ gojira ps
-
 CONTAINER ID        IMAGE                                                     COMMAND                  CREATED             STATUS                            PORTS                                         NAMES
 1e2b7650423f        gojira:luarocks-3.0.4-openresty-1.13.6.2-openssl-1.1.1a   "follow-kong-log"        8 seconds ago       Up 7 seconds                                                                    cassandra-kong-master_kong_1
 b57592c3cc1f        cassandra:3.9                                             "/docker-entrypoint.…"   9 seconds ago       Up 8 seconds (health: starting)   7000-7001/tcp, 7199/tcp, 9042/tcp, 9160/tcp   cassandra-kong-master_db_1
@@ -122,6 +121,11 @@ b57592c3cc1f        cassandra:3.9                                             "/
 940f54e5893f        gojira:luarocks-3.0.4-openresty-1.13.6.2-openssl-1.1.1a   "follow-kong-log"        2 minutes ago       Up 2 minutes                      0.0.0.0:8000-8001->8000-8001/tcp              kong-master_kong_1
 5680f9d4d95b        postgres:9.5                                              "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes (healthy)            5432/tcp                                      kong-master_db_1
 66d459363ede        redis:5.0.4-alpine                                        "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes (healthy)            6379/tcp                                      kong-master_redis_1
+
+$ gojira compose -p cassandra exec db cqlsh
+Connected to Test Cluster at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+...
 $ docker exec -it b57592c3cc1f cqlsh
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
