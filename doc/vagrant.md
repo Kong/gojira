@@ -34,9 +34,14 @@ We want:
 ### Kong running
 
 First, let's spin up a gojira. To make sure all future commands are trivial
-and clear, make sure `path/to/kong` points at the `master` branch. We are also
-going to bind the 8000 and 8001 port to our host, so we can use it as we
-did on our vagrant setup.
+and clear, make sure `path/to/kong` points at the `master` branch.
+
+NOTE: If you have set `$KONG_PATH` for Vagrant, be sure to unset it before
+running gojira. gojira assumes that $KONG_PATH indicates where to find KONG
+_in the container_, not on the host.
+
+We are also going to bind ports 8000 and 8001 to our host, so we can use them 
+as we did on our vagrant setup.
 
 ```
 $ gojira up -k path/to/kong -pp 8000:8000 -pp 8001:8001
