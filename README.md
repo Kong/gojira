@@ -110,5 +110,7 @@ brew install coreutils
 ### Usage
 
 For the time being, we have a [guide].
+Also, a [vagrant to gojira guide].
 
 [guide]: doc/manual.md
+[vagrant to gojira guide]: doc/vagrant.md
