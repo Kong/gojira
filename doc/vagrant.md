@@ -74,10 +74,20 @@ $ http :8001
 
 Now we have something very similar to what the previous vagrant environment
 provided. We have only binded the 8000 and 8001 ports, though, so if we want
-to access postgres or cassandra, we need to install the clients on our
-running instance.
+to access postgres or cassandra, we need to execute it directly on the postgres
+container, or install the clients on our kong running instance.
 
 ```
+# Directly use the one in the postgres container
+$ gojira compose exec db -- psql -U kong
+psql (9.5.17)
+Type "help" for help.
+
+kong=#
+```
+
+```
+# Install it into the kong container
 $ gojira run apt install postgresql-client
 $ gojira run -- psql -U kong -h db
 psql (9.5.17)
