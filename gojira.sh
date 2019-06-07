@@ -27,6 +27,33 @@ unset GOJIRA_LOC_PATH
 unset GOJIRA_SNAPSHOT
 unset GOJIRA_HOSTNAME
 
+function warn() {
+  >&2 \echo -en "\033[1;33m"
+  >&2 echo "WARNING: $@"
+  >&2 \echo -en "\033[0m"
+}
+
+function err {
+  >&2 echo $@
+  exit 1
+}
+
+function validate_arguments {
+    # check for common errors
+
+    # We are joining a network that has a "db" service and we are
+    # adding another "db" service (because we didn't pass --alone).
+    # That will make dns requests to "db" to roundrobin between the
+    # two, and it's probably not what we want.
+    [ -n "$GOJIRA_NETWORK" ] &&
+        [ -n "$GOJIRA_DATABASE" ] &&
+        docker network inspect $GOJIRA_NETWORK 1>2 2>/dev/null &&
+        docker network inspect $GOJIRA_NETWORK |
+            jq '.[0].Containers[].Name' |
+            grep '_db_' 1>/dev/null &&
+        warn "Creating a db in a network with db already.
+         This might cause to round robin requests to db to multiple dbs. Try --alone flag"
+}
 
 function parse_args {
   ACTION=$1
@@ -108,6 +135,8 @@ function parse_args {
   done
 
   eval set -- "$EXTRA_ARGS"
+
+  validate_arguments
 
   if [ ! -z "$GOJIRA_KONG_PATH" ]; then
     GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
@@ -368,12 +397,6 @@ function setup {
   [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
   # Ideally we figure out when we need to have a GOJIRA_KONG_PATH or not
   # so we can create it from here.
-}
-
-
-function err {
-  >&2 echo $@
-  exit 1
 }
 
 
