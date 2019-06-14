@@ -216,3 +216,11 @@ gojira shell
   kong start
   http :8001/ | jq '.["plugins"]["available_on_server"]["rate-limiting-advanced"]  # true!
 ```
+
+### Access database console
+
+```
+gojira compose exec db psql -U kong    #Postgres
+gojira compose exec db cqlsh           #Cassandra
+
+```
