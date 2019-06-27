@@ -502,6 +502,7 @@ main() {
     ;;
   *)
     usage
+    exit 1
     ;;
   esac
 }
