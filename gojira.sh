@@ -469,7 +469,7 @@ main() {
   snapshot)
     snapshot_image_name $EXTRA_ARGS
     local cmd='cat /proc/self/cgroup | head -1 | sed "s/.*docker\///"'
-    local c_id=$(p_compose exec kong bash -l -i -c "$cmd" | tr -d '\r')
+    local c_id=$(p_compose exec -T kong bash -c "$cmd" | tr -d '\r')
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
