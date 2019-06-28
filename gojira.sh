@@ -439,7 +439,11 @@ main() {
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
   run)
-    p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
+    if [[ -t 1 ]]; then
+      p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
+    else
+      p_compose exec -T kong bash -l -c "$EXTRA_ARGS"
+    fi
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
