@@ -6,9 +6,9 @@ function make_prompt {
   local res=$?
   local usr path
 
-  [ $res = 0 ] && hint="\[\033[1;34m\]" || hint="\[\033[1;91m\]"
-  [ $PWD = $HOME ] && path="~" || path=$PWD
-  [ $USER = "root" ] && usr="#" || usr="$"
+  [ "$res" = 0 ] && hint="\[\033[1;34m\]" || hint="\[\033[1;91m\]"
+  [ "$PWD" = "$HOME" ] && path="~" || path=$PWD
+  [ "$USER" = "root" ] && usr="#" || usr="$"
 
   PS1="\[\e[00m\]$hint[$GOJIRA_PREFIX:\[\033[1;92m\]$path$hint]$usr\[\033[00m\] "
 }
