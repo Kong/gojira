@@ -167,6 +167,7 @@ function get_envs {
   export DOCKER_CTX=$DOCKER_PATH
   export GOJIRA_HOSTNAME
   export GOJIRA_HOME
+  export GOJIRA_PREFIX=$PREFIX
 }
 
 
