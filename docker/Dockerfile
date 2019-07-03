@@ -53,7 +53,11 @@ RUN apt-get update && \
     apt-get install -y  \
         jq \
         httpie \
-        iputils-ping
+        iputils-ping \
+        cpanminus
+
+RUN cpanm --notest Test::Nginx
+RUN cpanm --notest local::lib
 
 COPY 42-kong-envs.sh /etc/profile.d/
 COPY follow-log.sh /bin/follow-kong-log
