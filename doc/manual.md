@@ -224,3 +224,9 @@ gojira compose exec db psql -U kong    #Postgres
 gojira compose exec db cqlsh           #Cassandra
 
 ```
+
+### Remove all gojira images (including snapshots)
+
+```
+docker rmi $(gojira images -q)
+```
