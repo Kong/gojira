@@ -24,7 +24,7 @@ if [[ ! -z $GOJIRA_PORTS ]]; then
 cat << EOF
     ports:
 EOF
-  for port in $(echo $GOJIRA_PORTS | tr "," " "); do
+  for port in $GOJIRA_PORTS; do
 cat << EOF
       - $port
 EOF
@@ -38,7 +38,7 @@ cat << EOF
       - ${GOJIRA_HOME}/:/root/
 EOF
 
-for volume in $(echo $GOJIRA_VOLUMES | tr "," " "); do
+for volume in $GOJIRA_VOLUMES; do
 cat << EOF
       - $volume
 EOF

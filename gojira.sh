@@ -15,18 +15,23 @@ GOJIRA_REPO=kong
 GOJIRA_TAG=master
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-0}
-
-EXTRA_ARGS=""
-GOJIRA_VOLUMES=""
-GOJIRA_PORTS=""
 GOJIRA_REDIS_MODE=""
+
+_EXTRA_ARGS=()
+_GOJIRA_VOLUMES=()
+_GOJIRA_PORTS=()
+
 
 unset FORCE
 unset PREFIX
+unset EXTRA_ARGS
+
 unset GOJIRA_KONG_PATH
 unset GOJIRA_LOC_PATH
 unset GOJIRA_SNAPSHOT
 unset GOJIRA_HOSTNAME
+unset GOJIRA_VOLUMES
+unset GOJIRA_PORTS
 
 function warn() {
   >&2 \echo -en "\033[1;33m"
@@ -84,7 +89,7 @@ function parse_args {
         shift
         ;;
       -pp|--port)
-        GOJIRA_PORTS+=$2,
+        _GOJIRA_PORTS+=("$2")
         shift
         ;;
       -n|--network)
@@ -92,7 +97,7 @@ function parse_args {
         shift
         ;;
       -v|--volume)
-        GOJIRA_VOLUMES+=$2,
+        _GOJIRA_VOLUMES+=("$2")
         shift
         ;;
       --cassandra)
@@ -124,22 +129,24 @@ function parse_args {
         GOJIRA_GIT_HTTPS=1
         ;;
       -)
-        EXTRA_ARGS+="$(cat $2) "
+        _EXTRA_ARGS+=("$(cat $2)")
         shift
         ;;
       --)
         shift
-        EXTRA_ARGS+="$@ "
+        _EXTRA_ARGS+=("$@")
         break
         ;;
       *)
-        EXTRA_ARGS+="$1 "
+        _EXTRA_ARGS+=("$1")
         ;;
     esac
     shift
   done
 
-  eval set -- "$EXTRA_ARGS"
+  EXTRA_ARGS="${_EXTRA_ARGS[@]}"
+  GOJIRA_PORTS="${_GOJIRA_PORTS[@]}"
+  GOJIRA_VOLUMES="${_GOJIRA_VOLUMES[@]}"
 
   validate_arguments
 
