@@ -19,6 +19,7 @@ GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-0}
 EXTRA_ARGS=""
 GOJIRA_VOLUMES=""
 GOJIRA_PORTS=""
+GOJIRA_REDIS_MODE=""
 
 unset FORCE
 unset PREFIX
@@ -100,6 +101,10 @@ function parse_args {
       --alone)
         GOJIRA_DATABASE=
         ;;
+      --redis-cluster)
+        GOJIRA_REDIS_MODE="cluster"
+        shift
+        ;;
       --image)
         GOJIRA_IMAGE=$2
         shift
@@ -164,6 +169,7 @@ function get_envs {
   export GOJIRA_PORTS
   export GOJIRA_VOLUMES
   export GOJIRA_DATABASE
+  export GOJIRA_REDIS_MODE
   export DOCKER_CTX=$DOCKER_PATH
   export GOJIRA_HOSTNAME
   export GOJIRA_HOME
@@ -251,6 +257,7 @@ Options:
   --volume              add a volume to kong container
   --cassandra           use cassandra
   --alone               do not spin up any db
+  --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
   -v,  --verbose        echo every command that gets executed

@@ -28,6 +28,7 @@ Options:
   --volume              add a volume to kong container
   --cassandra           use cassandra
   --alone               do not spin up any db
+  --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
   -v,  --verbose        echo every command that gets executed

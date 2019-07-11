@@ -136,11 +136,31 @@ if [[ ! -z $GOJIRA_DATABASE ]]; then # --alone means alone
 cat << EOF
   redis:
     image: redis:5.0.4-alpine
+EOF
+
+  if [[ $GOJIRA_REDIS_MODE == "cluster" ]]; then
+cat << EOF
+    environment:
+      - IP
+    volumes:
+      - ${DOCKER_CTX}/redis-cluster.sh:/usr/local/bin/redis-cluster.sh
+    command: ["sh", "/usr/local/bin/redis-cluster.sh"]
     healthcheck:
-      test: ["CMD", "redis-cli","ping"]
+      test: ["CMD", "redis-cli", "-p", "7005", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+EOF
+  else
+cat << EOF
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 10s
       retries: 10
+EOF
+  fi
+cat << EOF
     restart: on-failure
     networks:
       - gojira
