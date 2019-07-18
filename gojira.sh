@@ -402,7 +402,7 @@ function setup {
 
 
 main() {
-  parse_args $@
+  parse_args "$@"
   setup
 
   case $ACTION in
@@ -515,4 +515,4 @@ main() {
 pushd() { builtin pushd $1 > /dev/null; }
 popd() { builtin popd > /dev/null; }
 
-main $*
+main "$@"
