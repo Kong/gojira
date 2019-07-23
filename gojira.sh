@@ -63,7 +63,7 @@ function parse_args {
   while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in
-      -v|--verbose)
+      -V|--verbose)
         set -x
         ;;
       -h|--help)
@@ -91,7 +91,7 @@ function parse_args {
         GOJIRA_NETWORK=$2
         shift
         ;;
-      --volume)
+      -v|--volume)
         GOJIRA_VOLUMES+=$2,
         shift
         ;;
