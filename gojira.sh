@@ -440,10 +440,12 @@ main() {
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
   run)
+    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+    local args=${_EXTRA_ARGS[@]@Q}
     if [[ -t 1 ]]; then
-      p_compose exec kong bash -l -i -c "$EXTRA_ARGS"
+      p_compose exec kong bash -l -i -c "$args"
     else
-      p_compose exec -T kong bash -l -c "$EXTRA_ARGS"
+      p_compose exec -T kong bash -l -c "$args"
     fi
     ;;
   images)
