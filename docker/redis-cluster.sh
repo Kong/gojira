@@ -11,7 +11,7 @@ then
   IP=$(hostname -i | awk '{print $1}'); 
 fi
 
-redis-cli --cluster create ${IP}:7000 ${IP}:7001 ${IP}:7002 ${IP}:7003 ${IP}:7004 ${IP}:7005 --cluster-replicas 1
+yes yes | redis-cli --cluster create ${IP}:7000 ${IP}:7001 ${IP}:7002 ${IP}:7003 ${IP}:7004 ${IP}:7005 --cluster-replicas 1
 
 tail -f /dev/null
 
