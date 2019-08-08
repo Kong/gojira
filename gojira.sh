@@ -33,6 +33,8 @@ unset GOJIRA_HOSTNAME
 unset GOJIRA_VOLUMES
 unset GOJIRA_PORTS
 
+unset _RAW_INPUT
+
 function warn() {
   >&2 \echo -en "\033[1;33m"
   >&2 echo "WARNING: $@"
@@ -130,6 +132,7 @@ function parse_args {
         ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
+        _RAW_INPUT=1
         shift
         ;;
       --)
@@ -440,8 +443,13 @@ main() {
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
   run)
-    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
-    local args=${_EXTRA_ARGS[@]@Q}
+    local args
+    if [[ ! -z $_RAW_INPUT ]]; then
+      args=$EXTRA_ARGS
+    else
+      # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+      args=${_EXTRA_ARGS[@]@Q}
+    fi
     if [[ -t 1 ]]; then
       p_compose exec kong bash -l -i -c "$args"
     else
