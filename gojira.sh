@@ -64,7 +64,7 @@ function validate_arguments {
 
     # There's an unrecognized arg that contains a slash (likely to be
     # a branch) but the tag that gojira is building is still master.
-    [ $GOJIRA_TAG == "master" ] &&
+    [[ $GOJIRA_TAG == "master" ]] &&
         echo $EXTRA_ARGS | grep -q '/' &&
         warn "probably forgot the -t flag. Building master"
 }
