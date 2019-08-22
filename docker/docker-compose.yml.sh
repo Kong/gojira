@@ -76,8 +76,16 @@ cat << EOF
       # name for the db server, we need to set up the DNS resolver, is set
       # to 8.8.8.8 on the spec conf
       KONG_TEST_DNS_RESOLVER: 127.0.0.11
-      KONG_TEST_PLUGINS: bundled${KONG_PLUGINS:+,$KONG_PLUGINS}
+EOF
 
+# Some tests do not like KONG_TEST_PLUGINS being set
+if [[ ! -z $KONG_PLUGINS ]]; then
+cat << EOF
+      KONG_TEST_PLUGINS: bundled${KONG_PLUGINS:+,$KONG_PLUGINS}
+EOF
+fi
+
+cat << EOF
       GOJIRA_PREFIX: ${GOJIRA_PREFIX}
 
     restart: on-failure
