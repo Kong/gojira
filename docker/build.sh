@@ -27,10 +27,6 @@ function load_version_checks {
   fn_exists version_gt  || (>&2 echo $err && exit 1)
 }
 
-function make_kong_ngx_module {
-  make -C ${KONG_NGX_MODULE} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
-}
-
 function init_timer {
   local sp="⣾⣽⣻⢿⡿⣟⣯⣷"
   local sc=0
@@ -56,8 +52,12 @@ function build {
   fi
 
   if version_gte $OPENSSL 1.1; then
-    flags+=("--add-module $KONG_NGX_MODULE")
-    after+=(make_kong_ngx_module)
+    # At this moment openresty-build-tools cannot pin something that is not
+    # a branch to this
+    flags+=("--kong-nginx-module master")
+  else
+    # Make sure we explicitly disable it
+    flags+=("--no-kong-nginx-module")
   fi
 
   local cmd="${BUILD_TOOLS_CMD} ${flags[*]}"
