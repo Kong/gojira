@@ -2,7 +2,6 @@
 
 trap exit INT TERM
 mkdir -p $KONG_PREFIX/logs
-cd $KONG_PREFIX/logs
-touch access.log error.log
-tail -F access.log error.log &
+touch $KONG_PREFIX/logs/access.log $KONG_PREFIX/logs/error.log
+tail -F $KONG_PREFIX/logs/access.log $KONG_PREFIX/logs/error.log &
 wait
