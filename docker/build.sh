@@ -6,10 +6,18 @@ BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/openresty-build-tools
 BUILD_TOOLS_CMD=${BUILD_TOOLS_INSTALL}/kong-ngx-build
 BUILD_LOG=${BUILD_PREFIX}/build.log
 
+KONG_NGX_MODULE_INSTALL=${BUILD_PREFIX}/lua-kong-nginx-module
+
 function download_build_tools {
   mkdir -p ${BUILD_TOOLS_INSTALL}
   curl -sSL https://github.com/kong/openresty-build-tools/archive/${BUILD_TOOLS}.tar.gz \
             | tar -C ${BUILD_TOOLS_INSTALL} -xz --strip-components=1
+}
+
+function download_lua-kong-nginx-module {
+  mkdir -p ${KONG_NGX_MODULE_INSTALL}
+  curl -sSL https://github.com/kong/lua-kong-nginx-module/archive/${KONG_NGX_MODULE}.tar.gz \
+            | tar -C ${KONG_NGX_MODULE_INSTALL} -xz --strip-components=1
 }
 
 function fn_exists {
@@ -25,6 +33,10 @@ function load_version_checks {
   set +e
   fn_exists version_lte || (>&2 echo $err && exit 1)
   fn_exists version_gt  || (>&2 echo $err && exit 1)
+}
+
+function make_kong_ngx_module {
+  make -C ${KONG_NGX_MODULE_INSTALL} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
 }
 
 function init_timer {
@@ -44,6 +56,9 @@ function build {
     "--openresty ${OPENRESTY}"
     "--openssl   ${OPENSSL}"
     "--luarocks  ${LUAROCKS}"
+    # We are building lua-kong-nginx-module manually and including it with
+    # --add-module on compatible versions.
+    "--no-kong-nginx-module"
   )
   local after=()
 
@@ -52,12 +67,9 @@ function build {
   fi
 
   if version_gte $OPENSSL 1.1; then
-    # At this moment openresty-build-tools cannot pin something that is not
-    # a branch to this
-    flags+=("--kong-nginx-module master")
-  else
-    # Make sure we explicitly disable it
-    flags+=("--no-kong-nginx-module")
+    download_lua-kong-nginx-module
+    flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
+    after+=(make_kong_ngx_module)
   fi
 
   local cmd="${BUILD_TOOLS_CMD} ${flags[*]}"
