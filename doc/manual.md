@@ -230,3 +230,19 @@ gojira compose exec db cqlsh           #Cassandra
 ```
 docker rmi $(gojira images -q)
 ```
+
+
+### Run both cassandra and postgres tests on the same run
+
+The solution for this is to spin up a cassandra container separately on a
+joined network. Note that for full test coverage it's recommended to
+run specs normally setting `KONG_TEST_DATABASE` to the specific target.
+
+```
+docker run --name gojira_cassandra --network foobar -d cassandra:3.9
+KONG_TEST_CASSANDRA_CONTACT_POINTS=gojira_cassandra KONG_CASSANDRA_CONTACT_POINTS=gojira_cassandra gojira up --network foobar
+gojira shell
+$ unset KONG_TEST_DATABASE
+$ bin/busted -o gtest some/tests
+```
+
