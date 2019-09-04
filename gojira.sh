@@ -332,14 +332,19 @@ function image_name {
   LUAROCKS=${LUAROCKS:-$(yaml_find $travis_yaml LUAROCKS)}
   OPENSSL=${OPENSSL:-$(yaml_find $travis_yaml OPENSSL)}
   OPENRESTY=${OPENRESTY:-$(yaml_find $travis_yaml OPENRESTY)}
+  OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(yaml_find $travis_yaml OPENRESTY_PATCHES)}
+
+  if [[ -z $OPENRESTY_PATCHES ]]; then
+    OPENRESTY_PATCHES=master
+  fi
 
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
     err "${GOJIRA}: Could not guess version dependencies in" \
-        "$travis_yaml. Specify versions as LUAROCKS, OPENSSL and"\
+        "$travis_yaml. Specify versions as LUAROCKS, OPENSSL, and "\
         "OPENRESTY envs"
   fi
 
-  GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-openssl-$OPENSSL
+  GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-patches-$OPENRESTY_PATCHES-openssl-$OPENSSL
 }
 
 
@@ -350,6 +355,7 @@ function build {
     "--build-arg LUAROCKS=$LUAROCKS"
     "--build-arg OPENSSL=$OPENSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
+    "--build-arg OPENRESTY_PATCHES=$OPENRESTY_PATCHES"
   )
 
   >&2 echo "Building $GOJIRA_IMAGE"
@@ -358,6 +364,7 @@ function build {
   >&2 echo "=========================="
   >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
+  >&2 echo " * OpenResty patches branch:   $OPENRESTY_PATCHES"
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo "=========================="
   >&2 echo ""
