@@ -39,7 +39,6 @@ function build {
   local flags=(
     "--prefix    ${BUILD_PREFIX}"
     "--openresty ${OPENRESTY}"
-    "--openresty-patches ${OPENRESTY_PATCHES}"
     "--openssl   ${OPENSSL}"
     "--luarocks  ${LUAROCKS}"
     # We are building lua-kong-nginx-module manually and including it with
@@ -53,6 +52,10 @@ function build {
   fi
 
   if version_gte $OPENSSL 1.1; then
+    # Set openresty patches branch
+    flags+=("--openresty-patches ${OPENRESTY_PATCHES:-master}")
+
+    # Add lua-kong-nginx-module and after-party
     download_lua-kong-nginx-module
     flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
     after+=(make_kong_ngx_module)
