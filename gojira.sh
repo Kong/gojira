@@ -344,7 +344,13 @@ function image_name {
         "OPENRESTY envs"
   fi
 
-  GOJIRA_IMAGE=gojira:luarocks-$LUAROCKS-openresty-$OPENRESTY-patches-$OPENRESTY_PATCHES-openssl-$OPENSSL
+  local components=(
+    "luarocks-$LUAROCKS"
+    "openresty-${OPENRESTY}_${OPENRESTY_PATCHES}"
+    "openssl-$OPENSSL"
+  )
+
+  GOJIRA_IMAGE=gojira:$(IFS="-" ; echo "${components[*]}")
 }
 
 
@@ -364,7 +370,7 @@ function build {
   >&2 echo "=========================="
   >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
-  >&2 echo " * OpenResty patches branch:   $OPENRESTY_PATCHES"
+  >&2 echo "   + patches:   $OPENRESTY_PATCHES"
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo "=========================="
   >&2 echo ""
