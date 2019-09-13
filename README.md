@@ -80,11 +80,6 @@ time. With different openssl, openresty and luarocks versions. Run a shell
 inside of the containers, make kong roar. Make kong fail, cd into the repo, fix
 it. Make kong start again. Commit it. Push it, ship it!
 
-In all seriousness, use this tool only for development, for anything serious
-use [kong-build-tools].
-
-[kong-build-tools]: https://github.com/Kong/kong-build-tools
-
 
 ## Installation
 
