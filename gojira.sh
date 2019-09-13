@@ -16,6 +16,7 @@ GOJIRA_TAG=master
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-0}
 GOJIRA_REDIS_MODE=""
+GOJIRA_DETECT_LOCAL=${GOJIRA_DETECT_LOCAL:-0}
 
 _EXTRA_ARGS=()
 _GOJIRA_VOLUMES=()
@@ -44,6 +45,12 @@ function warn() {
 function err {
   >&2 echo $@
   exit 1
+}
+
+function is_kong_repo {
+  local some_kong_sha="ffd70b3101ba38d9acc776038d124f6e2fccac3c"
+  git rev-parse --git-dir &> /dev/null
+  git cat-file -e "$some_kong_sha^{commit}" &> /dev/null
 }
 
 function validate_arguments {
@@ -159,11 +166,24 @@ function parse_args {
 
   validate_arguments
 
-  if [ ! -z "$GOJIRA_KONG_PATH" ]; then
+  # Only try to autodetect a local kong folder if no -k has been supplied
+  if [[ -z "$GOJIRA_KONG_PATH" ]] && [[ "$GOJIRA_DETECT_LOCAL" == 1 ]]; then
+    if is_kong_repo . ; then
+      GOJIRA_KONG_PATH=$(git rev-parse --show-toplevel)
+      GOJIRA_LOC_PATH=1
+      # For the time being, use the path to identify this gojira.
+      # Caveat: if you move or rename the folder, it will generate a new one
+      GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5)
+    fi
+  fi
+
+  if [[ -n "$GOJIRA_KONG_PATH" ]]; then
     GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
-    pushd $GOJIRA_KONG_PATH
-      GOJIRA_TAG=$(git rev-parse --abbrev-ref HEAD)
-    popd
+    if [[ -z $GOJIRA_TAG ]] ; then
+      pushd $GOJIRA_KONG_PATH
+        GOJIRA_TAG=$(git rev-parse --abbrev-ref HEAD)
+      popd
+    fi
   fi
 
   if [ -n "$PREFIX" ]; then
