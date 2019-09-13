@@ -327,12 +327,28 @@ function image_name {
     fi
   fi
 
-  # Get dependencies from travis.yml unless suplied
-  local travis_yaml=$GOJIRA_KONG_PATH/.travis.yml
-  LUAROCKS=${LUAROCKS:-$(yaml_find $travis_yaml LUAROCKS)}
-  OPENSSL=${OPENSSL:-$(yaml_find $travis_yaml OPENSSL)}
-  OPENRESTY=${OPENRESTY:-$(yaml_find $travis_yaml OPENRESTY)}
-  OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(yaml_find $travis_yaml OPENRESTY_PATCHES)}
+  # Get dependencies, unless supplied or found
+  local req_file="$GOJIRA_KONG_PATH/.requirements"
+  local yaml_file="$GOJIRA_KONG_PATH/.travis.yml"
+
+  if [[ -f $req_file ]]; then
+    OPENRESTY=${OPENRESTY:-$(req_find $req_file RESTY_VERSION)}
+    LUAROCKS=${LUAROCKS:-$(req_find $req_file RESTY_LUAROCKS_VERSION)}
+    OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
+  fi
+
+  if [[ -f $yaml_file ]]; then
+    OPENRESTY=${OPENRESTY:-$(yaml_find $yaml_file OPENRESTY)}
+    LUAROCKS=${LUAROCKS:-$(yaml_find $yaml_file LUAROCKS)}
+    OPENSSL=${OPENSSL:-$(yaml_find $yaml_file OPENSSL)}
+    OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(yaml_find $yaml_file OPENRESTY_PATCHES)}
+  fi
+
+  if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
+    err "${GOJIRA}: Could not guess version dependencies in" \
+        "$req_file or $yaml_file. " \
+        "Specify versions as LUAROCKS, OPENSSL, and OPENRESTY envs"
+  fi
 
   if [[ -z $OPENRESTY_PATCHES ]]; then
     OPENRESTY_PATCHES=master
@@ -380,7 +396,12 @@ function build {
 
 
 function yaml_find {
-  echo $(cat $1 | grep $2 | head -n 1 | sed 's/.*=//')
+  cat $1 | grep $2 | head -n 1 | sed 's/.*=//'
+}
+
+
+function req_find {
+  grep $2 $1 | head -n 1 | sed 's/.*=//'
 }
 
 
