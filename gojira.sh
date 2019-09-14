@@ -171,19 +171,14 @@ function parse_args {
     if is_kong_repo . ; then
       GOJIRA_KONG_PATH=$(git rev-parse --show-toplevel)
       GOJIRA_LOC_PATH=1
-      # For the time being, use the path to identify this gojira.
-      # Caveat: if you move or rename the folder, it will generate a new one
-      GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5)
     fi
   fi
 
   if [[ -n "$GOJIRA_KONG_PATH" ]]; then
     GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
-    if [[ -z $GOJIRA_TAG ]] ; then
-      pushd $GOJIRA_KONG_PATH
-        GOJIRA_TAG=$(git rev-parse --abbrev-ref HEAD)
-      popd
-    fi
+    # For the time being, use the path to identify this gojira.
+    # Caveat: if you move or rename the folder, it will generate a new one
+    GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5)
   fi
 
   if [ -n "$PREFIX" ]; then
