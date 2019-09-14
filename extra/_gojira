@@ -1,0 +1,52 @@
+#compdef _gojira gojira
+
+common=("-r::(kong kong)"\
+        "--repo::(kong kong)"\
+        "-V"
+  )
+
+running_gojiras=("-t:tag:($(gojira ps --format='{{.Names}}' | grep kong_1 | sed -e 's/^kong-//' -e 's/^ee-//' -e 's/_kong_1$//' ))")
+gojira_directories=("-t:tag:($(gojira ls | sed -e 's/^kong-//' -e 's/^ee-//'))")
+
+function _gojira {
+    local line
+
+    _arguments -C \
+        "-h[Show help information]" \
+        "--help[Show help information]" \
+        "1: :(up down shell run cd nuke ps ls)" \
+        "*::arg:->args"
+
+    case $line[1] in
+        up)
+            _gojira_up
+        ;;
+        down)
+            _gojira_down
+        ;;
+        shell)
+            _gojira_shell
+        ;;
+        run)
+            _gojira_run
+        ;;
+    esac
+}
+
+_gojira_up() {
+    _arguments $gojira_directories $common \
+    "--image" "--cassandra" "--redis-cluster" "--git-https" "--alone" "-p:prefix:"\
+    "-k:kong:_files" "-pp:" "--port:"
+}
+
+_gojira_down() {
+  _arguments $running_gojiras $common
+}
+
+_gojira_shell() {
+   _arguments $running_gojiras $common
+}
+
+_gojira_run() {
+   _arguments $running_gojiras $common
+}
