@@ -25,13 +25,14 @@ function make_kong_ngx_module {
 }
 
 function init_timer {
-  local sp="⣾⣽⣻⢿⡿⣟⣯⣷"
+  local sp="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+
   local sc=0
 
   while true; do
     >&2 printf "\033[1K\r${sp:$sc % 24:3} $1 "
     ((sc+=3))
-    sleep 0.5
+    sleep 0.1
   done
 }
 
