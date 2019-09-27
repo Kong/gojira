@@ -107,10 +107,82 @@ brew install coreutils
 ```
 
 
-### Usage
+## Usage
 
 For the time being, we have a [guide].
 Also, a [vagrant to gojira guide].
 
 [guide]: doc/manual.md
 [vagrant to gojira guide]: doc/vagrant.md
+
+## Environment variables
+
+Certain behaviours of gojira can be tamed by using the following environment
+variables.
+
+### GOJIRA_REPO
+
+> default: `kong`
+
+Default repository to clone from.
+
+### GOJIRA_TAG
+
+> default: `master`
+
+Default tag to clone from `GOJIRA_REPO` when no `-t` has been provided
+
+
+### GOJIRA_KONGS
+
+> default: `~/.gojira-kongs`
+
+Path where prefixes are stored
+
+
+### GOJIRA_HOME
+
+> default: `${GOJIRA_KONGS}/.gojira-home`
+
+Path to the shared home between gojiras
+
+
+### GOJIRA_IMAGE
+
+Instead of building an image automatically, force this image to be used. [Docs]
+
+[Docs]: doc/manual.md
+
+### GOJIRA_GIT_HTTPS
+
+> default: `0` (off)
+
+Use https instead of ssh for cloning `GOJIRA_REPO`
+
+
+### GOJIRA_DETECT_LOCAL
+
+> default: `0` (off)
+
+Detects if the current path is a kong repository, providing an automatic `-k`
+flag. [Docs]
+
+[Docs]: doc/manual.md#detect-kong-in-path
+
+### GOJIRA_PIN_LOCAL_TAG
+
+> default: `1` (on)
+
+When using a local path (-k or auto), it will always generate the same gojira
+prefix based on the md5 of the path. [Docs]
+
+[Docs]: doc/manual.md#detect-kong-in-path
+
+
+### GOJIRA_USE_SNAPSHOT
+
+> default: `0` (off)
+
+Try to use an automatic snapshot when available. [Docs]
+
+[Docs]: doc/manual.md#using-snapshots-to-store-the-state-of-a-running-container
