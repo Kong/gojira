@@ -172,7 +172,7 @@ function parse_args {
   if [[ "$GOJIRA_DETECT_LOCAL" == 1 ]]; then
     # should not apply if we are specifying a -k or a --tag or a --repo
     if [[ -z "$GOJIRA_KONG_PATH" ]] && [[ -z "$GOJIRA_TAG" ]] && [[ -z "$GOJIRA_REPO" ]]; then
-      if is_kong_repo . ; then
+      if is_kong_repo "$PWD" ; then
         GOJIRA_KONG_PATH=$(git rev-parse --show-toplevel)
         GOJIRA_LOC_PATH=1
       fi
