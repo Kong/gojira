@@ -33,18 +33,24 @@ We want:
 
 ### Kong running
 
-First, let's spin up a gojira. To make sure all future commands are trivial
-and clear, make sure `path/to/kong` points at the `master` branch.
+Before starting, make sure that `GOJIRA_DETECT_LOCAL` and `GOJIRA_PIN_LOCAL_TAG`
+are both set to `1`. The first one makes it so gojira detects if you are
+inside a `kong` repo, and will automatically reference it. The second
+one makes it so gojira references that kong path always with the same name.
 
 NOTE: If you have set `$KONG_PATH` for Vagrant, be sure to unset it before
-running gojira. gojira assumes that $KONG_PATH indicates where to find KONG
+running gojira. gojira assumes that `$KONG_PATH` indicates where to find KONG
 _in the container_, not on the host.
 
-We are also going to bind ports 8000 and 8001 to our host, so we can use them 
+We are also going to bind ports 8000 and 8001 to our host, so we can use them
 as we did on our vagrant setup.
 
+Note all these comands are run within a kong repo. To run them from outside
+a kong folder, you still need to provide `-k path/to/kong` on any command.
+
 ```
-$ gojira up -k path/to/kong -pp 8000:8000 -pp 8001:8001
+$ cd path/to/kong
+$ gojira up -pp 8000:8000 -pp 8001:8001
 Building gojira:luarocks-3.0.4-openresty-1.13.6.2-openssl-1.1.1a
 
        Version info
@@ -53,10 +59,6 @@ Building gojira:luarocks-3.0.4-openresty-1.13.6.2-openssl-1.1.1a
  * OpenResty:   1.13.6.2
  ...
 ```
-
-That's it, we have an instance running. Because it was started with a local
-path and it points to `master`, this instance has been tagged as `master`, and
-all further commands will not need any special prefix to refer to this instance.
 
 Let's install the dev dependencies, and start kong. You can communicate with
 the container by using the `gojira run` command or getting a shell by executing
@@ -105,15 +107,15 @@ kong=#
 
 This is where things might get different. We do not want the same container
 to also use cassandra. We want another environment that will use cassandra.
-Let's use the same trick as before (pointing the repo to master), but let's
-add a prefix this time, `-p cassandra`.
+Thist time, let's up gojira with a prefix, `-p cassandra`.
 
 ```
-gojira up -p cassandra --cassandra -k path/to/kong -pp 8000:9000 -pp 8001:9001
-gojira run -p cassandra make dev
-gojira run -p cassandra kong migrations bootstrap
-gojira run -p cassandra kong start
-gojira shell -p cassandra
+$ cd path/to/kong
+$ gojira up -p cassandra --cassandra -pp 8000:9000 -pp 8001:9001
+$ gojira run -p cassandra make dev
+$ gojira run -p cassandra kong migrations bootstrap
+$ gojira run -p cassandra kong start
+$ gojira shell -p cassandra
 root@f648a8c047fe:/kong#
 root@f648a8c047fe:/kong# apt install python3-pip
 root@f648a8c047fe:/kong# pip install cqlsh
@@ -189,15 +191,6 @@ $ gojira compose -p cassandra stop
 $ gojira compose start
 $ gojira compose -p cassandra start
 ```
-
-### Actually do some work
-
-We started our containers on the `master` branch, but we can now effectively
-change branches. Internally, we only need to understand that gojira used
-the `master` branch as a prefix name to identify an instance, and we can refer
-to this instance from now on as `kong-master`, which is the default. Our
-cassandra instance, we prefixed it with `cassandra`, so its prefix is
-`cassandra-kong-master`.
 
 ### PS: Something new and exciting
 
