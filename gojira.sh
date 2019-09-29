@@ -11,17 +11,17 @@ COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 GOJIRA_HOME=${GOJIRA_HOME:-$GOJIRA_KONGS/.gojira-home/}
 GOJIRA_DATABASE=postgres
-GOJIRA_DEFAULT_REPO=${GOJIRA_REPO:-kong}
-GOJIRA_DEFAULT_TAG=${GOJIRA_TAG:-master}
+GOJIRA_REPO=${GOJIRA_REPO:-kong}
+GOJIRA_TAG=${GOJIRA_TAG:-master}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-0}
 GOJIRA_REDIS_MODE=""
 GOJIRA_DETECT_LOCAL=${GOJIRA_DETECT_LOCAL:-0}
+GOJIRA_PIN_LOCAL_TAG=${GOJIRA_PIN_LOCAL_TAG:-1}
 
 _EXTRA_ARGS=()
 _GOJIRA_VOLUMES=()
 _GOJIRA_PORTS=()
-
 
 unset FORCE
 unset PREFIX
@@ -33,8 +33,7 @@ unset GOJIRA_SNAPSHOT
 unset GOJIRA_HOSTNAME
 unset GOJIRA_VOLUMES
 unset GOJIRA_PORTS
-unset GOJIRA_REPO
-unset GOJIRA_TAG
+unset GOJIRA_TAINTED_LOCAL
 
 unset _RAW_INPUT
 
@@ -95,10 +94,12 @@ function parse_args {
       -k|--kong)
         GOJIRA_KONG_PATH=$(realpath $2)
         GOJIRA_LOC_PATH=1
+        GOJIRA_TAINTED_LOCAL=1
         shift
         ;;
       -t|--tag)
         GOJIRA_TAG=$2
+        GOJIRA_TAINTED_LOCAL=1
         shift
         ;;
       -p|--prefix)
@@ -137,6 +138,7 @@ function parse_args {
         ;;
       -r|--repo)
         GOJIRA_REPO=$2
+        GOJIRA_TAINTED_LOCAL=1
         shift
         ;;
       -f|--force)
@@ -169,26 +171,29 @@ function parse_args {
   validate_arguments
 
   # detect if current folder looks like a kong
+  # only if no -k, -t, -r has been provided
   if [[ "$GOJIRA_DETECT_LOCAL" == 1 ]]; then
-    # should not apply if we are specifying a -k or a --tag or a --repo
-    if [[ -z "$GOJIRA_KONG_PATH" ]] && [[ -z "$GOJIRA_TAG" ]] && [[ -z "$GOJIRA_REPO" ]]; then
-      if is_kong_repo "$PWD" ; then
-        GOJIRA_KONG_PATH=$(git rev-parse --show-toplevel)
-        GOJIRA_LOC_PATH=1
-      fi
+    if [[ -z "$GOJIRA_TAINTED_LOCAL" ]] && is_kong_repo "$PWD" ; then
+      GOJIRA_KONG_PATH=$(git rev-parse --show-toplevel)
+      GOJIRA_LOC_PATH=1
     fi
   fi
 
   # kong path supplied, override repo / tag
   if [[ -n "$GOJIRA_KONG_PATH" ]]; then
     GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
-    # For the time being, use the path to identify this gojira.
-    # Caveat: if you move or rename the folder, it will generate a new one
-    GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5)
+    # New behavior, always use the same tag for a local kong path
+    if [[ "$GOJIRA_PIN_LOCAL_TAG" == 1 ]] ; then
+      # For the time being, use the path to identify this gojira.
+      # Caveat: if you move or rename the folder, it will generate a new one
+      GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5)
+    else
+      # Old behavior. Get tag from repo
+      pushd $GOJIRA_KONG_PATH
+        GOJIRA_TAG=$(git rev-parse --abbrev-ref HEAD)
+      popd
+    fi
   fi
-
-  GOJIRA_REPO=${GOJIRA_REPO:-$GOJIRA_DEFAULT_REPO}
-  GOJIRA_TAG=${GOJIRA_TAG:-$GOJIRA_DEFAULT_TAG}
 
   if [ -n "$PREFIX" ]; then
     PREFIX=$PREFIX-$GOJIRA_REPO-$GOJIRA_TAG
