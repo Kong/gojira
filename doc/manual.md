@@ -67,6 +67,30 @@ Again, we can access the path where this kong prefix is stored by
 . gojira cd -t 0.34-1
 ```
 
+
+### Start a local kong
+
+By using th `-k | --kong` flag, you can point to local kong folder.
+
+```
+$ gojira up -k path/to/some/kong
+$ gojira run -k path/to/some/kong some commands
+$ gojira shell -k path/to/some/kong
+$ gojira down -k path/to/some/kong
+```
+
+By turning on `GOJIRA_DETECT_LOCAL=1`, gojira will automatically detect when
+it runs within a kong repository. The previous would become
+
+```
+$ export GOJIRA_DETECT_LOCAL=1
+$ cd path/to/some/kong
+$ gojira up
+$ gojira run some commands
+$ gojira shell
+$ gojira down
+```
+
 ### Using two gojiras with the same version
 
 gojira has the notion of prefixes. With the `-p | --prefix` flag you can avoid
