@@ -289,6 +289,28 @@ gojira run -p bar kong roar
 |                                                  | `curl -i -X POST   --url http://localhost:8001/services/   --data 'name=example-service'   --data 'url=http://mockbin.org'` |
 | `gojira run curl http://localhost:8001/services` |                                                                                                                             |
 
+### Run a migration from one version to another
+
+By using the following step, it's possible and easy to check a migration from
+a version to another:
+
+```
+gojira up -t 1.2.0 --network some-network
+gojira up -t 1.3.0 --network some-network --alone
+gojira shell -t 1.2.0
+$ kong migrations bootstrap
+$ kong start
+$ # Add some data maybe
+$ http POST :8001/services name=example host=mockbin.org
+$ http -f POST :8001/services/example/routes hosts=example.com
+$ # ...
+$ exit
+gojira shell -t 1.3.0
+$ # let's migrate the database from 1.2.0 to 1.3.0
+$ kong migrations up
+$ kong start
+$ http :8000/request/foo Host:example.com
+```
 
 ### use a different starting image
 
