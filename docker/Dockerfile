@@ -13,6 +13,7 @@ RUN apt-get update && \
         libperl-dev \
         libreadline-dev \
         libxslt1-dev \
+	libpasswdqc-dev \
         make \
         perl \
         unzip \
