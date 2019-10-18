@@ -364,6 +364,7 @@ function image_name {
     OPENRESTY=${OPENRESTY:-$(req_find $req_file RESTY_VERSION)}
     LUAROCKS=${LUAROCKS:-$(req_find $req_file RESTY_LUAROCKS_VERSION)}
     OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
+    OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(req_find $req_file OPENRESTY_PATCHES)}
   fi
 
   if [[ -f $yaml_file ]]; then
