@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 trap exit INT TERM
 mkdir -p $KONG_PREFIX/logs

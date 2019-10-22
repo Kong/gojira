@@ -36,6 +36,7 @@ cat << EOF
       - ${KONG_PREFIX:-/kong/servroot}
       - ${GOJIRA_KONG_PATH}:${KONG_PATH:-/kong}
       - ${GOJIRA_HOME}/:/root/
+      - ${DOCKER_CTX}/follow-log.sh:/bin/follow-kong-log
 EOF
 
 for volume in $GOJIRA_VOLUMES; do

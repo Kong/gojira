@@ -61,6 +61,5 @@ RUN cpanm --notest Test::Nginx
 RUN cpanm --notest local::lib
 
 COPY 42-kong-envs.sh /etc/profile.d/
-COPY follow-log.sh /bin/follow-kong-log
 
 WORKDIR /kong
