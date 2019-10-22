@@ -508,7 +508,7 @@ main() {
     p_compose down -v
     ;;
   shell)
-    p_compose exec kong bash -l -i
+    p_compose exec kong shell -l -i
     ;;
   build)
     build
@@ -527,9 +527,9 @@ main() {
       args=${_EXTRA_ARGS[@]@Q}
     fi
     if [[ -t 1 ]]; then
-      p_compose exec kong bash -l -i -c "$args"
+      p_compose exec kong shell -l -i -c "$args"
     else
-      p_compose exec -T kong bash -l -c "$args"
+      p_compose exec -T kong shell -l -c "$args"
     fi
     ;;
   images)
@@ -560,7 +560,7 @@ main() {
   snapshot)
     snapshot_image_name $EXTRA_ARGS
     local cmd='cat /proc/self/cgroup | head -1 | sed "s/.*docker\///"'
-    local c_id=$(p_compose exec -T kong bash -c "$cmd" | tr -d '\r')
+    local c_id=$(p_compose exec -T kong sh -c "$cmd" | tr -d '\r')
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
