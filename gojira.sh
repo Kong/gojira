@@ -27,8 +27,14 @@ unset FORCE
 unset PREFIX
 unset EXTRA_ARGS
 
-unset GOJIRA_KONG_PATH
-unset GOJIRA_LOC_PATH
+# Accept outside GOJIRA_KONG_PATH hardcoded
+if [[ -n $GOJIRA_KONG_PATH ]]; then
+  GOJIRA_LOC_PATH=1
+else
+  unset GOJIRA_KONG_PATH
+  unset GOJIRA_LOC_PATH
+fi
+
 unset GOJIRA_SNAPSHOT
 unset GOJIRA_HOSTNAME
 unset GOJIRA_VOLUMES
