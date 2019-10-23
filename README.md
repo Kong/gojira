@@ -173,7 +173,6 @@ prefix based on the md5 of the path. [Docs]
 
 [Docs]: doc/manual.md#detect-kong-in-path
 
-
 ### GOJIRA_USE_SNAPSHOT
 
 > default: `0` (off)
@@ -181,3 +180,14 @@ prefix based on the md5 of the path. [Docs]
 Try to use an automatic snapshot when available. [Docs]
 
 [Docs]: doc/manual.md#using-snapshots-to-store-the-state-of-a-running-container
+
+### GOJIRA_KONG_PATH
+
+Set this to a **full** kong path so gojira always references it no matter what
+This efectively hardcodes all the gojira magic to always, always use this path,
+without having to reference it by `-k`. ie
+
+```bash
+export GOJIRA_KONG_PATH=full/path/to/some/kong
+```
+
