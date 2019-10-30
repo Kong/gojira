@@ -247,7 +247,7 @@ function rawr {
     "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
     "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
     "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
-    "you're breathtaking" "Monster Zero" "Let Me Fight"
+    "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
   )
   echo -e ${ROARS[$RANDOM % ${#ROARS[@]}]}
 }
@@ -559,8 +559,8 @@ main() {
     ;;
   snapshot)
     snapshot_image_name $EXTRA_ARGS
-    local cmd='cat /proc/self/cgroup | head -1 | sed "s/.*docker\///"'
-    local c_id=$(p_compose exec -T kong bash -c "$cmd" | tr -d '\r')
+    local cmd='cat /proc/self/cgroup | grep docker | sed "s/.*docker\///" | head -1'
+    local c_id=$(p_compose exec -T kong sh -c "$cmd" | tr -d '\r')
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
