@@ -192,7 +192,7 @@ function parse_args {
     if [[ "$GOJIRA_PIN_LOCAL_TAG" == 1 ]] ; then
       # For the time being, use the path to identify this gojira.
       # Caveat: if you move or rename the folder, it will generate a new one
-      GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5)
+      GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | md5sum | awk '{print $1}')
     else
       # Old behavior. Get tag from repo
       pushd $GOJIRA_KONG_PATH
