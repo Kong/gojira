@@ -59,6 +59,9 @@ function build {
     # Add lua-kong-nginx-module and after-party
     download_lua-kong-nginx-module
     flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
+    if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]]; then
+      flags+=("--add-module $KONG_NGX_MODULE_INSTALL/stream")
+    fi
     after+=(make_kong_ngx_module)
   fi
 
