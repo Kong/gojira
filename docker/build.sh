@@ -13,7 +13,7 @@ KONG_NGX_MODULE_INSTALL=${BUILD_PREFIX}/lua-kong-nginx-module
 
 function download_build_tools {
   mkdir -p ${BUILD_TOOLS_INSTALL}
-  curl -sSL https://github.com/Kong/kong-build-tools/archive/${BUILD_TOOLS}.tar.gz \
+  curl -sSL https://github.com/Kong/kong-build-tools/archive/${KONG_BUILD_TOOLS}.tar.gz \
             | tar -C ${BUILD_TOOLS_INSTALL} -xz --strip-components=1
 }
 
@@ -47,7 +47,9 @@ function build {
     # Add lua-kong-nginx-module and after-party
     download_lua-kong-nginx-module
     flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
-    if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]]; then
+    # Stream part not compatible with open resty < 1.5
+    # I know we should be pinning these versions but this is a quickfix
+    if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]] && ! version_lt 1.5 $OPENRESTY ; then
       flags+=("--add-module $KONG_NGX_MODULE_INSTALL/stream")
     fi
     after+=(make_kong_ngx_module)

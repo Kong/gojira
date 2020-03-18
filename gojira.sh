@@ -384,6 +384,8 @@ function image_name {
     LUAROCKS=${LUAROCKS:-$(req_find $req_file RESTY_LUAROCKS_VERSION)}
     OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
     OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(req_find $req_file OPENRESTY_PATCHES)}
+    KONG_NGX_MODULE=${KONG_NGX_MODULE:-$(req_find $req_file KONG_NGINX_MODULE_BRANCH)}
+    KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS_BRANCH:-$(req_find $req_file KONG_BUILD_TOOLS_BRANCH)}
   fi
 
   if [[ -f $yaml_file ]]; then
@@ -399,20 +401,16 @@ function image_name {
         "Specify versions as LUAROCKS, OPENSSL, and OPENRESTY envs"
   fi
 
-  if [[ -z $OPENRESTY_PATCHES ]]; then
-    OPENRESTY_PATCHES=master
-  fi
-
-  if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
-    err "${GOJIRA}: Could not guess version dependencies in" \
-        "$travis_yaml. Specify versions as LUAROCKS, OPENSSL, and "\
-        "OPENRESTY envs"
-  fi
+  OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-master}
+  KONG_NGX_MODULE=${KONG_NGX_MODULE:-master}
+  KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS:-master}
 
   local components=(
     "luarocks-$LUAROCKS"
     "openresty-${OPENRESTY}_${OPENRESTY_PATCHES}"
     "openssl-$OPENSSL"
+    "kong-ngx-module-$KONG_NGX_MODULE"
+    "build-tools-$KONG_BUILD_TOOLS"
   )
 
   GOJIRA_IMAGE=gojira:$(IFS="-" ; echo "${components[*]}")
@@ -427,6 +425,8 @@ function build {
     "--build-arg OPENSSL=$OPENSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
     "--build-arg OPENRESTY_PATCHES=$OPENRESTY_PATCHES"
+    "--build-arg KONG_NGX_MODULE=$KONG_NGX_MODULE"
+    "--build-arg KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
   )
 
   >&2 echo "Building $GOJIRA_IMAGE"
