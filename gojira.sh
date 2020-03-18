@@ -401,6 +401,11 @@ function image_name {
         "Specify versions as LUAROCKS, OPENSSL, and OPENRESTY envs"
   fi
 
+  # XXX: openresty patches are no longer supported on openresty-build-tools
+  # So far, noone has complained. If it gets to a day where we need to get
+  # some old branches back for any version, come here and fix it. The fix
+  # involves using old version of openresty-build-tools. It's boring but
+  # doable.
   OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-master}
   KONG_NGX_MODULE=${KONG_NGX_MODULE:-master}
   KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS:-master}
