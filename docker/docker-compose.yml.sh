@@ -114,6 +114,7 @@ EOF
     image: postgres:${POSTGRES:-9.5}
     volumes:
       - ${DOCKER_CTX}/pg-entrypoint:/docker-entrypoint-initdb.d
+      - ${GOJIRA_HOME}/:/root/
     environment:
       POSTGRES_DBS: ${KONG_PG_DATABASE:-kong},${KONG_TEST_PG_DATABASE:-kong_tests}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
@@ -130,6 +131,8 @@ EOF
   elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
     cat << EOF
     image: cassandra:${CASSANDRA:-3.9}
+    volumes:
+      - ${GOJIRA_HOME}/:/root/
     environment:
       MAX_HEAP_SIZE: 256M
       HEAP_NEWSIZE: 128M

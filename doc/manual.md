@@ -443,6 +443,15 @@ gojira compose exec db cqlsh           #Cassandra
 
 ```
 
+### Run an sql file in the db
+
+`/root/` is also shared by the databse containers, so you keep your
+cassandra history and psql history.
+
+```
+gojira compose exec db psql -U kong -d kong_tests -f'/root/foo.sql'
+```
+
 ### Remove all gojira images (including snapshots)
 
 ```
@@ -452,9 +461,10 @@ docker rmi $(gojira images -q)
 
 ### Run both cassandra and postgres tests on the same run
 
-The solution for this is to spin up a cassandra container separately on a
-joined network. Note that for full test coverage it's recommended to
-run specs normally setting `KONG_TEST_DATABASE` to the specific target.
+The solution for this is to spin up a cassandra container separately
+on a joined network. Note that for full test coverage it's recommended
+to run specs normally setting `KONG_TEST_DATABASE` to the specific
+target.
 
 ```
 docker run --name gojira_cassandra --network foobar -d cassandra:3.9
