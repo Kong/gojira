@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 GOJIRA=$(basename $0)
-GOJIRA_VERSION=0.2.6
+GOJIRA_VERSION=0.2.7
 GOJIRA_PATH=$(dirname $(realpath $0))
 DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
@@ -248,7 +248,7 @@ function rawr {
     "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
     "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
     "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
-    "Ho-ho-ho!"
+    "Ho-ho-ho!" "Fail fast and furiously"
   )
   echo -e ${ROARS[$RANDOM % ${#ROARS[@]}]}
 }
