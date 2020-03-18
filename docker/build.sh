@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source ${BUILD_PREFIX}/silent/silent-run.sh
+
 # Add here any hack necessary to get a precise version of kong built.
 
 BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/kong-build-tools
@@ -25,18 +27,6 @@ function make_kong_ngx_module {
   make -C ${KONG_NGX_MODULE_INSTALL} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
 }
 
-function init_timer {
-  local sp="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-
-  local sc=0
-
-  while true; do
-    >&2 printf "\033[1K\r${sp:$sc % 24:3} $1 "
-    ((sc+=3))
-    sleep 0.1
-  done
-}
-
 function build {
   local flags=(
     "--prefix    ${BUILD_PREFIX}"
@@ -54,9 +44,6 @@ function build {
   fi
 
   if version_gte $OPENSSL 1.1; then
-    # Set openresty patches branch
-    flags+=("--openresty-patches ${OPENRESTY_PATCHES:-master}")
-
     # Add lua-kong-nginx-module and after-party
     download_lua-kong-nginx-module
     flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
@@ -69,22 +56,9 @@ function build {
   local cmd="${BUILD_TOOLS_CMD} ${flags[*]}"
   >&2 echo $cmd
 
-  local timer_pid res
-  init_timer "Building base dependencies" &
-  timer_pid=$!
-  disown
-
-  $cmd &> ${BUILD_LOG}
-  res=$?
-
-  kill $timer_pid &> /dev/null
-  >&2 printf "\n"
-
-  if [[ ! "$res" == 0 ]]; then
-    >&2 echo "Error building base dependencies:"
-    >&2 tail -n 10 ${BUILD_LOG}
-    exit 1
-  fi
+  start_silent_run "Building base dependencies"
+    $cmd
+  stop_silent_run
 
   >&2 tail -n 2 ${BUILD_LOG}
 
