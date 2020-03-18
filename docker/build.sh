@@ -2,15 +2,16 @@
 
 # Add here any hack necessary to get a precise version of kong built.
 
-BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/openresty-build-tools
-BUILD_TOOLS_CMD=${BUILD_TOOLS_INSTALL}/kong-ngx-build
+BUILD_TOOLS_INSTALL=${BUILD_PREFIX}/kong-build-tools
+BUILD_TOOLS_DIR=${BUILD_TOOLS_INSTALL}/openresty-build-tools
+BUILD_TOOLS_CMD=${BUILD_TOOLS_DIR}/kong-ngx-build
 BUILD_LOG=${BUILD_PREFIX}/build.log
 
 KONG_NGX_MODULE_INSTALL=${BUILD_PREFIX}/lua-kong-nginx-module
 
 function download_build_tools {
   mkdir -p ${BUILD_TOOLS_INSTALL}
-  curl -sSL https://github.com/kong/openresty-build-tools/archive/${BUILD_TOOLS}.tar.gz \
+  curl -sSL https://github.com/Kong/kong-build-tools/archive/${BUILD_TOOLS}.tar.gz \
             | tar -C ${BUILD_TOOLS_INSTALL} -xz --strip-components=1
 }
 
