@@ -49,7 +49,7 @@ function build {
     flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
     # Stream part not compatible with open resty < 1.5
     # I know we should be pinning these versions but this is a quickfix
-    if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]] && ! version_lt 1.5 $OPENRESTY ; then
+    if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]] && ! version_lt 1.15 $OPENRESTY ; then
       flags+=("--add-module $KONG_NGX_MODULE_INSTALL/stream")
     fi
     after+=(make_kong_ngx_module)
