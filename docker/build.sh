@@ -46,6 +46,11 @@ function build {
     flags+=("--no-openresty-patches")
   fi
 
+  # Hack for 0.36 ...
+  if version_lt $OPENRESTY 1.15; then
+    KONG_NGX_MODULE=0.0.4
+  fi
+
   if version_gte $OPENSSL 1.1; then
     if [[ $NGX_MODULE_MANUAL == 1 ]]; then
       # We are building lua-kong-nginx-module manually and including it with
