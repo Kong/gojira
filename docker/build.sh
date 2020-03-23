@@ -11,6 +11,11 @@ BUILD_LOG=${BUILD_PREFIX}/build.log
 
 KONG_NGX_MODULE_INSTALL=${BUILD_PREFIX}/lua-kong-nginx-module
 
+# Set this to download lua-kong-nginx-module manually
+# some versions of openresty-build-tools won't work with versions
+# so it will restort to this
+NGX_MODULE_MANUAL=0
+
 function download_build_tools {
   mkdir -p ${BUILD_TOOLS_INSTALL}
   curl -sSL https://github.com/Kong/kong-build-tools/archive/${KONG_BUILD_TOOLS}.tar.gz \
@@ -33,10 +38,8 @@ function build {
     "--openresty ${OPENRESTY}"
     "--openssl   ${OPENSSL}"
     "--luarocks  ${LUAROCKS}"
-    # We are building lua-kong-nginx-module manually and including it with
-    # --add-module on compatible versions.
-    "--no-kong-nginx-module"
   )
+
   local after=()
 
   if version_lte $OPENSSL 1.0; then
@@ -44,15 +47,21 @@ function build {
   fi
 
   if version_gte $OPENSSL 1.1; then
-    # Add lua-kong-nginx-module and after-party
-    download_lua-kong-nginx-module
-    flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
-    # Stream part not compatible with open resty < 1.5
-    # I know we should be pinning these versions but this is a quickfix
-    if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]] && ! version_lt 1.15 $OPENRESTY ; then
-      flags+=("--add-module $KONG_NGX_MODULE_INSTALL/stream")
+    if [[ $NGX_MODULE_MANUAL == 1 ]]; then
+      # We are building lua-kong-nginx-module manually and including it with
+      # Add lua-kong-nginx-module and after-party
+      download_lua-kong-nginx-module
+      flags+=("--no-kong-nginx-module")
+      flags+=("--add-module $KONG_NGX_MODULE_INSTALL")
+      # Stream part not compatible with open resty < 1.5
+      # I know we should be pinning these versions but this is a quickfix
+      if [[ -d $KONG_NGX_MODULE_INSTALL/stream ]] && version_gte $OPENRESTY 1.15; then
+        flags+=("--add-module $KONG_NGX_MODULE_INSTALL/stream")
+      fi
+      after+=(make_kong_ngx_module)
+    else
+      flags+=("--kong-nginx-module $KONG_NGX_MODULE")
     fi
-    after+=(make_kong_ngx_module)
   fi
 
   local cmd="${BUILD_TOOLS_CMD} ${flags[*]}"
