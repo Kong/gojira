@@ -46,7 +46,10 @@ function init_timer() {
 }
 
 function kill_timer() {
-  kill $TIMER_PID || true
+  # Tony Hawk trick. If you use SIGPIPE it will not have this ugly
+  # Terminated message. We can do that because we know we are not handling
+  # pipes on that PID
+  kill -PIPE $TIMER_PID || true
 }
 
 function on_err() {
