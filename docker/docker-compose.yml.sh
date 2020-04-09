@@ -156,6 +156,7 @@ EOF
 cat << EOF
     environment:
       - IP
+      - REDIS_CLUSTER_NODES=${REDIS_CLUSTER_NODES:-6}
     volumes:
       - ${DOCKER_CTX}/redis-cluster.sh:/usr/local/bin/redis-cluster.sh
     command: ["sh", "/usr/local/bin/redis-cluster.sh"]
