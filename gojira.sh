@@ -75,12 +75,6 @@ function validate_arguments {
             grep '_db_' 1>/dev/null &&
         warn "Creating a db in a network with db already.
          This might cause to round robin requests to db to multiple dbs. Try --alone flag"
-
-    # There's an unrecognized arg that contains a slash (likely to be
-    # a branch) but the tag that gojira is building is still master.
-    [[ $GOJIRA_TAG == "master" ]] &&
-        echo $EXTRA_ARGS | grep -q '/' &&
-        warn "probably forgot the -t flag. Building master"
 }
 
 function parse_args {
