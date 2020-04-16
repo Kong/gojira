@@ -1,11 +1,19 @@
 #!/usr/bin/env bash
 
 GOJIRA=$(basename $0)
-GOJIRA_VERSION=0.2.7
 GOJIRA_PATH=$(dirname $(realpath $0))
 DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
+
+GOJIRA_VERSION=0.2.8
+GOJIRA_ROARS=(
+  "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
+  "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
+  "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
+  "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
+  "Ho-ho-ho!" "Fail fast and furiously" "King of Monsters"
+)
 
 # Defaults
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
@@ -243,16 +251,8 @@ function create_kong {
   popd
 }
 
-
 function rawr {
-  ROARS=(
-    "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
-    "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
-    "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
-    "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
-    "Ho-ho-ho!" "Fail fast and furiously"
-  )
-  echo -e ${ROARS[$RANDOM % ${#ROARS[@]}]}
+  echo -e ${GOJIRA_ROARS[$RANDOM % ${#GOJIRA_ROARS[@]}]}
 }
 
 
@@ -607,7 +607,7 @@ main() {
       fi
     ;;
   version)
-    echo $GOJIRA $GOJIRA_VERSION
+    echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
     ;;
   nuke)
     docker rm -fv $($0 ps -aq)
