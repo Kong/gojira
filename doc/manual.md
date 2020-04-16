@@ -252,11 +252,10 @@ $ gojira shell -k path/to/some/kong
 $ gojira down -k path/to/some/kong
 ```
 
-By turning on `GOJIRA_DETECT_LOCAL=1`, gojira will automatically detect when
-it runs within a kong repository. The previous would become
+Gojira will automatically detect when it runs within a kong repository. The
+previous would become. Disable this feature by setting `GOJIRA_DETECT_LOCAL=0`.
 
 ```
-$ export GOJIRA_DETECT_LOCAL=1
 $ cd path/to/some/kong
 $ gojira up
 $ gojira run some commands
@@ -278,44 +277,36 @@ gojira run -p bar kong roar
 . gojira cd -p bar
 ```
 
-### link 2 gojiras to the same db
+### Using two gojiras with the same database
 
-| term1                                            | term2                                                                                                                       |
-|--------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| `gojira up -t 0.34-1 -n network1`                | `gojira up -t master -n network1 --alone`                                                                                   |
-| `gojira run make dev -t 0.34-1 -n network1`      | `gojira run make dev -t master -n network1 --alone`                                                                             |
-|                                                  | `gojira run bin/kong migrations bootstrap -t master -n network1`                                                            |
-| `gojira run bin/kong start -t 0.34-1`            | `gojira run bin/kong start -t master`                                                                                       |
-|                                                  | `gojira shell -t master`                                                                                                    |
-|                                                  | `curl -i -X POST   --url http://localhost:8001/services/   --data 'name=example-service'   --data 'url=http://mockbin.org'` |
-| `gojira run curl http://localhost:8001/services` |                                                                                                                             |
+It's useful for testing migrations. The following will up two kongs on
+different versions using the same database and do a migration:
 
-### Run a migration from one version to another
+```bash
+# Start a node on 0.36-1
+gojira up -t 0.36-1 --network some-network
+gojira run -t 0.36-1 kong migrations bootstrap
+gojira run -t 0.36-1 kong start
 
-By using the following step, it's possible and easy to check a migration from
-a version to another:
-
-```
-gojira up -t 1.2.0 --network some-network
-gojira up -t 1.3.0 --network some-network --alone
-gojira shell -t 1.2.0
-$ kong migrations bootstrap
-$ kong start
-$ # Add some data maybe
-$ http POST :8001/services name=example host=mockbin.org
-$ http -f POST :8001/services/example/routes hosts=example.com
-$ # ...
-$ exit
-gojira shell -t 1.3.0
-$ # let's migrate the database from 1.2.0 to 1.3.0
-$ kong migrations up
-$ kong start
-$ http :8000/request/foo Host:example.com
+# Start a node on 1.3.0.2 on the same network without db
+gojira up -t 1.3.0.2 --network some-network --alone
+gojira run -t 1.3.0.2 kong migrations up
+gojira run -t 1.3.0.2 kong migrations finish
+gojira run -t 1.3.0.2 kong start
 ```
 
-### use a different starting image
+### Using kong release images with gojira
 
-- `gojira up -t 0.34-1 --image bintray.....`
+```bash
+# or set it with --image argument
+export GOJIRA_IMAGE=kong:1.5.0-alpine`
+export GOJIRA_SHELL=ash
+gojira up
+gojira shell
+kong roar
+kong migrations bootstrap
+kong start
+```
 
 ### Using snapshots to store the state of a running container
 
