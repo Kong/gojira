@@ -400,8 +400,8 @@ function image_name {
     "luarocks-$LUAROCKS"
     "openresty-${OPENRESTY}"
     "openssl-$OPENSSL"
-    "kong-ngx-module-$KONG_NGX_MODULE"
-    "build-tools-$KONG_BUILD_TOOLS"
+    "knm-$KONG_NGX_MODULE"
+    "kbt-$KONG_BUILD_TOOLS"
   )
 
   GOJIRA_IMAGE=gojira:$(IFS="-" ; echo "${components[*]}")
@@ -426,6 +426,7 @@ function build {
   >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
   >&2 echo " * LuaRocks:    $LUAROCKS "
+  >&2 echo " * Kong BT:     $KONG_BUILD_TOOLS"
   >&2 echo "=========================="
   >&2 echo ""
 
