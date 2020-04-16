@@ -157,7 +157,7 @@ Use https instead of ssh for cloning `GOJIRA_REPO`
 
 ### GOJIRA_DETECT_LOCAL
 
-> default: `0` (off)
+> default: `1` (on)
 
 Detects if the current path is a kong repository, providing an automatic `-k`
 flag. [Docs]
@@ -175,7 +175,7 @@ prefix based on the md5 of the path. [Docs]
 
 ### GOJIRA_USE_SNAPSHOT
 
-> default: `0` (off)
+> default: `1` (on)
 
 Try to use an automatic snapshot when available. [Docs]
 

@@ -155,19 +155,20 @@ Creating kong-0c4151a3c047b3f5592cce0ad4afaaa6_kong_1  ... done
 ```
 
 There's now a container running under the fixed prefix `kong-0c4151a3c047b3f5592cce0ad4afaaa6`.
-Any gojira command that references this path will access it. It gets better by
-setting `GOJIRA_DETECT_LOCAL=1` on your environment. All `gojira` commands run
-from within a kong repository will assume a `-k` flag into it, making the
-following two commands equivalent:
+Any gojira command that references this path will access it.
+
+All `gojira` commands run from within a kong repository will assume a `-k` flag
+into it, making the following two commands equivalent:
 
 ```
 # reference a path by -k
 gojira up -k some/path/to/kong
 # run it from within a kong folder
-export GOJIRA_DETECT_LOCAL=1
 cd some/path/to/kong
 gojira up
 ```
+
+To disable this behavior, set `GOJIRA_DETECT_LOCAL=0`.
 
 That's the main gist of it. The following are examples of different usage
 patterns that are possible by using gojira.
@@ -364,26 +365,12 @@ $ gojira snapshot? non-existent
 X $
 ```
 
-Thus, theoretically you can run the following and always get a container using
-the image you snapshotted, without having to run `make dev` again.
-```
-$ gojira up --image $(gojira snapshot?)
-$ gojira run kong roar
-```
+By default, gojira will load a snapshot if found. If you want to disable
+this behavior, set `GOJIRA_USE_SNAPSHOT=0`
 
-We hear you - This is neat! I do not want to type `make dev` again. Make this
-the default - and we got you covered. This feature is nifty, but comes with
-some compromises that might be non obvious, therefore it comes disabled by
-default. Even if enabled, it will not do anything if an `--image` is provided.
-
-All you need to do, is `export GOJIRA_USE_SNAPSHOT=1`
-
-The following will always try to use an snapshot if it is available. Notice
-how you can install more tools and overwrite the snapshot at any time.
+Notice how you can install more tools and overwrite the snapshot at any time.
 
 ```
-export GOJIRA_USE_SNAPSHOT=1
-
 gojira up
 gojira run make dev
 gojira snapshot
