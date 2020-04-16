@@ -12,6 +12,10 @@ services:
     command: "follow-kong-log"
     labels:
       com.konghq.gojira: True
+    # Add net admin capabilities to containers to allow manipulating traffic
+    # control settings (like adding network latency)
+    cap_add:
+      - NET_ADMIN
 EOF
 
 if [[ ! -z $GOJIRA_HOSTNAME ]]; then

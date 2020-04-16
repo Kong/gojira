@@ -56,7 +56,8 @@ RUN apt-get update && \
         jq \
         httpie \
         iputils-ping \
-        cpanminus
+        cpanminus \
+        iproute2
 
 RUN cpanm --notest Test::Nginx
 RUN cpanm --notest local::lib
