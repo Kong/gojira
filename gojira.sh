@@ -471,7 +471,8 @@ function snapshot_image_name {
     sha=$(git hash-object kong-*.rockspec)
   popd
   sha=$(echo $base_sha:$sha | sha1sum | awk '{printf $1}')
-  GOJIRA_SNAPSHOT=gojira:snap-$sha
+  GOJIRA_SNAPSHOT=gojira:snap-$GOJIRA_REPO-$sha
+  GOJIRA_BASE_IMAGE=gojira:base-snap-$GOJIRA_REPO-$base_sha
 }
 
 
@@ -498,6 +499,11 @@ main() {
       snapshot_image_name
       if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
         GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
+      elif [[ ! -z $(query_image $GOJIRA_BASE_IMAGE) ]]; then
+        # Bring base image up to date man!
+        GOJIRA_IMAGE=$GOJIRA_BASE_IMAGE
+        warn "Your snapshot is not up to date, bringing up your latest compatible" \
+             "base, but remember to run 'make dev'!"
       fi
     fi
 
@@ -564,6 +570,9 @@ main() {
     snapshot_image_name $EXTRA_ARGS
     local cmd='cat /proc/self/cgroup | grep docker | sed "s/.*docker\///" | head -1'
     local c_id=$(p_compose exec -T kong sh -c "$cmd" | tr -d '\r')
+    if [[ -n $GOJIRA_BASE_IMAGE ]]; then
+      docker commit $c_id $GOJIRA_BASE_IMAGE || exit 1
+    fi
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
@@ -574,6 +583,9 @@ main() {
   snapshot\!)
     snapshot_image_name $EXTRA_ARGS
     docker rmi $GOJIRA_SNAPSHOT || exit 1
+    if [[ -n $GOJIRA_BASE_IMAGE ]]; then
+      docker rmi $GOJIRA_BASE_IMAGE || exit 1
+    fi
     ;;
   logs)
     p_compose logs -f --tail=100 $EXTRA_ARGS
