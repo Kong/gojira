@@ -30,6 +30,7 @@ Options:
   --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
+  --use-shell           specify shell for run and shell commands (bash|ash|sh)
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -191,3 +192,14 @@ without having to reference it by `-k`. ie
 export GOJIRA_KONG_PATH=full/path/to/some/kong
 ```
 
+### GOJIRA_SHELL
+
+> default: `bash`
+
+Since not all containers that gojira runs have the same shell, specify a
+different shell by setting this env. Useful for instance for kong alpine
+images.
+
+```bash
+export GOJIRA_SHELL=ash
+```

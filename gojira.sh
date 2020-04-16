@@ -15,6 +15,8 @@ GOJIRA_REPO=${GOJIRA_REPO:-kong}
 GOJIRA_TAG=${GOJIRA_TAG:-master}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_REDIS_MODE=""
+GOJIRA_SHELL=${GOJIRA_SHELL:-"bash"}
+
 # Feature flags. Use the new cool stuff by default. Set it off to the ancient
 # one if it does not work for you
 GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-1}
@@ -148,6 +150,10 @@ function parse_args {
         ;;
       --git-https)
         GOJIRA_GIT_HTTPS=1
+        ;;
+      --use-shell)
+        GOJIRA_SHELL=$2
+        shift
         ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
@@ -320,6 +326,7 @@ Options:
   --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
+  --use-shell           specify shell for run and shell commands (bash|ash|sh)
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -519,7 +526,7 @@ main() {
     p_compose down -v
     ;;
   shell)
-    p_compose exec kong bash -l -i
+    p_compose exec kong $GOJIRA_SHELL -l -i
     ;;
   build)
     build
@@ -538,9 +545,9 @@ main() {
       args=${_EXTRA_ARGS[@]@Q}
     fi
     if [[ -t 1 ]]; then
-      p_compose exec kong bash -l -i -c "$args"
+      p_compose exec kong $GOJIRA_SHELL -l -i -c "$args"
     else
-      p_compose exec -T kong bash -l -c "$args"
+      p_compose exec -T kong $GOJIRA_SHELL -l -c "$args"
     fi
     ;;
   images)
