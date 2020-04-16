@@ -383,7 +383,6 @@ function image_name {
     OPENRESTY=${OPENRESTY:-$(req_find $req_file RESTY_VERSION)}
     LUAROCKS=${LUAROCKS:-$(req_find $req_file RESTY_LUAROCKS_VERSION)}
     OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
-    OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(req_find $req_file OPENRESTY_PATCHES)}
     KONG_NGX_MODULE=${KONG_NGX_MODULE:-$(req_find $req_file KONG_NGINX_MODULE_BRANCH)}
     KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS_BRANCH:-$(req_find $req_file KONG_BUILD_TOOLS_BRANCH)}
   fi
@@ -392,7 +391,6 @@ function image_name {
     OPENRESTY=${OPENRESTY:-$(yaml_find $yaml_file OPENRESTY)}
     LUAROCKS=${LUAROCKS:-$(yaml_find $yaml_file LUAROCKS)}
     OPENSSL=${OPENSSL:-$(yaml_find $yaml_file OPENSSL)}
-    OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-$(yaml_find $yaml_file OPENRESTY_PATCHES)}
   fi
 
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
@@ -401,18 +399,12 @@ function image_name {
         "Specify versions as LUAROCKS, OPENSSL, and OPENRESTY envs"
   fi
 
-  # XXX: openresty patches are no longer supported on openresty-build-tools
-  # So far, noone has complained. If it gets to a day where we need to get
-  # some old branches back for any version, come here and fix it. The fix
-  # involves using old version of openresty-build-tools. It's boring but
-  # doable.
-  OPENRESTY_PATCHES=${OPENRESTY_PATCHES:-master}
   KONG_NGX_MODULE=${KONG_NGX_MODULE:-master}
   KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS:-master}
 
   local components=(
     "luarocks-$LUAROCKS"
-    "openresty-${OPENRESTY}_${OPENRESTY_PATCHES}"
+    "openresty-${OPENRESTY}"
     "openssl-$OPENSSL"
     "kong-ngx-module-$KONG_NGX_MODULE"
     "build-tools-$KONG_BUILD_TOOLS"
@@ -429,7 +421,6 @@ function build {
     "--build-arg LUAROCKS=$LUAROCKS"
     "--build-arg OPENSSL=$OPENSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
-    "--build-arg OPENRESTY_PATCHES=$OPENRESTY_PATCHES"
     "--build-arg KONG_NGX_MODULE=$KONG_NGX_MODULE"
     "--build-arg KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
   )
@@ -440,7 +431,6 @@ function build {
   >&2 echo "=========================="
   >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
-  >&2 echo "   + patches:   $OPENRESTY_PATCHES"
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo "=========================="
   >&2 echo ""
