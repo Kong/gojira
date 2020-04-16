@@ -45,12 +45,12 @@ unset _RAW_INPUT
 
 function warn() {
   >&2 \echo -en "\033[1;33m"
-  >&2 echo "WARNING: $@"
+  >&2 echo "WARNING: $*"
   >&2 \echo -en "\033[0m"
 }
 
 function err {
-  >&2 echo $@
+  >&2 echo "$*"
   exit 1
 }
 
