@@ -299,7 +299,7 @@ gojira run -t 1.3.0.2 kong start
 
 ```bash
 # or set it with --image argument
-export GOJIRA_IMAGE=kong:1.5.0-alpine`
+export GOJIRA_IMAGE=kong:1.5.0-alpine
 export GOJIRA_SHELL=ash
 gojira up
 gojira shell
