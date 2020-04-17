@@ -38,10 +38,17 @@ fi
 cat << EOF
     volumes:
       - ${KONG_PREFIX:-/kong/servroot}
-      - ${GOJIRA_KONG_PATH}:${KONG_PATH:-/kong}
       - ${GOJIRA_HOME}/:/root/
-      - ${DOCKER_CTX}/follow-log.sh:/bin/follow-kong-log
+      - ${DOCKER_CTX}/follow-log.sh:/bin/follow-kong-log:ro
+      - ${DOCKER_CTX}/gosh.sh:/bin/gosh:ro
 EOF
+
+# Mount Kong path ONLY if it has been supplied
+if [[ -n $GOJIRA_KONG_PATH ]]; then
+cat << EOF
+      - ${GOJIRA_KONG_PATH}:${KONG_PATH:-/kong}
+EOF
+fi
 
 for volume in $GOJIRA_VOLUMES; do
 cat << EOF
