@@ -164,6 +164,9 @@ function parse_args {
         GOJIRA_SHELL=$2
         shift
         ;;
+      --cluster)
+        GOJIRA_RUN_CLUSTER=1
+        ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
         _RAW_INPUT=1
@@ -330,6 +333,7 @@ Options:
   --host                specify hostname for kong container
   --git-https           use https to clone repos
   --use-shell           specify shell for run and shell commands (bash|ash|sh)
+  --cluster             run command across the whole kong cluster (gojira run)
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -344,7 +348,8 @@ Commands:
 
   build         build a docker image with the specified VERSIONS
 
-  run           run a command on a running container
+  run           run a command on a running kong container.
+                Use with --cluster to run the command across all kong nodes.
 
   shell         get a shell on a running container
 
@@ -488,6 +493,21 @@ function snapshot_image_name {
 }
 
 
+function set_snapshot_image_name {
+  if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
+    GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
+  elif [[ ! -z $(query_image $GOJIRA_BASE_IMAGE) ]]; then
+    # Bring base image up to date man!
+    GOJIRA_IMAGE=$GOJIRA_BASE_IMAGE
+    warn "Your snapshot is not up to date, bringing up your latest compatible" \
+         "base, but remember to run 'make dev'!"
+  else
+    return 1
+  fi
+  return 0
+}
+
+
 function setup {
   mkdir -p $GOJIRA_KONGS
   [ -d $GOJIRA_HOME ] || cp -r $DOCKER_PATH/home_template $GOJIRA_HOME
@@ -518,29 +538,21 @@ main() {
 
     if [[ -z $GOJIRA_IMAGE ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
       build
-      snapshot_image_name
-      if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
-        GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
-      elif [[ ! -z $(query_image $GOJIRA_BASE_IMAGE) ]]; then
-        # Bring base image up to date man!
-        GOJIRA_IMAGE=$GOJIRA_BASE_IMAGE
-        warn "Your snapshot is not up to date, bringing up your latest compatible" \
-             "base, but remember to run 'make dev'!"
-      elif [[ $GOJIRA_MAGIC_DEV == 1 ]]; then
+      if ! snapshot_image_name && [[ "$GOJIRA_MAGIC_DEV" == 1 ]]; then
         run_make_dev=1
       fi
+      set_snapshot_image_name
     fi
 
     if [[ -z $GOJIRA_IMAGE ]]; then
       build || exit 1
     fi
 
-    p_compose up -d || exit 1
+    p_compose up -d $EXTRA_ARGS || exit 1
 
     if [[ $GOJIRA_MAGIC_DEV == 1 ]] && [[ -n $run_make_dev ]]; then
       p_compose exec kong $GOJIRA_SHELL -l -i -c "make dev"
       if [[ $? == 0 ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
-        snapshot_image_name
         snapshot
       fi
     fi
@@ -568,11 +580,20 @@ main() {
       # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
       args=${_EXTRA_ARGS[@]@Q}
     fi
-    if [[ -t 1 ]]; then
-      p_compose exec kong $GOJIRA_SHELL -l -i -c "$args"
-    else
-      p_compose exec -T kong $GOJIRA_SHELL -l -c "$args"
+
+    local kong_nodes=1
+
+    if [[ -n $GOJIRA_RUN_CLUSTER ]]; then
+      kong_nodes=$(p_compose ps | awk '{ print $1 }' | grep 'kong_[0-9]*$' | wc -l | bc)
     fi
+
+    for i in $(seq 1 $kong_nodes); do
+      if [[ -t 1 ]]; then
+        p_compose exec --index $i kong $GOJIRA_SHELL -l -i -c "$args"
+      else
+        p_compose exec --index $i -T kong $GOJIRA_SHELL -l -c "$args"
+      fi
+    done
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
@@ -597,6 +618,8 @@ main() {
     ;;
   compose)
     image_name
+    snapshot_image_name
+    set_snapshot_image_name
     p_compose $EXTRA_ARGS
     ;;
   snapshot)

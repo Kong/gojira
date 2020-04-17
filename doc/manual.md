@@ -452,3 +452,43 @@ $ unset KONG_TEST_DATABASE
 $ bin/busted -o gtest some/tests
 ```
 
+### Run a kong cluster
+
+A kong cluster is basically multiple kong versions using the same database.
+Remember to use snapshots to not waste time. The following example starts a
+kong cluster of 5 nodes.
+
+```bash
+# First let's make sure we have a snapshot for the node we want to bring up
+# skip this step if you know that you have an snapshot
+gojira up --alone
+gojira run make dev
+gojira snapshot
+gojira down
+
+# Now, start gojira with 5 kong nodes
+gojira up --scale kong=5
+
+# Run migrations on the first node
+gojira run kong migrations bootstrap
+# Start kong in all nodes
+gojira run --cluster kong start
+```
+
+Note that the following do more or less the same:
+
+```bash
+gojira up --scale kong=5
+# and
+gojira up
+gojira compose scale kong=5
+```
+
+> For the time being, we have no mode for load balancing kong requests across
+  the cluster.
+
+#### Run a shell on a particular node (ie: 3)
+
+```bash
+gojira compose exec -- --index=3 kong bash -l -i
+```
