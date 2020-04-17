@@ -24,6 +24,7 @@ GOJIRA_TAG=${GOJIRA_TAG:-master}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_REDIS_MODE=""
 GOJIRA_SHELL=${GOJIRA_SHELL:-"bash"}
+GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
 
 # Feature flags. Use the new cool stuff by default. Set it off to the ancient
 # one if it does not work for you
@@ -166,6 +167,10 @@ function parse_args {
         ;;
       --cluster)
         GOJIRA_RUN_CLUSTER=1
+        ;;
+      --index)
+        GOJIRA_CLUSTER_INDEX=$2
+        shift
         ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
@@ -333,7 +338,6 @@ Options:
   --host                specify hostname for kong container
   --git-https           use https to clone repos
   --use-shell           specify shell for run and shell commands (bash|ash|sh)
-  --cluster             run command across the whole kong cluster (gojira run)
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -350,6 +354,12 @@ Commands:
 
   run           run a command on a running kong container.
                 Use with --cluster to run the command across all kong nodes.
+                Use with --index 4 to run the command on node #4.
+
+  run@ [serv]   run a command on a specified service.
+                Use with --cluster to run the command across all nodes.
+                Use with --index 4 to run the command on node #4
+                example: 'gojira run@ db psql -U kong'
 
   shell         get a shell on a running container
 
@@ -523,6 +533,33 @@ function snapshot {
   docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
 }
 
+function run_command {
+  local where=$1
+  # Default node is 1
+  local nodes=${2:-1}
+  local args
+
+  if [[ ! -z $_RAW_INPUT ]]; then
+    args=$EXTRA_ARGS
+  else
+    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+    args=${_EXTRA_ARGS[@]@Q}
+  fi
+
+  if [[ -n $GOJIRA_RUN_CLUSTER ]]; then
+    nodes=$(p_compose ps | awk '{ print $1 }' | grep "$where_'[0-9]*$'"| wc -l | bc)
+    nodes=$(seq 1 $nodes)
+  fi
+
+  for i in $nodes; do
+    if [[ -t 1 ]]; then
+      p_compose exec --index $i $where sh -l -i -c "$args"
+    else
+      p_compose exec --index $i -T $where sh -l -c "$args"
+    fi
+  done
+}
+
 
 main() {
   parse_args "$@"
@@ -562,7 +599,7 @@ main() {
     p_compose down -v
     ;;
   shell)
-    p_compose exec kong $GOJIRA_SHELL -l -i
+    p_compose exec --index $GOJIRA_CLUSTER_INDEX kong $GOJIRA_SHELL -l -i
     ;;
   build)
     build
@@ -572,28 +609,16 @@ main() {
     echo $GOJIRA_KONG_PATH
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
+  run@)
+    # Pop first argument
+    local where=${_EXTRA_ARGS[0]}
+    _EXTRA_ARGS=("${_EXTRA_ARGS[@]:1}")
+    EXTRA_ARGS="${_EXTRA_ARGS[@]}"
+
+    run_command $where $GOJIRA_CLUSTER_INDEX
+    ;;
   run)
-    local args
-    if [[ ! -z $_RAW_INPUT ]]; then
-      args=$EXTRA_ARGS
-    else
-      # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
-      args=${_EXTRA_ARGS[@]@Q}
-    fi
-
-    local kong_nodes=1
-
-    if [[ -n $GOJIRA_RUN_CLUSTER ]]; then
-      kong_nodes=$(p_compose ps | awk '{ print $1 }' | grep 'kong_[0-9]*$' | wc -l | bc)
-    fi
-
-    for i in $(seq 1 $kong_nodes); do
-      if [[ -t 1 ]]; then
-        p_compose exec --index $i kong $GOJIRA_SHELL -l -i -c "$args"
-      else
-        p_compose exec --index $i -T kong $GOJIRA_SHELL -l -c "$args"
-      fi
-    done
+    run_command kong $GOJIRA_CLUSTER_INDEX
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
