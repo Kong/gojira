@@ -487,8 +487,26 @@ gojira compose scale kong=5
 > For the time being, we have no mode for load balancing kong requests across
   the cluster.
 
+#### Run a command on a particular node (ie: 3)
+
+```bash
+gojira run --index 3 foobar
+```
+
 #### Run a shell on a particular node (ie: 3)
 
 ```bash
-gojira compose exec -- --index=3 kong bash -l -i
+gojira shell --index 3
+```
+
+
+#### Scale any other service
+
+```bash
+gojira up --scale db=9000 --scale kong=3000
+
+# Alternatively
+gojira up
+gojira compose scale db=9000
+gojira compose scale kong=3000
 ```
