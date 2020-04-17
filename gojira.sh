@@ -373,6 +373,8 @@ Commands:
 
   ls            list stored prefixes in \$GOJIRA_KONGS
 
+  lay           make gojira lay an egg
+
   snapshot      make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
@@ -669,6 +671,9 @@ main() {
       else
           echo; roar; echo
       fi
+    ;;
+  lay)
+    p_compose config $EXTRA_ARGS
     ;;
   version)
     echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
