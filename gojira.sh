@@ -609,6 +609,11 @@ main() {
     echo $GOJIRA_KONG_PATH
     cd $GOJIRA_KONG_PATH 2> /dev/null
     ;;
+  run@*)
+    # remove run@, anchored at the start
+    local where=${ACTION/#run@/}
+    run_command $where $GOJIRA_CLUSTER_INDEX
+    ;;
   run@)
     # Pop first argument
     local where=${_EXTRA_ARGS[0]}
