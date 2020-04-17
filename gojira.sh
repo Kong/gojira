@@ -356,10 +356,10 @@ Commands:
                 Use with --cluster to run the command across all kong nodes.
                 Use with --index 4 to run the command on node #4.
 
-  run@ [serv]   run a command on a specified service.
+  run@[serv]    run a command on a specified service.
                 Use with --cluster to run the command across all nodes.
                 Use with --index 4 to run the command on node #4
-                example: 'gojira run@ db psql -U kong'
+                example: 'gojira run@db psql -U kong'
 
   shell         get a shell on a running container
 
@@ -612,14 +612,6 @@ main() {
   run@*)
     # remove run@, anchored at the start
     local where=${ACTION/#run@/}
-    run_command $where $GOJIRA_CLUSTER_INDEX
-    ;;
-  run@)
-    # Pop first argument
-    local where=${_EXTRA_ARGS[0]}
-    _EXTRA_ARGS=("${_EXTRA_ARGS[@]:1}")
-    EXTRA_ARGS="${_EXTRA_ARGS[@]}"
-
     run_command $where $GOJIRA_CLUSTER_INDEX
     ;;
   run)
