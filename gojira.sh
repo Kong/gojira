@@ -14,6 +14,9 @@ GOJIRA_ROARS=(
   "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
   "Ho-ho-ho!" "Fail fast and furiously" "King of Monsters"
 )
+GOJIRA_BOOMS=(
+  "BOOM" "GOT MILK" "U MAD"
+)
 
 # Defaults and overloading
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
@@ -293,6 +296,9 @@ function rawr {
   echo -e ${GOJIRA_ROARS[$RANDOM % ${#GOJIRA_ROARS[@]}]}
 }
 
+function boom {
+  echo -e ${GOJIRA_BOOMS[$RANDOM % ${#GOJIRA_BOOMS[@]}]}
+}
 
 function roar {
   if [[ $(date +%m) -eq 12 ]]; then
@@ -323,11 +329,10 @@ EOF
 EOF
 }
 
+
 function booom {
 cat << EOF
-
-
-
+       $(boom)?
 
     \         .  ./
   \      .:";'.:.."   /
@@ -585,17 +590,28 @@ function run_command {
   fi
 
   if [[ -n $GOJIRA_RUN_CLUSTER ]]; then
-    nodes=$(p_compose ps | awk '{ print $1 }' | grep "$where_'[0-9]*$'"| wc -l | bc)
-    nodes=$(seq 1 $nodes)
+    nodes=$(p_compose ps | awk '{ print $1 }' | grep -c "${where}_[0-9]*$")
+    nodes=$(seq 1 "$nodes")
   fi
 
+  local res=0
   for i in $nodes; do
-    if [[ -t 1 ]]; then
-      p_compose exec --index $i $where sh -l -i -c "$args"
-    else
-      p_compose exec --index $i -T $where sh -l -c "$args"
+    if [[ -n $GOJIRA_RUN_CLUSTER ]] || [[ $2 != 1 ]]; then
+      >&2 echo -en "\033[1;34m[${where}_$i]\033[00m "
     fi
+
+    if [[ -t 1 ]]; then
+      p_compose exec --index "$i" "$where" sh -l -i -c "$args"
+    else
+      p_compose exec --index "$i" -T "$where" sh -l -c "$args"
+    fi
+
+    # Accumulate exit codes into res
+    res=$((res + $?))
   done
+
+  # Return accumulated exit code :) > 0 --> error
+  return $res
 }
 
 
@@ -724,7 +740,9 @@ main() {
     echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
     ;;
   nuke)
-    docker rm -fv $($0 ps -aq)
+    # Do not show docker rm error when there's nothing
+    local stuff=$($0 ps -aq)
+    [[ -n $stuff ]] && docker rm -fv $stuff
     docker network prune -f
     [ -n "$FORCE" ] && rm -fr $GOJIRA_KONGS/* ;
     echo; (booom | sed -e 's/^/          /'); echo
