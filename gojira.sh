@@ -30,6 +30,7 @@ GOJIRA_SHELL=${GOJIRA_SHELL:-"bash"}
 GOJIRA_USE_SNAPSHOT=${GOJIRA_USE_SNAPSHOT:-1}
 GOJIRA_DETECT_LOCAL=${GOJIRA_DETECT_LOCAL:-1}
 GOJIRA_PIN_LOCAL_TAG=${GOJIRA_PIN_LOCAL_TAG:-1}
+GOJIRA_MAGIC_DEV=${GOJIRA_MAGIC_DEV:-0}
 
 _EXTRA_ARGS=()
 _GOJIRA_VOLUMES=()
@@ -492,6 +493,14 @@ function setup {
   # so we can create it from here.
 }
 
+function snapshot {
+  local c_id=$(p_compose ps -q kong)
+  if [[ -n $GOJIRA_BASE_IMAGE ]]; then
+    docker commit $c_id $GOJIRA_BASE_IMAGE || exit 1
+  fi
+  docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
+}
+
 
 main() {
   parse_args "$@"
@@ -503,6 +512,8 @@ main() {
     # with no auto deps, most probably
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
+    local run_make_dev
+
     if [[ -z $GOJIRA_IMAGE ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
       build
       snapshot_image_name
@@ -513,13 +524,24 @@ main() {
         GOJIRA_IMAGE=$GOJIRA_BASE_IMAGE
         warn "Your snapshot is not up to date, bringing up your latest compatible" \
              "base, but remember to run 'make dev'!"
+      elif [[ $GOJIRA_MAGIC_DEV == 1 ]]; then
+        run_make_dev=1
       fi
     fi
 
     if [[ -z $GOJIRA_IMAGE ]]; then
       build || exit 1
     fi
-    p_compose up -d
+
+    p_compose up -d || exit 1
+
+    if [[ $GOJIRA_MAGIC_DEV == 1 ]] && [[ -n $run_make_dev ]]; then
+      p_compose exec kong $GOJIRA_SHELL -l -i -c "make dev"
+      if [[ $? == 0 ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
+        snapshot_image_name
+        snapshot
+      fi
+    fi
     ;;
   down)
     p_compose kill
@@ -577,10 +599,7 @@ main() {
     ;;
   snapshot)
     snapshot_image_name $EXTRA_ARGS
-    if [[ -n $GOJIRA_BASE_IMAGE ]]; then
-      docker commit $(p_compose ps -q kong) $GOJIRA_BASE_IMAGE || exit 1
-    fi
-    docker commit $(p_compose ps -q kong) $GOJIRA_SNAPSHOT || exit 1
+    snapshot $EXTRA_ARGS
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
   snapshot\?)
