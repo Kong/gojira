@@ -642,7 +642,6 @@ main() {
 
     if [[ $GOJIRA_MAGIC_DEV == 1 ]] && [[ -n $run_make_dev ]]; then
       p_compose exec kong sh -l -i -c "make dev"
-      p_compose exec kong sh -l -i -c "kong roar"
       if [[ $? == 0 ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
         snapshot
       fi
