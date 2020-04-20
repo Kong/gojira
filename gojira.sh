@@ -545,6 +545,8 @@ function snapshot_image_name {
 function set_snapshot_image_name {
   if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
     GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
+    # 0 == lvl 2 snapshot
+    return 0
   elif [[ ! -z $(query_image $GOJIRA_BASE_SNAPSHOT) ]]; then
     GOJIRA_IMAGE=$GOJIRA_BASE_SNAPSHOT
     if [[ $GOJIRA_MODE == "dev" ]]; then
@@ -552,10 +554,12 @@ function set_snapshot_image_name {
       warn "Your snapshot is not up to date, bringing up your latest " \
            "compatible base, but remember to run 'make dev'!"
     fi
-  else
+    # 1 == lvl 1 snapshot (base)
     return 1
+  else
+    # 2 == no base / no snapshot
+    return 2
   fi
-  return 0
 }
 
 
@@ -626,6 +630,7 @@ main() {
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
     local run_make_dev
+    local snap_level=-1
 
     if [[ -z $GOJIRA_IMAGE ]]; then
       build || exit 1
@@ -633,7 +638,9 @@ main() {
 
     if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
       snapshot_image_name
-      if ! set_snapshot_image_name && [[ "$GOJIRA_MAGIC_DEV" == 1 ]]; then
+      set_snapshot_image_name
+      snap_level=$?
+      if [[ "$snap_level" -gt 0 ]] && [[ "$GOJIRA_MAGIC_DEV" == 1 ]]; then
         [[ $GOJIRA_MODE == "dev" ]] && run_make_dev=1
       fi
     fi
@@ -643,7 +650,11 @@ main() {
     if [[ $GOJIRA_MAGIC_DEV == 1 ]] && [[ -n $run_make_dev ]]; then
       p_compose exec kong sh -l -i -c "make dev"
       if [[ $? == 0 ]] && [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
-        snapshot
+        # only snapshot when there's no base image
+        # (and not pile up snapshots on the drive)
+        if [[ $snap_level -eq 2 ]]; then
+          snapshot
+        fi
       fi
     fi
     ;;
