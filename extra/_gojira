@@ -46,7 +46,7 @@ function _gojira {
 _gojira_up() {
     _arguments $gojira_directories $common \
     "--image" "--cassandra" "--redis-cluster" "--git-https" "--alone" "-p:prefix:"\
-    "-k:kong:_files" "-pp:" "--port:"
+    "-k:kong:_files" "-pp:" "--port:" "--network:"
 }
 
 _gojira_down() {
