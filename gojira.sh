@@ -577,12 +577,10 @@ main() {
     ;;
   snapshot)
     snapshot_image_name $EXTRA_ARGS
-    local cmd='cat /proc/self/cgroup | grep docker | sed "s/.*docker\///" | head -1'
-    local c_id=$(p_compose exec -T kong sh -c "$cmd" | tr -d '\r')
     if [[ -n $GOJIRA_BASE_IMAGE ]]; then
-      docker commit $c_id $GOJIRA_BASE_IMAGE || exit 1
+      docker commit $(p_compose ps -q kong) $GOJIRA_BASE_IMAGE || exit 1
     fi
-    docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
+    docker commit $(p_compose ps -q kong) $GOJIRA_SNAPSHOT || exit 1
     >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
   snapshot\?)
