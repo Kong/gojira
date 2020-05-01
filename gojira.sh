@@ -54,6 +54,7 @@ else
 fi
 
 unset GOJIRA_SNAPSHOT
+unset GOJIRA_SNAPSHOT_LEVEL
 unset GOJIRA_HOSTNAME
 unset GOJIRA_VOLUMES
 unset GOJIRA_PORTS
@@ -68,8 +69,16 @@ function warn() {
 }
 
 function err {
-  >&2 echo "$*"
+  [[ $* =~ ^(\[.*\])(.*) ]] \
+    && >&2 echo -e "\033[1;31m${BASH_REMATCH[1]}\033[1;0m${BASH_REMATCH[2]}" \
+    || >&2 echo -e "$*"
   exit 1
+}
+
+function inf {
+  [[ $* =~ ^(\[.*\])(.*) ]] \
+    && >&2 echo -e "\033[1;34m${BASH_REMATCH[1]}\033[1;0m${BASH_REMATCH[2]}" \
+    || >&2 echo -e "$*"
 }
 
 function is_kong_repo {
@@ -542,23 +551,41 @@ function snapshot_image_name {
 }
 
 
+function magic_dev {
+  if [[ $GOJIRA_MODE != "dev" ]]; then return; fi
+
+  # lvl 0: no snapshot
+  if [[ $GOJIRA_SNAPSHOT_LEVEL -lt 2 ]]; then
+    inf "[magic dev] running 'make dev'"
+    p_compose exec kong sh -l -c "make dev"
+    [[ $? == 0 ]] || err "[magic dev] failed running 'make dev'"
+  fi
+
+  if [[ $GOJIRA_USE_SNAPSHOT == 1 ]]; then
+    # Only snapshot if snapshot level was 0 to not pile up snapshots
+    if [[ $GOJIRA_SNAPSHOT_LEVEL == 0 ]]; then
+      inf "[magic dev] snap! snap!"
+      snapshot
+    fi
+  fi
+}
+
+
 function set_snapshot_image_name {
+  # lvl 2: good snapshot
+  # lvl 1: base snapshot only
+  # lvl 0: no snapshot
   if [[ ! -z $(query_image $GOJIRA_SNAPSHOT) ]]; then
     GOJIRA_IMAGE=$GOJIRA_SNAPSHOT
-    # 0 == lvl 2 snapshot
-    return 0
+    GOJIRA_SNAPSHOT_LEVEL=2
   elif [[ ! -z $(query_image $GOJIRA_BASE_SNAPSHOT) ]]; then
     GOJIRA_IMAGE=$GOJIRA_BASE_SNAPSHOT
-    if [[ $GOJIRA_MODE == "dev" ]]; then
-      # Bring base image up to date man!
-      warn "Your snapshot is not up to date, bringing up your latest " \
-           "compatible base, but remember to run 'make dev'!"
-    fi
-    # 1 == lvl 1 snapshot (base)
-    return 1
+    GOJIRA_SNAPSHOT_LEVEL=1
+    # Bring base image up to date man!
+    warn "Your snapshot is not up to date, bringing up your latest " \
+         "compatible base, but remember to run 'make dev'!"
   else
-    # 2 == no base / no snapshot
-    return 2
+    GOJIRA_SNAPSHOT_LEVEL=0
   fi
 }
 
@@ -572,12 +599,13 @@ function setup {
 
 function snapshot {
   local c_id=$(p_compose ps -q kong)
-  if [[ -n $GOJIRA_BASE_IMAGE ]]; then
-    docker commit $c_id $GOJIRA_BASE_IMAGE || exit 1
+  if [[ -n $GOJIRA_BASE_SNAPSHOT ]]; then
+    docker commit $c_id $GOJIRA_BASE_SNAPSHOT || exit 1
   fi
   if [[ -n $GOJIRA_SNAPSHOT ]]; then
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
   fi
+  >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
 }
 
 function run_command {
@@ -629,9 +657,6 @@ main() {
     # with no auto deps, most probably
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
-    local run_make_dev
-    local snap_level=-1
-
     if [[ -z $GOJIRA_IMAGE ]]; then
       build || exit 1
     fi
@@ -639,25 +664,12 @@ main() {
     if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
       snapshot_image_name
       set_snapshot_image_name
-      snap_level=$?
-      if [[ "$snap_level" -gt 0 ]] && [[ "$GOJIRA_MAGIC_DEV" == 1 ]]; then
-        [[ $GOJIRA_MODE == "dev" ]] && run_make_dev=1
-      fi
     fi
 
     p_compose up -d $EXTRA_ARGS || exit 1
 
-    if [[ $GOJIRA_MAGIC_DEV == 1 ]] && [[ -n $run_make_dev ]]; then
-      p_compose exec kong sh -l -i -c "make dev"
-      if [[ $? == 0 ]]; then
-        if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]] && [[ $snap_level -eq 2 ]]; then
-          # only snapshot when there's no base image
-          # (and not pile up snapshots on the drive)
-          snapshot
-        fi
-      else
-        warn "[magic dev] failed running 'make dev'"
-      fi
+    if [[ $GOJIRA_MAGIC_DEV == 1 ]]; then
+      magic_dev
     fi
     ;;
   down)
@@ -711,14 +723,15 @@ main() {
     ;;
   compose)
     image_name
-    snapshot_image_name
-    set_snapshot_image_name
+    if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
+      snapshot_image_name
+      set_snapshot_image_name
+    fi
     p_compose $EXTRA_ARGS
     ;;
   snapshot)
     snapshot_image_name $EXTRA_ARGS
     snapshot $EXTRA_ARGS
-    >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
     ;;
   snapshot\?)
     snapshot_image_name $EXTRA_ARGS
@@ -726,14 +739,12 @@ main() {
     ;;
   snapshot\!)
     snapshot_image_name $EXTRA_ARGS
-
-    if [[ -n $GOJIRA_SNAPSHOT ]]; then
-      docker rmi $GOJIRA_SNAPSHOT || exit 1
-    fi
-
-    if [[ -n $GOJIRA_BASE_SNAPSHOT ]]; then
-      docker rmi $GOJIRA_BASE_SNAPSHOT || exit 1
-    fi
+    query_image $GOJIRA_SNAPSHOT && docker rmi $GOJIRA_SNAPSHOT
+    ;;
+  snapshot\!\!)
+    snapshot_image_name
+    query_image $GOJIRA_SNAPSHOT && docker rmi $GOJIRA_SNAPSHOT
+    query_image $GOJIRA_BASE_SNAPSHOT && docker rmi $GOJIRA_BASE_SNAPSHOT
     ;;
   logs)
     p_compose logs -f --tail=100 $EXTRA_ARGS
