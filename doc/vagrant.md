@@ -86,7 +86,7 @@ container, or install the clients on our kong running instance.
 
 ```
 # Directly use the one in the postgres container
-$ gojira compose exec db -- psql -U kong
+$ gojira run@db -- psql -U kong
 psql (9.5.17)
 Type "help" for help.
 
@@ -139,7 +139,7 @@ b57592c3cc1f        cassandra:3.9                                             "/
 5680f9d4d95b        postgres:9.5                                              "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes (healthy)            5432/tcp                                      kong-master_db_1
 66d459363ede        redis:5.0.4-alpine                                        "docker-entrypoint.s…"   2 minutes ago       Up 2 minutes (healthy)            6379/tcp                                      kong-master_redis_1
 
-$ gojira compose -p cassandra exec db cqlsh
+$ gojira run@db -p cassandra cqlsh
 Connected to Test Cluster at 127.0.0.1:9042.
 [cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
 ...

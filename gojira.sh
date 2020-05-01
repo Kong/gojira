@@ -397,11 +397,11 @@ Commands:
                 Use with --index 4 to run the command on node #4.
 
   run@[serv]    run a command on a specified service.
-                Use with --cluster to run the command across all nodes.
-                Use with --index 4 to run the command on node #4
                 example: 'gojira run@db psql -U kong'
 
-  shell         get a shell on a running container
+  shell         get a shell on a running kong container.
+
+  shell@[serv]  get a shell on a specified service.
 
   cd            cd into a kong prefix repo
 

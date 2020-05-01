@@ -300,7 +300,6 @@ gojira run -t 1.3.0.2 kong start
 ```bash
 # or set it with --image argument
 export GOJIRA_IMAGE=kong:1.5.0-alpine
-export GOJIRA_SHELL=ash
 gojira up
 gojira shell
 kong roar
@@ -378,6 +377,23 @@ gojira run kong roar
 gojira run psql -U kong -h db
 ```
 
+#### Snapshot levels
+
+unnamed snapshots are created on two levels:
+ - base snapshot: depends only on the Dockerfile and hard dependencies
+   (luarocks, openssl, openresty).
+ - snapshot: depends on the base snapshot + kong rockspec file
+
+By having a base snapshot in hand, it's possible to bring up an environment
+that is more or less compatible with the desired one, and it's just missing
+an incremental `luarocks make` on the rockspec. When `GOJIRA_USE_SNAPSHOT` is
+enabled and no snapshot is found, it will bring up the base snapshot if
+available.
+
+Base snapshots also ease the installation of tooling on the images, since
+they will always be available on the base snapshot even when the level 2
+snapshot changed.
+
 Snapshots can be deleted by
 
 ```
@@ -391,6 +407,29 @@ Deleted: sha256:4a65afc276faae30bcf9c7e2f412f8282ad16fdeb4cfb47c62b28a7d1ec4d889
 Deleted: sha256:bbad8e16eab22ac4538f282b4a5ed63cd0f91f03b76ae1327f8318e9f3504522
 ```
 
+Base snapshots can be deleted by
+
+```
+$ gojira snapshot!!
+```
+
+### Gojira magic dev mode
+
+It might seem a bit pointless to run `make dev` every time you up a container.
+Gojira environments should be something we freely bring up, down and nuke, but
+it's troublesome to keep track of the state of the environment.
+
+By setting `GOJIRA_MAGIC_DEV=1`, gojira will run `make dev` every time
+after `gojira up`.
+
+Combined with `GOJIRA_USE_SNAPSHOT=1` it will save a base snapshot after the
+first `make dev`. After this, you can forget about typing
+`make dev` ever again. When something changes on the rockspec, it will bring
+up the base snapshot and the `make dev` will take much less time since it will
+be incremental.
+
+** this is an experimental feature ** report any issues on #gojira
+
 ### fallback to docker-compose
 
 - `gojira compose config  # useful for debugging`
@@ -398,7 +437,10 @@ Deleted: sha256:bbad8e16eab22ac4538f282b4a5ed63cd0f91f03b76ae1327f8318e9f3504522
 Note that `gojira compose run X` and `gojira run X` mean different
 things as docker-compose run will spawn a new container and gojira
 will effectively exec into kong service. More or less:
+
 `gojira compose exec kong top` == `gojira run top`
+
+`gojira compose exec db psql`  == `gojira run@db psql`
 
 ### plugin development
 
@@ -416,18 +458,17 @@ gojira shell
 ### Access database console
 
 ```
-gojira compose exec db psql -U kong    #Postgres
-gojira compose exec db cqlsh           #Cassandra
-
+gojira run@db psql -U kong      # Postgres
+gojira run@db cqlsh             # Cassandra
 ```
 
 ### Run an sql file in the db
 
-`/root/` is also shared by the databse containers, so you keep your
+`/root/` is also shared by the database containers, so you keep your
 cassandra history and psql history.
 
 ```
-gojira compose exec db psql -U kong -d kong_tests -f'/root/foo.sql'
+gojira run@db psql -- -U kong -d kong_tests -f'/root/foo.sql'
 ```
 
 ### Remove all gojira images (including snapshots)
