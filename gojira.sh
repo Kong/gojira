@@ -614,8 +614,12 @@ main() {
     echo; (booom | sed -e 's/^/          /'); echo
     ;;
   *)
-    usage
-    exit 1
+    if hash gojira-$ACTION ; then
+        . gojira-$ACTION
+    else
+        usage
+        exit 1
+    fi
     ;;
   esac
 }
