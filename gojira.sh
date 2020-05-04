@@ -581,9 +581,6 @@ function set_snapshot_image_name {
   elif [[ ! -z $(query_image $GOJIRA_BASE_SNAPSHOT) ]]; then
     GOJIRA_IMAGE=$GOJIRA_BASE_SNAPSHOT
     GOJIRA_SNAPSHOT_LEVEL=1
-    # Bring base image up to date man!
-    warn "Your snapshot is not up to date, bringing up your latest " \
-         "compatible base, but remember to run 'make dev'!"
   else
     GOJIRA_SNAPSHOT_LEVEL=0
   fi
@@ -664,6 +661,11 @@ main() {
     if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
       snapshot_image_name
       set_snapshot_image_name
+
+      # Bring base image up to date man!
+      [[ "$GOJIRA_SNAPSHOT_LEVEL" == 1 ]] &&
+        warn "Your snapshot is not up to date, bringing up your latest" \
+             "compatible base, but remember to run 'make dev'!"
     fi
 
     p_compose up -d $EXTRA_ARGS || exit 1
