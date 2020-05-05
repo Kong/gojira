@@ -103,23 +103,18 @@ function validate_arguments {
         warn "Creating a db in a network with db already.
          This might cause to round robin requests to db to multiple dbs. Try --alone flag"
 
-    [[ $GOJIRA_MODE == "image" ]] && [[ -z $GOJIRA_IMAGE ]] && \
-      err "To run kong images with gojira you need to specify an image: " \
-          "using --image <image name> or setting \$GOJIRA_IMAGE"
+  [[ $GOJIRA_MODE == "image" ]] && [[ -z $GOJIRA_IMAGE ]] && \
+    err "To run kong images with gojira you need to specify an image: " \
+        "using --image <image name> or setting \$GOJIRA_IMAGE"
 
-    # Ultra hack, but here goes nothing ¯\_(ツ)_/¯
-    # If an image has been set and nothing hinted that the user wanted to
-    # mount something (--kong, --repo), enable image mode
-    # image mode == do not mount anything unless specified
-    if [[ -z $GOJIRA_TAINTED_LOCAL ]] && [[ -n $GOJIRA_IMAGE ]]; then
+  # Disable the fancy stuff is GOJIRA_IMAGE is pre-set
+  if [[ -n $GOJIRA_IMAGE ]]; then
+    GOJIRA_MAGIC_DEV=0
+    GOJIRA_DETECT_LOCAL=0
+    if [[ -z $GOJIRA_TAINTED_LOCAL ]]; then
       GOJIRA_MODE="image"
     fi
-
-    # Disable all the nice stuff if we are in "image" mode
-    if [[ $GOJIRA_MODE == "image" ]]; then
-      GOJIRA_DETECT_LOCAL=0
-      GOJIRA_MAGIC_DEV=0
-    fi
+  fi
 }
 
 function parse_args {
