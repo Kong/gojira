@@ -593,11 +593,12 @@ function snapshot {
   local c_id=$(p_compose ps -q kong)
   if [[ -n $GOJIRA_BASE_SNAPSHOT ]]; then
     docker commit $c_id $GOJIRA_BASE_SNAPSHOT || exit 1
+    >&2 echo "Created base snapshot: $GOJIRA_BASE_SNAPSHOT"
   fi
   if [[ -n $GOJIRA_SNAPSHOT ]]; then
     docker commit $c_id $GOJIRA_SNAPSHOT || exit 1
+    >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
   fi
-  >&2 echo "Created snapshot: $GOJIRA_SNAPSHOT"
 }
 
 function run_command {
@@ -733,6 +734,10 @@ main() {
   snapshot\?)
     snapshot_image_name $EXTRA_ARGS
     query_image $GOJIRA_SNAPSHOT || err "$GOJIRA_SNAPSHOT not found"
+    ;;
+  snapshot\?\?)
+    snapshot_image_name
+    query_image $GOJIRA_BASE_SNAPSHOT || err "$GOJIRA_BASE_SNAPSHOT not found"
     ;;
   snapshot\!)
     snapshot_image_name $EXTRA_ARGS
