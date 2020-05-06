@@ -6,13 +6,14 @@ DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
-GOJIRA_VERSION=0.2.8
+GOJIRA_VERSION=0.2.9
 GOJIRA_ROARS=(
   "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
   "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
   "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
   "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
   "Ho-ho-ho!" "Fail fast and furiously" "King of Monsters"
+  "the Houdini of the Sea"
 )
 GOJIRA_BOOMS=(
   "BOOM" "GOT MILK" "U MAD"
@@ -391,12 +392,13 @@ Commands:
                 Use with --cluster to run the command across all kong nodes.
                 Use with --index 4 to run the command on node #4.
 
-  run@[serv]    run a command on a specified service.
+  run@[s]       run a command on a specified service s.
                 example: 'gojira run@db psql -U kong'
 
   shell         get a shell on a running kong container.
 
-  shell@[serv]  get a shell on a specified service.
+  shell@[s]     get a shell on a specified service s.
+                example: 'gojira shell@db'
 
   cd            cd into a kong prefix repo
 
