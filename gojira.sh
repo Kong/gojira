@@ -98,9 +98,7 @@ function validate_arguments {
     [ -n "$GOJIRA_NETWORK" ] &&
         [ -n "$GOJIRA_DATABASE" ] &&
         docker network inspect $GOJIRA_NETWORK &> /dev/null &&
-        docker network inspect $GOJIRA_NETWORK |
-            jq '.[0].Containers[].Name' |
-            grep '_db_' 1>/dev/null &&
+        docker network inspect $GOJIRA_NETWORK | grep '_db_' 1> /dev/null &&
         warn "Creating a db in a network with db already.
          This might cause to round robin requests to db to multiple dbs. Try --alone flag"
 
