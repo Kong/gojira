@@ -13,7 +13,7 @@ GOJIRA_ROARS=(
   "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
   "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
   "Ho-ho-ho!" "Fail fast and furiously" "King of Monsters"
-  "the Houdini of the Seas"
+  "the Houdini of the Seas" "From the Core"
 )
 GOJIRA_BOOMS=(
   "BOOM" "GOT MILK" "U MAD"
