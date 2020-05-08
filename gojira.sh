@@ -767,6 +767,11 @@ main() {
       fi
     ;;
   lay)
+    image_name
+    if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
+      snapshot_image_name
+      set_snapshot_image_name
+    fi
     p_compose config $EXTRA_ARGS
     ;;
   version)
