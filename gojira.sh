@@ -25,7 +25,7 @@ globals() {
 # Defaults and overloading
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 GOJIRA_HOME=${GOJIRA_HOME:-$GOJIRA_KONGS/.gojira-home/}
-GOJIRA_DATABASE=postgres
+GOJIRA_DATABASE=${GOJIRA_DATABASE:-postgres}
 GOJIRA_REPO=${GOJIRA_REPO:-kong}
 GOJIRA_TAG=${GOJIRA_TAG:-master}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
