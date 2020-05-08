@@ -30,6 +30,7 @@ GOJIRA_REDIS_MODE=""
 GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
 # Run gojira in "dev" mode or in "image" mode
 GOJIRA_MODE=${GOJIRA_MODE:-dev}
+GOJIRA_TARGET=${GOJIRA_TARGET:-kong}
 
 # Feature flags. Use the new cool stuff by default. Set it off to the ancient
 # one if it does not work for you
@@ -273,6 +274,7 @@ function get_envs {
   export GOJIRA_HOSTNAME
   export GOJIRA_HOME
   export GOJIRA_PREFIX=$PREFIX
+  export GOJIRA_TARGET
 }
 
 
@@ -548,7 +550,7 @@ function magic_dev {
   # lvl 0: no snapshot
   if [[ $GOJIRA_SNAPSHOT_LEVEL -lt 2 ]]; then
     inf "[magic dev] running 'make dev'"
-    p_compose exec kong sh -l -c "make dev"
+    p_compose exec $GOJIRA_TARGET sh -l -c "make dev"
     [[ $? == 0 ]] || err "[magic dev] failed running 'make dev'"
   fi
 
@@ -586,7 +588,7 @@ function setup {
 }
 
 function snapshot {
-  local c_id=$(p_compose ps -q kong)
+  local c_id=$(p_compose ps -q $GOJIRA_TARGET)
   if [[ -n $GOJIRA_BASE_SNAPSHOT ]]; then
     docker commit $c_id $GOJIRA_BASE_SNAPSHOT || exit 1
     >&2 echo "Created base snapshot: $GOJIRA_BASE_SNAPSHOT"
@@ -671,7 +673,7 @@ main() {
     p_compose down -v
     ;;
   shell)
-    p_compose exec --index $GOJIRA_CLUSTER_INDEX kong gosh -l -i
+    p_compose exec --index $GOJIRA_CLUSTER_INDEX $GOJIRA_TARGET gosh -l -i
     ;;
   shell@*)
     # remove shell@, anchored at the start
@@ -692,7 +694,7 @@ main() {
     run_command $where $GOJIRA_CLUSTER_INDEX
     ;;
   run)
-    run_command kong $GOJIRA_CLUSTER_INDEX
+    run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
