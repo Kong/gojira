@@ -514,7 +514,7 @@ function req_find {
 
 function p_compose {
   get_envs
-  docker-compose "${GOJIRA_EGGS[@]}" -f <($COMPOSE_FILE) -p $PREFIX "$@"
+  docker-compose -f <($COMPOSE_FILE) "${GOJIRA_EGGS[@]}" -p $PREFIX "$@"
 }
 
 
@@ -790,8 +790,7 @@ main() {
       usage
       exit 1
     fi
-
-    source gojira-$ACTION
+    shift; source gojira-$ACTION
     ;;
   esac
 }

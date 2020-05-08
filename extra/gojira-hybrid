@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+HYBRID_PATH=$GOJIRA_PATH/extra/hybrid
+GOJIRA_TARGET=kong-cp
+
+hybrid_setup() {
+  COMPOSE_FILE=$HYBRID_PATH/docker-compose.yml.sh
+
+  export GOJIRA_DATABASE
+  export GOJIRA_KONG_PATH
+
+  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp > $HYBRID_PATH/cp.yml
+  GOJIRA_TARGET=kong-dp $0 lay --host kong-dp > $HYBRID_PATH/dp.yml
+
+  add_egg $HYBRID_PATH/cp.yml
+  add_egg $HYBRID_PATH/dp.yml
+
+  if [[ ! -d $HYBRID_PATH/cluster_keys ]]; then
+    # Generate certs
+    mkdir -p $HYBRID_PATH/cluster_keys
+    pushd $HYBRID_PATH/cluster_keys
+      openssl req -x509 -newkey rsa:4096 -keyout cluster.key -out cluster.crt -days 365 -nodes -subj '/CN=kong_clustering/'
+      chmod 644 cluster.key
+    popd
+  fi
+
+  export CLUSTER_KEY_PATH=$HYBRID_PATH/cluster_keys
+  export GOJIRA_TARGET
+
+  main "$@"
+}
+
+hybrid_setup "$@"
