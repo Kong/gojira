@@ -21,6 +21,7 @@ GOJIRA_BOOMS=(
 
 GOJIRA_EGGS=()
 
+globals() {
 # Defaults and overloading
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 GOJIRA_HOME=${GOJIRA_HOME:-$GOJIRA_KONGS/.gojira-home/}
@@ -65,6 +66,7 @@ unset GOJIRA_PORTS
 unset GOJIRA_TAINTED_LOCAL
 
 unset _RAW_INPUT
+}
 
 function warn() {
   >&2 \echo -en "\033[1;33m"
@@ -644,6 +646,9 @@ add_egg() {
 }
 
 main() {
+
+  globals
+
   parse_args "$@"
   setup
 
