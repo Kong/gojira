@@ -19,6 +19,8 @@ GOJIRA_BOOMS=(
   "BOOM" "GOT MILK" "U MAD"
 )
 
+GOJIRA_EGGS=()
+
 # Defaults and overloading
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira-kongs}
 GOJIRA_HOME=${GOJIRA_HOME:-$GOJIRA_KONGS/.gojira-home/}
@@ -510,7 +512,7 @@ function req_find {
 
 function p_compose {
   get_envs
-  docker-compose -f <($COMPOSE_FILE) -p $PREFIX "$@"
+  docker-compose "${GOJIRA_EGGS[@]}" -f <($COMPOSE_FILE) -p $PREFIX "$@"
 }
 
 
@@ -637,6 +639,9 @@ function run_command {
   return $res
 }
 
+add_egg() {
+  GOJIRA_EGGS+=("-f" "$@")
+}
 
 main() {
   parse_args "$@"
