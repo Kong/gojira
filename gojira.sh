@@ -773,12 +773,12 @@ main() {
     echo; (booom | sed -e 's/^/          /'); echo
     ;;
   *)
-    if hash gojira-$ACTION ; then
-        . gojira-$ACTION
-    else
-        usage
-        exit 1
+    if ! hash gojira-$ACTION &> /dev/null; then
+      usage
+      exit 1
     fi
+
+    source gojira-$ACTION
     ;;
   esac
 }
