@@ -225,24 +225,6 @@ function parse_args {
     fi
   fi
 
-  # kong path supplied, override repo / tag
-  if [[ -n "$GOJIRA_KONG_PATH" ]]; then
-    GOJIRA_REPO=$(basename $GOJIRA_KONG_PATH)
-    # New behavior, always use the same tag for a local kong path
-    if [[ "$GOJIRA_PIN_LOCAL_TAG" == 1 ]] ; then
-      # For the time being, use the path to identify this gojira.
-      # Caveat: if you move or rename the folder, it will generate a new one
-      GOJIRA_TAG=$(echo "$GOJIRA_KONG_PATH" | sha1sum | awk '{print $1}')
-      # 9 characters is enough
-      GOJIRA_TAG=${GOJIRA_TAG:0:9}
-    else
-      # Old behavior. Get tag from repo
-      pushd $GOJIRA_KONG_PATH
-        GOJIRA_TAG=$(git rev-parse --abbrev-ref HEAD)
-      popd
-    fi
-  fi
-
   local components=()
 
   if [[ -n $PREFIX ]]; then
@@ -251,6 +233,20 @@ function parse_args {
 
   if [[ $GOJIRA_MODE == "image" ]]; then
     components+=("$(basename "$GOJIRA_IMAGE")")
+  elif [[ -n "$GOJIRA_KONG_PATH" ]]; then
+    components+=("$(basename $GOJIRA_KONG_PATH)")
+    # New behavior, always use the same tag for a local kong path
+    if [[ "$GOJIRA_PIN_LOCAL_TAG" == 1 ]] ; then
+      # For the time being, use the path to identify this gojira.
+      # Caveat: if you move or rename the folder, it will generate a new one
+      # 9 characters is enough
+      components+=("$(echo "$GOJIRA_KONG_PATH" | sha1sum | awk '{print $1}' | cut -c1-9)")
+    else
+      # Old behavior. Get tag from repo
+      pushd $GOJIRA_KONG_PATH
+        components+=("$(git rev-parse --abbrev-ref HEAD)")
+      popd
+    fi
   else
     components+=("$GOJIRA_REPO")
     components+=("$GOJIRA_TAG")
