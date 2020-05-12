@@ -9,11 +9,9 @@ hybrid_setup() {
   export GOJIRA_DATABASE
   export GOJIRA_KONG_PATH
 
-  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp > $HYBRID_PATH/cp.yml
-  GOJIRA_TARGET=kong-dp $0 lay --host kong-dp > $HYBRID_PATH/dp.yml
-
-  add_egg $HYBRID_PATH/cp.yml
-  add_egg $HYBRID_PATH/dp.yml
+  add_egg "GOJIRA_TARGET=kong-cp $0 lay --host kong-cp"
+  add_egg "GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone"
+  add_egg "$COMPOSE_FILE"
 
   if [[ ! -d $HYBRID_PATH/cluster_keys ]]; then
     # Generate certs

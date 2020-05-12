@@ -514,7 +514,20 @@ function req_find {
 
 function p_compose {
   get_envs
-  docker-compose -f <($COMPOSE_FILE) "${GOJIRA_EGGS[@]}" -p $PREFIX "$@"
+
+  local flags=()
+
+  for egg in "${GOJIRA_EGGS[@]}"; do
+    if [[ -x $egg ]]; then
+      flags+=("-f <($egg)")
+    elif [[ -f $egg ]]; then
+      flags+=("-f $egg")
+    else
+      flags+=("-f <($egg)")
+    fi
+  done
+
+  eval docker-compose -f <($COMPOSE_FILE) "${flags[@]}" -p $PREFIX "$@"
 }
 
 
@@ -628,9 +641,9 @@ function run_command {
     fi
 
     if [[ -t 1 ]]; then
-      p_compose exec --index "$i" "$where" sh -l -i -c "$args"
+      p_compose exec --index "$i" "$where" sh -l -i -c \"$args\"
     else
-      p_compose exec --index "$i" -T "$where" sh -l -c "$args"
+      p_compose exec --index "$i" -T "$where" sh -l -c \"$args\"
     fi
 
     # Accumulate exit codes into res
@@ -642,7 +655,7 @@ function run_command {
 }
 
 add_egg() {
-  GOJIRA_EGGS+=("-f" "$@")
+  GOJIRA_EGGS+=("$@")
 }
 
 main() {
