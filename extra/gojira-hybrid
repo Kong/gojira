@@ -9,6 +9,8 @@ hybrid_setup() {
   export GOJIRA_DATABASE
   export GOJIRA_KONG_PATH
 
+  if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
+
   add_egg "GOJIRA_TARGET=kong-cp $0 lay --host kong-cp"
   add_egg "GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone"
   add_egg "$COMPOSE_FILE"
