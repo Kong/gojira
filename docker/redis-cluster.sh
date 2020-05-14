@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-for i in $(seq 1 ${REDIS_CLUSTER_NODES});
+for i in $(seq 0 $((REDIS_CLUSTER_NODES - 1)));
 do
-  i=$((i - 1))
   port=$((7000+$i))
   sh -c "nohup redis-server --port $port --cluster-enabled yes --cluster-config-file redis-slave-$port-nodes.conf --cluster-node-timeout 5000 > nohup-700$i.txt &"
 done
@@ -13,7 +12,7 @@ then
   IP=$(hostname -i | awk '{print $1}'); 
 fi
 
-yes yes | redis-cli --cluster create $(for i in $(seq 1 ${REDIS_CLUSTER_NODES}); do i=$((i - 1)); port=$((7000+$i)); printf "${IP}:$port "; done) --cluster-replicas 1
+yes yes | redis-cli --cluster create $(for i in $(seq 0 $((REDIS_CLUSTER_NODES - 1))); do port=$((7000+$i)); printf "${IP}:$port "; done) --cluster-replicas 1
 
 tail -f /dev/null
 
