@@ -2,7 +2,7 @@
 for i in $(seq 0 $((REDIS_CLUSTER_NODES - 1)));
 do
   port=$((7000+$i))
-  sh -c "nohup redis-server --port $port --cluster-enabled yes --cluster-config-file redis-slave-$port-nodes.conf --cluster-node-timeout 5000 > nohup-700$i.txt &"
+  sh -c "nohup redis-server --port $port --cluster-enabled yes --cluster-config-file redis-slave-$port-nodes.conf --cluster-node-timeout 5000 > nohup-$port.txt &"
 done
 
 sleep 5
