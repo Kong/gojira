@@ -6,6 +6,9 @@ DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
+# Add gojira extras to env path
+PATH=$PATH:$GOJIRA_PATH/extra
+
 GOJIRA_VERSION=0.2.9
 GOJIRA_ROARS=(
   "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
