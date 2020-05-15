@@ -11,7 +11,7 @@ services:
     volumes:
       - ${CLUSTER_KEY_PATH}:/cluster
     ports:
-      - 8001:8001
+      - 8001
 
   kong-dp:
     environment:
@@ -24,6 +24,6 @@ services:
     volumes:
       - ${CLUSTER_KEY_PATH}:/cluster
     ports:
-      - 8000:8000
+      - 8000
 
 EOF
