@@ -520,17 +520,24 @@ function p_compose {
 
   local flags=()
 
+  local tmps=()
+
   for egg in "${GOJIRA_EGGS[@]}"; do
-    if [[ -x $egg ]]; then
-      flags+=("-f <($egg)")
-    elif [[ -f $egg ]]; then
-      flags+=("-f $egg")
+    # Have not found an alternative to this that does not involve a potential
+    # dangerous eval
+    if hash $egg &> /dev/null; then
+      tfile=$(mktemp /tmp/gojira-egg.yml.XXXXXXXXX)
+      $egg > $tfile
+      tmps+=("$tfile")
+      flags+=("-f $tfile")
     else
-      flags+=("-f <($egg)")
+      flags+=("-f $egg")
     fi
   done
 
-  eval docker-compose -f <($COMPOSE_FILE) "${flags[@]}" -p $PREFIX "$@"
+  docker-compose -f <($COMPOSE_FILE) ${flags[*]} -p $PREFIX "$@"
+
+  rm -f "${tmps[@]}"
 }
 
 
@@ -644,9 +651,9 @@ function run_command {
     fi
 
     if [[ -t 1 ]]; then
-      p_compose exec --index "$i" "$where" sh -l -i -c \"$args\"
+      p_compose exec --index "$i" "$where" sh -l -i -c "$args"
     else
-      p_compose exec --index "$i" -T "$where" sh -l -c \"$args\"
+      p_compose exec --index "$i" -T "$where" sh -l -c "$args"
     fi
 
     # Accumulate exit codes into res
