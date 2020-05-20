@@ -3,6 +3,15 @@
 HYBRID_PATH=$GOJIRA_PATH/extra/hybrid
 GOJIRA_TARGET=kong-cp
 
+kong_cp() {
+  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp
+}
+
+kong_dp() {
+  GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone
+}
+
+
 hybrid_setup() {
   COMPOSE_FILE=$HYBRID_PATH/docker-compose.yml.sh
 
@@ -11,8 +20,8 @@ hybrid_setup() {
 
   if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
-  add_egg "GOJIRA_TARGET=kong-cp $0 lay --host kong-cp"
-  add_egg "GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone"
+  add_egg kong_cp
+  add_egg kong_dp
   add_egg "$COMPOSE_FILE"
 
   if [[ ! -d $HYBRID_PATH/cluster_keys ]]; then
