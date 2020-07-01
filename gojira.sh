@@ -515,6 +515,24 @@ function req_find {
 }
 
 
+function executable {
+  # it's a file
+  if [[ -f $1 ]]; then
+    # can be executed
+    if [[ -x $1 ]]; then
+      return 0
+    else
+      return 1
+    fi
+  # It's something we can execute
+  elif hash $1; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
 function p_compose {
   get_envs
 
@@ -525,7 +543,7 @@ function p_compose {
   for egg in "${GOJIRA_EGGS[@]}"; do
     # Have not found an alternative to this that does not involve a potential
     # dangerous eval
-    if hash $egg &> /dev/null; then
+    if executable $egg; then
       tfile=$(mktemp /tmp/gojira-egg.yml.XXXXXXXXX)
       $egg > $tfile
       tmps+=("$tfile")
