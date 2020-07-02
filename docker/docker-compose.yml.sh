@@ -65,6 +65,7 @@ EOF
 fi
 cat << EOF
     environment:
+      KONG_ROLE: traditional
       KONG_PREFIX: ${KONG_PREFIX:-/kong/servroot}
       KONG_PLUGINS: bundled${KONG_PLUGINS:+,$KONG_PLUGINS}
       KONG_CUSTOM_PLUGINS: ${KONG_CUSTOM_PLUGINS}
