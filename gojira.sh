@@ -9,17 +9,17 @@ COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 # Add gojira extras to env path
 PATH=$PATH:$GOJIRA_PATH/extra
 
-GOJIRA_VERSION=0.2.9
+GOJIRA_VERSION=0.3.0
 GOJIRA_ROARS=(
   "RAWR" "urhghh" "tasty vagrant" "..." "nomnomnom" "beer"
   "\e[1m\e[31ma \e[33mw \e[93me \e[32ms \e[34mo \e[96mm \e[35me \e[0m"
   "\e[38;5;206m❤ \e[0m" "ゴジラ" "Fast Track" "coming to a theater near you"
   "you're breathtaking" "Monster Zero" "Let Me Fight" "Das Governance"
   "Ho-ho-ho!" "Fail fast and furiously" "King of Monsters"
-  "the Houdini of the Seas" "From the Core"
+  "the Houdini of the Seas" "From the Core" "a Memento of the Past"
 )
 GOJIRA_BOOMS=(
-  "BOOM" "GOT MILK" "U MAD"
+  "BOOM" "GOT MILK" "U MAD" "LEAVE ONLY BUBBLES"
 )
 
 GOJIRA_EGGS=()
