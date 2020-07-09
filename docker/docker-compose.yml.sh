@@ -39,7 +39,7 @@ cat << EOF
     volumes:
       - ${KONG_PREFIX:-/kong/servroot}
       - ${GOJIRA_HOME}/:/root/
-      - ${DOCKER_CTX}/follow-log.sh:/bin/follow-kong-log:ro
+      - ${DOCKER_CTX}/follow-log.sh:/bin/follow-kong-log
       - ${DOCKER_CTX}/gosh.sh:/bin/gosh:ro
 EOF
 
