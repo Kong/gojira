@@ -103,7 +103,7 @@ function validate_arguments {
     # adding another "db" service (because we didn't pass --alone).
     # That will make dns requests to "db" to roundrobin between the
     # two, and it's probably not what we want.
-    [ -n "$GOJIRA_NETWORK" ] &&
+    [[ "$ACTION" == "up" ]] && [ -n "$GOJIRA_NETWORK" ] &&
         [ -n "$GOJIRA_DATABASE" ] &&
         docker network inspect $GOJIRA_NETWORK &> /dev/null &&
         docker network inspect $GOJIRA_NETWORK | grep '_db_' 1> /dev/null &&
