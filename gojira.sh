@@ -534,6 +534,7 @@ function executable {
 
 
 function p_compose {
+  local res
   get_envs
 
   local flags=()
@@ -554,8 +555,10 @@ function p_compose {
   done
 
   docker-compose -f <($COMPOSE_FILE) ${flags[*]} -p $PREFIX "$@"
+  res=$?
 
   rm -f "${tmps[@]}"
+  return $res
 }
 
 
