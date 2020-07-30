@@ -598,7 +598,7 @@ function magic_dev {
   # lvl 0: no snapshot
   if [[ $GOJIRA_SNAPSHOT_LEVEL -lt 2 ]]; then
     inf "[magic dev] running 'make dev'"
-    p_compose exec $GOJIRA_TARGET sh -l -c "make dev"
+    run_command $GOJIRA_TARGET 1 "make dev"
     [[ $? == 0 ]] || err "[magic dev] failed running 'make dev'"
   fi
 
@@ -651,13 +651,15 @@ function run_command {
   local where=$1
   # Default node is 1
   local nodes=${2:-1}
-  local args
+  local args=$3
 
-  if [[ ! -z $_RAW_INPUT ]]; then
-    args=$EXTRA_ARGS
-  else
-    # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
-    args=${_EXTRA_ARGS[@]@Q}
+  if [[ -z $args ]]; then
+    if [[ ! -z $_RAW_INPUT ]]; then
+      args=$EXTRA_ARGS
+    else
+      # https://www.gnu.org/savannah-checkouts/gnu/bash/manual/bash.html#Shell-Parameter-Expansion
+      args=${_EXTRA_ARGS[@]@Q}
+    fi
   fi
 
   if [[ -n $GOJIRA_RUN_CLUSTER ]]; then
