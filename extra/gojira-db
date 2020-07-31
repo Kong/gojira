@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 if [ $GOJIRA_DATABASE == 'cassandra' ]; then
-    p_compose exec db cqlsh $EXTRA_ARGS
+    p_compose exec db cqlsh ${EXTRA_ARGS:--k kong}
 elif [ $GOJIRA_DATABASE == 'postgres' ]; then
-    local args=${EXTRA_ARGS:-"-U kong -d kong"}
-    p_compose exec db psql $args
+    p_compose exec db psql ${EXTRA_ARGS:--U kong -d kong}
 fi
