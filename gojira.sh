@@ -825,7 +825,8 @@ main() {
     ;;
   nuke)
     # Do not show docker rm error when there's nothing
-    local stuff=$($0 ps -aq)
+
+    local stuff=$($0 ps -aq $EXTRA_ARGS)
     [[ -n $stuff ]] && docker rm -fv $stuff
     docker network prune -f
     [ -n "$FORCE" ] && rm -fr $GOJIRA_KONGS/* ;
