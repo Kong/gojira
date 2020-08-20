@@ -263,6 +263,16 @@ $ gojira shell
 $ gojira down
 ```
 
+### Kill Gojiras
+
+- `gojira nuke` will kill all gojira running containers.
+- `gojira nuke -f` will kill all gojira running containers AND remove
+the repos in `$GOJIRA_KONGS`.
+
+The `nuke` command proxies extra commands to the first `docker ps`,
+that allows extra filtering like `gojira nuke --filter name=sealy`.
+
+
 ### Using two gojiras with the same version
 
 gojira has the notion of prefixes. With the `-p | --prefix` flag you can avoid
