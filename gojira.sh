@@ -165,8 +165,13 @@ function parse_args {
         _GOJIRA_VOLUMES+=("$2")
         shift
         ;;
+      --postgres)
+        GOJIRA_DATABASE=${GOJIRA_DATABASE:+postgres}
+        KONG_DATABASE=postgres
+        ;;
       --cassandra)
-        GOJIRA_DATABASE=cassandra
+        GOJIRA_DATABASE=${GOJIRA_DATABASE:+cassandra}
+        KONG_DATABASE=cassandra
         ;;
       --alone)
         GOJIRA_DATABASE=
@@ -276,6 +281,7 @@ function get_envs {
   export GOJIRA_PORTS
   export GOJIRA_VOLUMES
   export GOJIRA_DATABASE
+  export KONG_DATABASE
   export GOJIRA_REDIS_MODE
   export DOCKER_CTX=$DOCKER_PATH
   export GOJIRA_HOSTNAME
