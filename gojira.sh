@@ -315,7 +315,7 @@ function boom {
 }
 
 function roar {
-  if [[ $(date +%m) -eq 12 ]]; then
+  if [[ $(date +%-m) -eq 12 ]]; then
     cat << EOF
    * .    .   *   ___   .    +    .
  .     .   +    /  /  \\   .   .
