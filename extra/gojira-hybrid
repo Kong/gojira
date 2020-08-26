@@ -4,7 +4,12 @@ HYBRID_PATH=$GOJIRA_PATH/extra/hybrid
 GOJIRA_TARGET=kong-cp
 
 kong_cp() {
-  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp
+  # Ensure there is no database requested
+  if [[ -z $GOJIRA_DATABASE ]]; then
+    CP_DATABASE_ARGS=--alone
+  fi
+
+  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp $CP_DATABASE_ARGS
 }
 
 kong_dp() {
