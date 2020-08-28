@@ -223,3 +223,6 @@ without having to reference it by `-k`. ie
 export GOJIRA_KONG_PATH=full/path/to/some/kong
 ```
 
+## Credits
+
+* gojira artwork by ascii artist [ldb](http://asciiartist.com).
