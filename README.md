@@ -13,7 +13,25 @@
               '....--''\__vvv)\__vvv)      ldb
 
                       Gojira (Godzilla)
+```
 
+# gojira
+
+Gojira is a multi-purpose tool to ease development and testing of Kong by
+using Docker containers. Very similar to a Vagrant environment, but completely
+unlike it.
+
+It comes from far away to put an end to `vagrant up`, `vagrant destroy` and
+`vagrant wait ten hours`.
+
+Spin up as many Kong instances as you want. On different commits at the same
+time. With different OpenSSL, OpenResty and LuaRocks versions. Run a shell
+inside of the containers, make Kong roar. Make Kong fail, cd into the repo, fix
+it. Make Kong start again. Commit it. Push it, ship it!
+
+## Synopsis
+
+```
 Usage: gojira action [options...]
 
 Options:
@@ -78,16 +96,6 @@ Commands:
   nuke [-f]     remove all running gojiras. -f for removing all files
 
 ```
-
-# gojira
-
-gojira comes from far away to put an end to `vagrant up`, `vagrant destroy` and
-`vagrant wait ten hours`.
-
-Spin up as many kong instances as you want. On different commits at the same
-time. With different openssl, openresty and luarocks versions. Run a shell
-inside of the containers, make kong roar. Make kong fail, cd into the repo, fix
-it. Make kong start again. Commit it. Push it, ship it!
 
 
 ## Installation
