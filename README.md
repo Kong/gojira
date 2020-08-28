@@ -139,14 +139,14 @@ Default tag to clone from `GOJIRA_REPO` when no `-t` has been provided
 
 ### GOJIRA_KONGS
 
-> default: `~/.gojira-kongs`
+> default: `~/.gojira/kongs`
 
 Path where prefixes are stored
 
 
 ### GOJIRA_HOME
 
-> default: `${GOJIRA_KONGS}/.gojira-home`
+> default: `~/.gojira/home`
 
 Path to the shared home between gojiras
 
