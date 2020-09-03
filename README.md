@@ -107,9 +107,9 @@ most recent, the better.
 
 ```
 PATH=$PATH:~/.local/bin
-git clone git@github.com:Kong/kong-gojira.git
+git clone git@github.com:Kong/gojira.git
 mkdir -p ~/.local/bin
-ln -s $(realpath kong-gojira/gojira.sh) ~/.local/bin/gojira
+ln -s $(realpath gojira/gojira.sh) ~/.local/bin/gojira
 ```
 
 ### Additional for OS X
