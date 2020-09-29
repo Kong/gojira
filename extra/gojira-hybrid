@@ -41,7 +41,7 @@ hybrid_setup() {
   export CLUSTER_KEY_PATH=$HYBRID_PATH/cluster_keys
   export GOJIRA_TARGET
 
-  main "$@"
+  [[ $1 != "plugin" ]] && main "$@"
 }
 
 hybrid_setup "$@"
