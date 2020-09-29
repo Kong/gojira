@@ -16,6 +16,34 @@ kong_dp() {
   GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone
 }
 
+hybrid-usage () {
+cat << EOF
+hybrid mode / plugin
+====================
+
+run kong in hybrid mode without the hassle
+
+ - generate cluster keys
+ - creates a kong-dp and a kong-cp service, based on gojira flags
+ - seamlessly integrates and composes with other gojira modes
+
+Examples:
+
+$ gojira hybrid up
+
+$ gojira hybrid up -t some-branch
+
+$ gojira hybrid up -k path/to/some/kong
+
+$ gojira hybrid shell@kong-cp
+
+$ gojira hybrid shell@kong-dp
+
+$ gojira hybrid logs kong-cp kong-dp
+
+EOF
+}
+
 
 hybrid_setup() {
   COMPOSE_FILE=$HYBRID_PATH/docker-compose.yml.sh
@@ -40,6 +68,15 @@ hybrid_setup() {
 
   export CLUSTER_KEY_PATH=$HYBRID_PATH/cluster_keys
   export GOJIRA_TARGET
+
+  # This only runs on "mode", not in plugin mode. Thus, makes it the plugin
+  # action call
+  case $1 in
+    help)
+      hybrid-usage
+      exit 0
+      ;;
+  esac
 
   [[ $1 != "plugin" ]] && main "$@"
 }
