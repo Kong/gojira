@@ -127,8 +127,9 @@ function validate_arguments {
 }
 
 function parse_args {
-  ACTION=$1
-  shift
+  # Do not parse a starting --help|-h as an action
+  # let it fail later. gojira --foo means "no action"
+  ! [[ $1 =~ ^- ]] && ACTION=$1 && shift
 
   while [[ $# -gt 0 ]]; do
     key="$1"
@@ -709,6 +710,9 @@ main() {
   setup
 
   case $ACTION in
+  help)
+    usage
+    ;;
   up)
     # kong path does not exist. This means we are upping a build that came
     # with no auto deps, most probably
