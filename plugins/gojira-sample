@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+
+# Copyright 2019-2020 Kong Inc.
+
+# A sample plugin for gojira. Enable it by:
+# - making this script available to $PATH
+# - setting this env $GOJIRA_PLUGINS="sample"
+#
+# Does nothing, but showcases how to write a gojira plugin
+
+SAMPLE_LOCAL_PATH=$(dirname "${BASH_SOURCE[0]}")
+
+
+function sample-roar {
+  local art=($SAMPLE_LOCAL_PATH/sample/.art/*.txt)
+  cat ${art[RANDOM % ${#art[@]}]}
+}
+
+
+function sample-usage {
+  cat << EOF
+
+The very useful 'sample' plugin. I add an action, and apply some transforms
+on the docker-compose files.
+
+I am also your first step into writing a plugin
+
+Read my source at $SAMPLE_LOCAL_PATH/gojira-sample
+
+Happy hacking!
+
+EOF
+}
+
+
+# Add flags to usage
+function gojira-sample-flags {
+  cat << EOF
+[sample] Options:
+  --go-north               travel far up
+  --go-south               travel far south
+
+EOF
+}
+
+
+# Add commands to usage
+function gojira-sample-commands {
+  cat << EOF
+[sample] Commands:
+  up                       very useful log on up
+
+  northernmost-roar        the northernmost roar ever
+
+EOF
+}
+
+
+sample_function() {
+  cat << EOF
+version: '3.5'
+services:
+  # This will add / override compose confs on the whole compose file
+  # explore it by running "gojira lay"
+
+  # Override / add some parameters on the kong container
+  ${GOJIRA_TARGET:-kong}:
+    environment:
+      - SAMPLE_PLUGIN=is best plugin
+
+  # # Let's say you want to add a new service to the setup
+  # # sky is the limit ...
+  # more_redis:
+  #   image: redis
+EOF
+
+}
+
+
+sample_args() {
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --go-north)
+        NORTH=1
+        ;;
+      --go-south)
+        NORTH=0
+        ;;
+    esac
+    shift
+  done
+}
+
+
+sample-init() {
+  # add a gojira action
+  case $ACTION in
+    northernmost-roar)
+      sample-roar
+      exit 0
+      ;;
+    # ...
+  esac
+
+  # add some flags too!
+  sample_args $EXTRA_ARGS
+
+  # include compose file modifications
+  # by using a function
+  GOJIRA_EGGS+=("sample_function")
+
+  # or using a file
+  # GOJIRA_EGGS+=("$SAMPLE_LOCAL_PATH/sample/file.yml")
+
+  # also using an executable file
+  # GOJIRA_EGGS+=("$SAMPLE_LOCAL_PATH/sample/executable_file.yml.sh")
+
+  # or even disregard everything and set a completely different file
+  # (see hybrid mode for info on this)
+  # COMPOSE_FILE=/some/path
+
+  # transform an existing gojira action
+  case $ACTION in
+    up)
+      inf "[sample] Gojira is calling 'up'!!1"
+      ;;
+    roar)
+      [[ $NORTH == 1 ]] && sample-roar && exit 0
+  esac
+
+  # This only runs on "mode", not in plugin mode. Thus, makes it the plugin
+  # action call
+  case $1 in
+    help)
+      sample-usage
+      ;;
+  esac
+}
+
+sample-init "$@"
