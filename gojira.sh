@@ -137,6 +137,7 @@ function parse_args {
         set -x
         ;;
       -h|--help)
+        load_plugins
         usage
         exit 0
         ;;
@@ -434,6 +435,14 @@ Commands:
   nuke [-f]     remove all running gojiras. -f for removing all files
 
 EOF
+
+for plugin in $GOJIRA_PLUGINS; do
+  hash gojira-$plugin-flags &> /dev/null && gojira-$plugin-flags
+done
+
+for plugin in $GOJIRA_PLUGINS; do
+  hash gojira-$plugin-commands &> /dev/null && gojira-$plugin-commands
+done
 }
 
 
@@ -697,6 +706,18 @@ function run_command {
   return $res
 }
 
+load_plugins() {
+  if [[ -z $_GOJIRA_PLUGINS_LOADED ]]; then
+    for plugin in $GOJIRA_PLUGINS; do
+      ! hash gojira-$plugin &> /dev/null && \
+        err "[plugins] gojira-$plugin not found"
+      source "gojira-$plugin" "plugin"
+    done
+    # Make sure we do not source them again ( XXX? )
+    export _GOJIRA_PLUGINS_LOADED=1
+  fi
+}
+
 add_egg() {
   GOJIRA_EGGS+=("$@")
 }
@@ -707,6 +728,8 @@ main() {
 
   parse_args "$@"
   setup
+
+  load_plugins
 
   case $ACTION in
   up)
