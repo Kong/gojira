@@ -307,7 +307,12 @@ function create_kong {
     else
       remote="git@github.com:kong"
     fi
-    git clone -b ${GOJIRA_TAG} $remote/$GOJIRA_REPO.git $PREFIX || exit
+    git clone -b ${GOJIRA_TAG} $remote/$GOJIRA_REPO.git $PREFIX || {
+      git clone $remote/$GOJIRA_REPO.git $PREFIX
+      pushd $PREFIX;
+        git checkout $GOJIRA_TAG || exit
+      popd
+    }
   popd
 }
 
