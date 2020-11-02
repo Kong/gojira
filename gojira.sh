@@ -51,6 +51,7 @@ GOJIRA_MAGIC_DEV=${GOJIRA_MAGIC_DEV:-0}
 _EXTRA_ARGS=()
 _GOJIRA_VOLUMES=()
 _GOJIRA_PORTS=()
+_GOJIRA_CLI_ENVS=()
 
 unset FORCE
 unset PREFIX
@@ -127,6 +128,20 @@ function validate_arguments {
   fi
 }
 
+function cli_envs {
+  cat << EOF
+version: '3.5'
+services:
+  ${GOJIRA_TARGET:-kong}:
+    environment:
+EOF
+  for env in ${_GOJIRA_CLI_ENVS[@]}; do
+    cat << EOF
+      - $env
+EOF
+  done
+}
+
 function parse_args {
   # Do not parse a starting --help|-h as an action
   # let it fail later. gojira --foo means "no action"
@@ -168,6 +183,10 @@ function parse_args {
         ;;
       -v|--volume)
         _GOJIRA_VOLUMES+=("$2")
+        shift
+        ;;
+      -e|--env)
+        _GOJIRA_CLI_ENVS+=("$2")
         shift
         ;;
       --postgres)
@@ -276,6 +295,11 @@ function parse_args {
 
   if [[ $GOJIRA_MODE != "image" ]]; then
     GOJIRA_KONG_PATH=${GOJIRA_KONG_PATH:-$GOJIRA_KONGS/$PREFIX}
+  fi
+
+  # Add CLI environment flags to Kong instance
+  if [[ -n $_GOJIRA_CLI_ENVS ]]; then
+    add_egg cli_envs
   fi
 }
 
@@ -387,6 +411,7 @@ Options:
   -r,  --repo           repo to clone kong from
   -pp, --port           expose a port for a kong container
   -v,  --volume         add a volume to kong container
+  -e,  --env            add environment variable to kong container
   --image               image to use for kong
   --cassandra           use cassandra
   --alone               do not spin up any db
