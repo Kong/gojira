@@ -230,6 +230,10 @@ function parse_args {
         GOJIRA_CLUSTER_INDEX=$2
         shift
         ;;
+      --egg)
+        GOJIRA_EGGS+=("$2")
+        shift
+        ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
         _RAW_INPUT=1
@@ -418,6 +422,7 @@ Options:
   --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
+  --egg                 add a compose egg to make things extra yummy
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
