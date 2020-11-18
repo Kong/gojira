@@ -17,7 +17,7 @@
 
 # gojira
 
-Gojira is a multi-purpose tool to ease development and testing of Kong by
+Gojira is a multi-purpose tool to ease the development and testing of Kong by
 using Docker containers. Very similar to a Vagrant environment, but completely
 unlike it.
 
@@ -28,7 +28,6 @@ Spin up as many Kong instances as you want. On different commits at the same
 time. With different OpenSSL, OpenResty and LuaRocks versions. Run a shell
 inside of the containers, make Kong roar. Make Kong fail, cd into the repo, fix
 it. Make Kong start again. Commit it. Push it, ship it!
-
 ## Synopsis
 
 ```
@@ -216,7 +215,7 @@ Read more about `GOJIRA_MAGIC_DEV` on the [manual] section.
 ### GOJIRA_KONG_PATH
 
 Set this to a **full** kong path so gojira always references it no matter what
-This efectively hardcodes all the gojira magic to always, always use this path,
+This effectively hardcodes all the gojira magic to always, always use this path,
 without having to reference it by `-k`. ie
 
 ```bash
