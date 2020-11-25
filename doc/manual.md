@@ -561,3 +561,137 @@ gojira up
 gojira compose scale db=9000
 gojira compose scale kong=3000
 ```
+### Extending gojira functionality
+
+One size fits all, except when it does not. Gojira is a development tool, and
+every developer has a different workflow. The basic setup tries to provide a
+good scaffold to work with kong, but some workflows are more involved than
+others. Extend gojira functionality by:
+
+#### Using configuration environment variables
+
+Global settings might be useful to tune gojira. See: [README]
+
+[README]: README.md#environment-variables
+
+#### Gojira home
+
+All gojira target containers, regardless of the network or settings share a
+common home folder under `/root`. By default, it is mounted at the host
+filesystem at `~/.gojira/home`, though this path can be changed by setting
+`GOJIRA_HOME` to any other path.
+
+Through this shared home it's possible to customize the shell on gojira by
+modifying `.bashrc`: editor settings, available utilities, scripts, the same
+way any other system shell is configured.
+
+#### Using eggs
+
+A gojira egg is any yaml file or executable producting a yaml output compatible
+with docker compose. Use eggs to add or override anything on the resulting
+docker-compose yml that gojira produces.
+
+##### Examine generated yaml
+
+```bash
+$ gojira lay
+...
+networks:
+  gojira: {}
+services:
+  db:
+    environment:
+      POSTGRES_DBS: kong,kong_tests
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: kong
+    healthcheck:
+      interval: 5s
+...
+$ gojira lay -pp 8000
+...
+    ports:
+    - published: 8000
+      target: 8000
+...
+```
+
+##### Example: bind ports on any service
+
+```yaml
+# all-exposed.yml
+version: '3.5'
+services:
+  kong:
+    ports:
+      - 8001:8001
+      - 8000:8000
+  redis:
+    ports:
+      - 6379:6379
+  db:
+    ports:
+      - 5432:5432
+```
+
+```bash
+$ gojira lay --egg all-exposed.yml
+... yml output including exposed ports ...
+$ gojira up --egg all-exposed.yml
+```
+
+##### Example: include a new service
+
+Let's say it's interesting to us to add a prometheus node within the gojira
+network. We could do this manually by running docker commands on a particular
+network, but it's very easy to write that as a reusable gojira egg that will
+be composed together with the base generated yaml.
+
+```yaml
+# with-prometheus.yml
+version: '3.5'
+services:
+  prometheus:
+    image: prom/prometheus
+    ports:
+    - 9090:9090
+    labels:
+      com.konghq.gojira: "True"
+    networks:
+    - gojira
+```
+
+```bash
+$ gojira up --egg with-prometheus.yml
+```
+
+#### Commands
+
+It's possible to add a new gojira command by making available to the shell
+path an executable prefixed by `gojira-`. For example, `gojira-db` available
+on the path would be executed by calling `gojira db`. See: [gojira-db]
+
+[gojira-db]: /extra/gojira-db
+
+#### Modes
+
+Using the same principle as a command, it's possible to summarize a special
+gojira behavior. See: [gojira-hybrid] mode.
+
+[gojira-hybrid]: /extra/gojira-hybrid
+
+#### Plugins
+
+Gojira can be completely customized and extended by using plugins. A plugin is
+any bash code that will be sourced during gojira initialization. It must be
+available on the shell path prefixed by `gojira-`, and configured through
+`GOJIRA_PLUGINS` environment variable, separated by commas.
+
+For the [sample plugin], that would be
+
+```bash
+$ PATH=$PATH:~/path/to/gojira/plugins
+$ GOJIRA_PLUGINS="sample"
+$ gojira sample help
+```
+
+[sample plugin]: /plugins/gojira-sample
