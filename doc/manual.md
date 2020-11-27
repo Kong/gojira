@@ -570,9 +570,9 @@ others. Extend gojira functionality by:
 
 #### Using configuration environment variables
 
-Global settings might be useful to tune gojira. See: [README]
+Global settings might be useful to tune gojira. See: [environment variables]
 
-[README]: README.md#environment-variables
+[environment variables]: /README.md#environment-variables
 
 #### Gojira home
 
