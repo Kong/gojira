@@ -504,6 +504,7 @@ function image_name {
     OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
     KONG_NGX_MODULE=${KONG_NGX_MODULE:-$(req_find $req_file KONG_NGINX_MODULE_BRANCH)}
     KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS_BRANCH:-$(req_find $req_file KONG_BUILD_TOOLS_BRANCH)}
+    KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER_VERSION:-$(req_find $req_file KONG_GO_PLUGINSERVER_VERSION)}
   fi
 
   if [[ -f $yaml_file ]]; then
@@ -520,6 +521,8 @@ function image_name {
 
   KONG_NGX_MODULE=${KONG_NGX_MODULE:-master}
   KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS:-master}
+  GO_VERSION=${GO_VERSION:-1.13.12}
+  KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER:-master}
 
   local components=(
     "luarocks-$LUAROCKS"
@@ -527,6 +530,8 @@ function image_name {
     "openssl-$OPENSSL"
     "knm-$KONG_NGX_MODULE"
     "kbt-$KONG_BUILD_TOOLS"
+    "go-$GO_VERSION"
+    "gps-$KONG_GO_PLUGINSERVER"
   )
 
   GOJIRA_IMAGE=gojira:$(IFS="-" ; echo "${components[*]}")
@@ -542,6 +547,8 @@ function build {
     "--build-arg OPENRESTY=$OPENRESTY"
     "--build-arg KONG_NGX_MODULE=$KONG_NGX_MODULE"
     "--build-arg KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
+    "--build-arg GO_VERSION=$GO_VERSION"
+    "--build-arg KONG_GO_PLUGINSERVER=$KONG_GO_PLUGINSERVER"
   )
 
   >&2 echo "Building $GOJIRA_IMAGE"
@@ -551,7 +558,10 @@ function build {
   >&2 echo " * OpenSSL:     $OPENSSL  "
   >&2 echo " * OpenResty:   $OPENRESTY"
   >&2 echo " * LuaRocks:    $LUAROCKS "
+  >&2 echo " * Kong NM:     $KONG_NGX_MODULE"
   >&2 echo " * Kong BT:     $KONG_BUILD_TOOLS"
+  >&2 echo " * Go:          $GO_VERSION"
+  >&2 echo " * Kong GPS:    $KONG_GO_PLUGINSERVER"
   >&2 echo "=========================="
   >&2 echo ""
 

@@ -31,6 +31,8 @@ ARG OPENSSL
 ARG OPENRESTY
 ARG KONG_NGX_MODULE
 ARG KONG_BUILD_TOOLS
+ARG GO_VERSION
+ARG KONG_GO_PLUGINSERVER
 
 ENV BUILD_PREFIX=/build
 ENV OPENSSL_INSTALL=${BUILD_PREFIX}/openssl
@@ -57,6 +59,30 @@ RUN apt-get update && \
         iputils-ping \
         cpanminus \
         iproute2
+
+# Go and go-pluginserver
+ENV GO_VERSION=${GO_VERSION}
+ENV GOROOT=${BUILD_PREFIX}/go
+ENV GOPATH=${BUILD_PREFIX}/gopath
+ENV PATH=$GOPATH/bin:${GOROOT}/bin:$PATH
+RUN mkdir -p ${GOROOT} ${GOPATH}
+
+RUN curl -L https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
+	tar -xf /tmp/go.tar.gz -C ${GOROOT} --strip-components=1 && \
+    rm /tmp/go.tar.gz
+
+ENV KONG_GO_PLUGINSERVER_INSTALL=${BUILD_PREFIX}/gps
+ENV KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER}
+
+RUN go version && \
+	mkdir ${KONG_GO_PLUGINSERVER_INSTALL} && \
+    cd ${KONG_GO_PLUGINSERVER_INSTALL} && \
+	go mod init go-pluginserver && \
+	go get -d -v github.com/Kong/go-pluginserver@${KONG_GO_PLUGINSERVER} && \
+	go install -ldflags="-s -w -X main.version=${KONG_GO_PLUGINSERVER}" ... && \
+	cd && \
+    rm -r ${KONG_GO_PLUGINSERVER_INSTALL} && \
+	go-pluginserver --version
 
 RUN cpanm --notest Test::Nginx
 RUN cpanm --notest local::lib
