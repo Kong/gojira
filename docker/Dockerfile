@@ -67,22 +67,26 @@ ENV GOPATH=${BUILD_PREFIX}/gopath
 ENV PATH=$GOPATH/bin:${GOROOT}/bin:$PATH
 RUN mkdir -p ${GOROOT} ${GOPATH}
 
-RUN curl -L https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
-	tar -xf /tmp/go.tar.gz -C ${GOROOT} --strip-components=1 && \
-    rm /tmp/go.tar.gz
+RUN [ ! -z ${GO_VERSION} ] && ( \
+      curl -L https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
+	  tar -xf /tmp/go.tar.gz -C ${GOROOT} --strip-components=1 && \
+      rm /tmp/go.tar.gz ) || \
+    echo "go is not required"
 
 ENV KONG_GO_PLUGINSERVER_INSTALL=${BUILD_PREFIX}/gps
 ENV KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER}
 
-RUN go version && \
-	mkdir ${KONG_GO_PLUGINSERVER_INSTALL} && \
-    cd ${KONG_GO_PLUGINSERVER_INSTALL} && \
-	go mod init go-pluginserver && \
-	go get -d -v github.com/Kong/go-pluginserver@${KONG_GO_PLUGINSERVER} && \
-	go install -ldflags="-s -w -X main.version=${KONG_GO_PLUGINSERVER}" ... && \
-	cd && \
-    rm -r ${KONG_GO_PLUGINSERVER_INSTALL} && \
-	go-pluginserver --version
+RUN [ ! -z ${KONG_GO_PLUGINSERVER} ] && ( \
+      go version && \
+	  mkdir ${KONG_GO_PLUGINSERVER_INSTALL} && \
+      cd ${KONG_GO_PLUGINSERVER_INSTALL} && \
+	  go mod init go-pluginserver && \
+	  go get -d -v github.com/Kong/go-pluginserver@${KONG_GO_PLUGINSERVER} && \
+	  go install -ldflags="-s -w -X main.version=${KONG_GO_PLUGINSERVER}" ... && \
+	  cd && \
+      rm -r ${KONG_GO_PLUGINSERVER_INSTALL} && \
+	  go-pluginserver --version ) || \
+    echo "Kong go pluginserver is not required"
 
 RUN cpanm --notest Test::Nginx
 RUN cpanm --notest local::lib
