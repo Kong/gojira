@@ -121,7 +121,25 @@ We can also get a shell into them
 $ gojira shell -t 1.2.0
 [kong-1.2.0:/kong]# exit
 $ gojira shell
-[kong-master:/kong]#
+[kong-master:/kong]# exit
+```
+
+We can pass Environment variable bindings into the kong container.
+The variables can be in the form `KEY=VAL`:
+
+```
+$ gojira shell --env FIZZ=buzz
+[kong-master:/kong]# echo $FIZZ
+buzz
+[kong-master:/kong]# exit
+```
+
+Or simply just `KEY`, assuming that `KEY` is already bound to a value in the calling environment:
+
+```
+$ gojira run@db --env GITHUB_TOKEN -t master printenv | grep GITHUB_TOKEN
+GITHUB_TOKEN=secret
+$
 ```
 
 All gojira instances share a folder between them: `$HOME`. Try it:

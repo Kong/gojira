@@ -415,7 +415,7 @@ Options:
   -r,  --repo           repo to clone kong from
   -pp, --port           expose a port for a kong container
   -v,  --volume         add a volume to kong container
-  -e,  --env            add environment variable to kong container
+  -e,  --env KEY=VAL    add environment variable binding to kong container
   --image               image to use for kong
   --cassandra           use cassandra
   --alone               do not spin up any db
@@ -740,6 +740,9 @@ function run_command {
     nodes=$(seq 1 "$nodes")
   fi
 
+  # aggregate any specified environment variable arguments to be passed
+  local opt_envvars=${_GOJIRA_CLI_ENVS[*]/#/"--env "}
+
   local res=0
   for i in $nodes; do
     if [[ -n $GOJIRA_RUN_CLUSTER ]] || [[ $2 != 1 ]]; then
@@ -747,9 +750,9 @@ function run_command {
     fi
 
     if [[ -t 1 ]]; then
-      p_compose exec --index "$i" "$where" sh -l -i -c "$args"
+      p_compose exec $opt_envvars --index "$i" "$where" sh -l -i -c "$args"
     else
-      p_compose exec --index "$i" -T "$where" sh -l -c "$args"
+      p_compose exec $opt_envvars --index "$i" -T "$where" sh -l -c "$args"
     fi
 
     # Accumulate exit codes into res
@@ -819,12 +822,12 @@ main() {
     p_compose down -v
     ;;
   shell)
-    p_compose exec --index $GOJIRA_CLUSTER_INDEX $GOJIRA_TARGET gosh -l -i
+    run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX gosh -l -i
     ;;
   shell@*)
     # remove shell@, anchored at the start
     local where=${ACTION/#shell@/}
-    p_compose exec --index $GOJIRA_CLUSTER_INDEX $where sh -l -i
+    run_command $where $GOJIRA_CLUSTER_INDEX sh -l -i
     ;;
   build)
     build
