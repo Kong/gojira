@@ -822,12 +822,12 @@ main() {
     p_compose down -v
     ;;
   shell)
-    run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX gosh -l -i
+    run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "gosh -l -i"
     ;;
   shell@*)
     # remove shell@, anchored at the start
     local where=${ACTION/#shell@/}
-    run_command $where $GOJIRA_CLUSTER_INDEX sh -l -i
+    run_command "$where" "$GOJIRA_CLUSTER_INDEX" "sh -l -i"
     ;;
   build)
     build
