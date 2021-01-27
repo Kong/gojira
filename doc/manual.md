@@ -397,7 +397,7 @@ gojira down
 
 gojira up
 gojira run kong roar
-gojira run psql -U kong -h db
+gojira run@db psql -U kong
 ```
 
 #### Snapshot levels
