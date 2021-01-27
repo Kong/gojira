@@ -321,7 +321,7 @@ gojira run -t 1.3.0.2 kong start
 ### Using kong release images with gojira
 
 ```bash
-# or set it with --image argument
+# or set it with --image argument on all gojira commands
 export GOJIRA_IMAGE=kong:1.5.0-alpine
 gojira up
 gojira shell
