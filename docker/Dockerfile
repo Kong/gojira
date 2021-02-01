@@ -57,6 +57,7 @@ RUN apt-get update && \
         jq \
         httpie \
         iputils-ping \
+        less \
         cpanminus \
         iproute2
 
