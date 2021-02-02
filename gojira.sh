@@ -39,6 +39,7 @@ GOJIRA_REDIS_MODE=""
 GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
 # Run gojira in "dev" mode or in "image" mode
 GOJIRA_MODE=${GOJIRA_MODE:-dev}
+GOJIRA_NETWORK_MODE=${GOJIRA_NETWORK_MODE}
 GOJIRA_TARGET=${GOJIRA_TARGET:-kong}
 
 # Feature flags. Use the new cool stuff by default. Set it off to the ancient
@@ -135,7 +136,7 @@ services:
   ${GOJIRA_TARGET:-kong}:
     environment:
 EOF
-  for env in ${_GOJIRA_CLI_ENVS[@]}; do
+  for env in "${_GOJIRA_CLI_ENVS[@]}"; do
     cat << EOF
       - $env
 EOF
@@ -234,6 +235,10 @@ function parse_args {
         GOJIRA_EGGS+=("$2")
         shift
         ;;
+      --network-mode)
+        GOJIRA_NETWORK_MODE=$2
+        shift
+        ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
         _RAW_INPUT=1
@@ -302,8 +307,12 @@ function parse_args {
   fi
 
   # Add CLI environment flags to Kong instance
-  if [[ -n $_GOJIRA_CLI_ENVS ]]; then
+  if [[ ${#_GOJIRA_CLI_ENVS} -gt 0 ]]; then
     add_egg cli_envs
+  fi
+
+  if [[ $GOJIRA_NETWORK_MODE == "host" ]]; then
+    add_egg "$GOJIRA_PATH/extra/host-mode.yml.sh"
   fi
 }
 
@@ -311,6 +320,7 @@ function get_envs {
   export GOJIRA_IMAGE
   export GOJIRA_KONG_PATH
   export GOJIRA_NETWORK
+  export GOJIRA_NETWORK_MODE
   export GOJIRA_PORTS
   export GOJIRA_VOLUMES
   export GOJIRA_DATABASE
@@ -423,6 +433,7 @@ Options:
   --host                specify hostname for kong container
   --git-https           use https to clone repos
   --egg                 add a compose egg to make things extra yummy
+  --network-mode        set docker network mode
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 

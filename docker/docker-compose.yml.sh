@@ -18,18 +18,18 @@ services:
       - NET_ADMIN
 EOF
 
-if [[ ! -z $GOJIRA_HOSTNAME ]]; then
-cat << EOF
+if [[ -n $GOJIRA_HOSTNAME ]]; then
+  cat << EOF
     hostname: ${GOJIRA_HOSTNAME}
 EOF
 fi
 
-if [[ ! -z $GOJIRA_PORTS ]]; then
-cat << EOF
+if [[ -n $GOJIRA_PORTS ]]; then
+  cat << EOF
     ports:
 EOF
   for port in $GOJIRA_PORTS; do
-cat << EOF
+    cat << EOF
       - $port
 EOF
   done
@@ -58,13 +58,14 @@ cat << EOF
 EOF
 done
 
-if [[ ! -z $GOJIRA_DATABASE ]]; then
-cat << EOF
+if [[ -n $GOJIRA_DATABASE ]]; then
+  cat << EOF
     depends_on:
       - db
       - redis
 EOF
 fi
+
 cat << EOF
     environment:
       KONG_ROLE: traditional
@@ -96,8 +97,8 @@ cat << EOF
 EOF
 
 # Some tests do not like KONG_TEST_PLUGINS being set
-if [[ ! -z $KONG_PLUGINS ]]; then
-cat << EOF
+if [[ -n $KONG_PLUGINS ]]; then
+  cat << EOF
       KONG_TEST_PLUGINS: bundled${KONG_PLUGINS:+,$KONG_PLUGINS}
 EOF
 fi
@@ -106,25 +107,35 @@ cat << EOF
       GOJIRA_PREFIX: ${GOJIRA_PREFIX}
 
     restart: on-failure
+
+EOF
+
+if [[ -z $GOJIRA_NETWORK_MODE ]]; then
+  cat << EOF
     networks:
       gojira:
 EOF
 
-if [[ ! -z $GOJIRA_HOSTNAME ]]; then
-cat << EOF
+  if [[ -n $GOJIRA_HOSTNAME ]]; then
+    cat << EOF
         aliases:
           - ${GOJIRA_HOSTNAME}
 EOF
+  fi
+
+else
+  cat << EOF
+    network_mode: ${GOJIRA_NETWORK_MODE}
+EOF
 fi
 
-if [[ ! -z $GOJIRA_DATABASE ]]; then
+if [[ -n $GOJIRA_DATABASE ]]; then
 cat << EOF
   db:
-    networks:
-      - gojira
     labels:
       com.konghq.gojira: True
 EOF
+
   if [[ $GOJIRA_DATABASE == "postgres" ]]; then
     cat << EOF
     image: postgres:${POSTGRES:-9.5}
@@ -160,16 +171,31 @@ EOF
     restart: on-failure
 EOF
   fi
+
+  if [[ -z $GOJIRA_NETWORK_MODE ]]; then
+    cat << EOF
+    networks:
+      gojira:
+EOF
+
+  else
+    cat << EOF
+    network_mode: ${GOJIRA_NETWORK_MODE}
+EOF
+  fi
 fi
 
-if [[ ! -z $GOJIRA_DATABASE ]]; then # --alone means alone
+if [[ -n $GOJIRA_DATABASE ]]; then # --alone means alone
 cat << EOF
   redis:
     image: redis:5.0.4-alpine
+    restart: on-failure
+    labels:
+      com.konghq.gojira: True
 EOF
 
   if [[ $GOJIRA_REDIS_MODE == "cluster" ]]; then
-cat << EOF
+    cat << EOF
     environment:
       - IP
       - REDIS_CLUSTER_NODES=${REDIS_CLUSTER_NODES:-6}
@@ -183,7 +209,7 @@ cat << EOF
       retries: 5
 EOF
   else
-cat << EOF
+    cat << EOF
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -191,27 +217,28 @@ cat << EOF
       retries: 10
 EOF
   fi
-cat << EOF
-    restart: on-failure
+
+  if [[ -z $GOJIRA_NETWORK_MODE ]]; then
+    cat << EOF
     networks:
-      - gojira
-    labels:
-      com.konghq.gojira: True
+      gojira:
 EOF
+  else
+    cat << EOF
+    network_mode: ${GOJIRA_NETWORK_MODE}
+EOF
+  fi
 fi
 
-cat << EOF
-
+if [[ -z $GOJIRA_NETWORK_MODE ]]; then
+  cat << EOF
 networks:
   gojira:
 EOF
 
-if [[ ! -z $GOJIRA_NETWORK ]]; then
-cat << EOF
+  if [[ -n $GOJIRA_NETWORK ]]; then
+    cat << EOF
     name: ${GOJIRA_NETWORK}
 EOF
+  fi
 fi
-
-cat << EOF
-
-EOF
