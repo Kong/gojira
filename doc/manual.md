@@ -276,6 +276,43 @@ $ gojira shell
 $ gojira down
 ```
 
+### Bind ports on the host
+
+Gojira does not bind any port by default to not collide with other running
+gojira instances.
+
+Ports on the target container (kong) can be binded by using the `-pp` flag:
+
+```bash
+$ gojira up -pp 8000:8000 -pp 8001:8001
+```
+
+It's also possible to just use `host` mode and remove all network isolation
+between the containers and the Docker host.
+
+```bash
+$ gojira up --network-mode host
+$ psql -U kong -h localhost
+$ redis-cli -h localhost
+$ http :8001
+```
+
+Alternatively, extend any other port bind by [using eggs](#using-eggs).
+
+Note that docker allows binding to random available ports. The following
+example shows how to bind 8000 and 8001 to a random available ports and how to
+query for them
+
+```bash
+$ gojira up -pp 8000 -pp 8001
+$ gojira compose ports kong 8000
+0.0.0.0:55015
+$ gojira compose ports kong 8001
+0.0.0.0:55014
+# Query can be used with other commands too
+$ http $(gojira compose port kong 8001)/plugins
+```
+
 ### Kill Gojiras
 
 - `gojira nuke` will kill all gojira running containers.

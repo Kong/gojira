@@ -41,12 +41,15 @@ Options:
   -r,  --repo           repo to clone kong from
   -pp, --port           expose a port for a kong container
   -v,  --volume         add a volume to kong container
+  -e,  --env KEY=VAL    add environment variable binding to kong container
   --image               image to use for kong
   --cassandra           use cassandra
   --alone               do not spin up any db
   --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
+  --egg                 add a compose egg to make things extra yummy
+  --network-mode        set docker network mode
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -120,11 +123,8 @@ brew install coreutils
 
 ## Usage
 
-For the time being, we have a [guide].
-Also, a [vagrant to gojira guide].
-
-[guide]: doc/manual.md
-[vagrant to gojira guide]: doc/vagrant.md
+For the time being, we have a [guide](doc/manual.md)
+Also, a [vagrant to gojira guide](doc/vagrant.md)
 
 ## Environment variables
 
@@ -160,9 +160,8 @@ Path to the shared home between gojiras
 
 ### GOJIRA_IMAGE
 
-Instead of building a development image, force this image to be used. [Docs]
-
-[Docs]: doc/manual.md#using-kong-release-images-with-gojira
+Instead of building a development image, force this image to be used.
+[Docs](doc/manual.md#using-kong-release-images-with-gojira)
 
 ### GOJIRA_GIT_HTTPS
 
@@ -176,26 +175,23 @@ Use https instead of ssh for cloning `GOJIRA_REPO`
 > default: `1` (on)
 
 Detects if the current path is a kong repository, providing an automatic `-k`
-flag. [Docs]
-
-[Docs]: doc/manual.md#detect-kong-in-path
+flag.
+[Docs](doc/manual.md#detect-kong-in-path)
 
 ### GOJIRA_PIN_LOCAL_TAG
 
 > default: `1` (on)
 
 When using a local path (-k or auto), it will always generate the same gojira
-prefix based on the md5 of the path. [Docs]
-
-[Docs]: doc/manual.md#detect-kong-in-path
+prefix based on the md5 of the path.
+[Docs](doc/manual.md#detect-kong-in-path)
 
 ### GOJIRA_USE_SNAPSHOT
 
 > default: `1` (on)
 
-Try to use an automatic snapshot when available. [Docs]
-
-[Docs]: doc/manual.md#using-snapshots-to-store-the-state-of-a-running-container
+Try to use an automatic snapshot when available.
+[Docs](doc/manual.md#using-snapshots-to-store-the-state-of-a-running-container)
 
 ### GOJIRA_MAGIC_DEV
 
@@ -207,10 +203,7 @@ Together with `GOJIRA_USE_SNAPSHOT`, it will record a snapshot after so the
 next up can re-use that snapshot. On luarocks change, it will bring up a
 compatible base, and run 'make dev' again, which should be faster since it
 will be incremental, but will not record a snapshot to reduce disk usage.
-
-Read more about `GOJIRA_MAGIC_DEV` on the [manual] section.
-
-[manual]: doc/manual.md#gojira-magic-dev-mode
+[Docs](doc/manual.md#gojira-magic-dev-mode)
 
 ### GOJIRA_KONG_PATH
 
@@ -221,6 +214,15 @@ without having to reference it by `-k`. ie
 ```bash
 export GOJIRA_KONG_PATH=full/path/to/some/kong
 ```
+
+### GOJIRA_NETWORK_MODE
+
+> default: (empty)
+
+Use `network_mode` to spin up containers. When no network mode is set, it will
+use docker's default (bridge), see https://docs.docker.com/network/#network-drivers
+for available modes.
+[Docs](doc/manual.md#bind-ports-on-the-host)
 
 ## Credits
 
