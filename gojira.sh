@@ -627,8 +627,8 @@ function p_compose {
     # Have not found an alternative to this that does not involve a potential
     # dangerous eval
     if executable $egg; then
-      tfile=$(mktemp /tmp/gojira-egg.yml.XXXXXXXXX)
-      $egg > $tfile
+      tfile=$(mktemp -u) && mkfifo "$tfile" || err "[!] Could not create FIFO"
+      $egg > $tfile &
       tmps+=("$tfile")
       flags+=("-f $tfile")
     else
