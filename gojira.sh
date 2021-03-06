@@ -418,7 +418,7 @@ $(roar | sed -e 's/^/           /')
 Usage: $GOJIRA action [options...]
 
 Options:
-  -t,  --tag            git tag to mount kong on (default: master)
+  -t,  --tag            git tag to mount kong on (default: $GOJIRA_TAG)
   -p,  --prefix         prefix to use for namespacing
   -k,  --kong           PATH for a kong folder, will ignore tag
   -n,  --network        use network with provided name
@@ -452,7 +452,7 @@ Commands:
                 Use with --cluster to run the command across all kong nodes.
                 Use with --index 4 to run the command on node #4.
 
-  run@[s]       run a command on a specified service s.
+  run@[s]       run a command on a specified service.
                 example: 'gojira run@db psql -U kong'
 
   shell         get a shell on a running kong container.
@@ -472,7 +472,7 @@ Commands:
 
   lay           make gojira lay an egg
 
-  snapshot      make a snapshot of a running gojira
+  snapshot[?!]  make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
 
@@ -481,6 +481,8 @@ Commands:
   logs          follow container logs
 
   nuke [-f]     remove all running gojiras. -f for removing all files
+
+  version       make a guess
 
 EOF
 

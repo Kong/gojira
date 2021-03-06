@@ -11,10 +11,7 @@ the state of a container [can be stored for later reuse](#using-snapshots-to-sto
 
 It's very important to understand that it uses docker and docker-compose under
 the hood. The best summary would be a docker-compose file with flags and super
-powers. Read more about [gojira compose](#fallback-to-docker-compose) command.
-
-Of course, nothing prevents running _just one_ kong instance, very similarly to
-how vagrant is used. Read more about working with [local kong paths](#local).
+powers. See: [Gojira is a docker compose proxy](#gojira-is-a-docker-compose-proxy).
 
 ## Getting started
 
@@ -98,9 +95,9 @@ To access the directory where gojira downloaded the code, gojira can be
 sourced together with the cd command:
 
 ```
-$ source gojira cd
+$ cd $(gojira cd)
 /some/path/to/.gojira-kongs/kong-master
-$ . gojira cd -t 1.2.0
+$ cd $(gojira cd -t 1.2.0)
 /some/path/to/.gojira-kongs/kong-1.2.0
 ```
 
@@ -188,6 +185,28 @@ patterns that are possible by using gojira.
 
 ## Usage patterns
 
+### Start a local kong
+
+Gojira detects when it runs within a kong repository. Disable this feature by
+setting `GOJIRA_DETECT_LOCAL=0`.
+
+```
+$ cd path/to/some/kong
+$ gojira up
+$ gojira run some commands
+$ gojira shell
+$ gojira down
+```
+
+By using the `-k | --kong` flag, you can point to local kong folder.
+
+```
+$ gojira up -k path/to/some/kong
+$ gojira run -k path/to/some/kong some commands
+$ gojira shell -k path/to/some/kong
+$ gojira down -k path/to/some/kong
+```
+
 ### Start kong (master)
 
 By default, gojira uses `master` as the default branch.
@@ -206,35 +225,35 @@ Creating kong-master_kong_1  ... done
 ```
 
 ```
-gojira run make dev
-gojira run kong migrations bootstrap
-gojira run kong start
-gojira run kong roar
-gojira run http :8001
+$ gojira run make dev
+$ gojira run kong migrations bootstrap
+$ gojira run kong start
+$ gojira run kong roar
+$ gojira run http :8001
 ```
 
-We can access the path where kong is stored by
+Access the path where kong is stored by
 
 ```
-. gojira cd
+$ cd $(gojira cd)
 ```
 
-### Using a branch
+### Start kong (on any branch)
 
 Specify a branch name using the `-t | --tag` flag
 
 ```
-gojira up -t 0.34-1
+$ gojira up -t 0.34-1
 ```
 
 From now on, this gojira is referenced by this tag. Starting kong now will be:
 
 ```
-gojira run -t 0.34-1 make dev
-gojira run -t 0.34-1 kong migrations up
-gojira run -t 0.34-1 kong start
-gojira run -t 0.34-1 kong roar
-gojira run -t 0.34-1 http :8001
+$ gojira run -t 0.34-1 make dev
+$ gojira run -t 0.34-1 kong migrations up
+$ gojira run -t 0.34-1 kong start
+$ gojira run -t 0.34-1 kong roar
+$ gojira run -t 0.34-1 http :8001
 ```
 
 Note how you can also get a shell on it to do the same:
@@ -250,30 +269,7 @@ root@a02194e2ab87:/kong# kong migrations up
 Again, we can access the path where this kong prefix is stored by
 
 ```
-. gojira cd -t 0.34-1
-```
-
-
-### Start a local kong
-
-By using th `-k | --kong` flag, you can point to local kong folder.
-
-```
-$ gojira up -k path/to/some/kong
-$ gojira run -k path/to/some/kong some commands
-$ gojira shell -k path/to/some/kong
-$ gojira down -k path/to/some/kong
-```
-
-Gojira will automatically detect when it runs within a kong repository. The
-previous would become. Disable this feature by setting `GOJIRA_DETECT_LOCAL=0`.
-
-```
-$ cd path/to/some/kong
-$ gojira up
-$ gojira run some commands
-$ gojira shell
-$ gojira down
+$ cd $(gojira cd -t 0.34-1)
 ```
 
 ### Bind ports on the host
@@ -329,12 +325,12 @@ gojira has the notion of prefixes. With the `-p | --prefix` flag you can avoid
 overlapping on the namespaces. Each prefix is completely separate of the other
 
 ```
-gojira up -p foo
-gojira up -p bar
-gojira run -p foo kong roar
-gojira run -p bar kong roar
-. gojira cd -p foo
-. gojira cd -p bar
+$ gojira up -p foo
+$ gojira up -p bar
+$ gojira run -p foo kong roar
+$ gojira run -p bar kong roar
+$ cd $(gojira cd -p foo)
+$ cd $(gojira cd -p bar)
 ```
 
 ### Using two gojiras with the same database
@@ -488,38 +484,56 @@ first `make dev`. After this, you can forget about typing
 up the base snapshot and the `make dev` will take much less time since it will
 be incremental.
 
-** this is an experimental feature ** report any issues on #gojira
+> ** this is an experimental feature ** report any issues on #gojira
 
-### fallback to docker-compose
+### Gojira is a docker compose proxy
 
-- `gojira compose config  # useful for debugging`
+Gojira is _just_ a wrapper around `docker` and mainly `docker-compose`. It's
+easier to understand `gojira` as a way of calling `docker-compose` with
+arbitrary compose files, flags and some abstractions that are useful to us.
 
-Note that `gojira compose run X` and `gojira run X` mean different
-things as docker-compose run will spawn a new container and gojira
-will effectively exec into kong service. More or less:
+Flags and configuration environment variables passed to `gojira` map
+deterministically to a generated compose yml file. Actions call
+`docker-compose` actions using this generated compose file.
 
-`gojira compose exec kong top` == `gojira run top`
+Gojira provides a `compose` command that just calls `docker-compose` passing
+any extra arguments. For example, `gojira compose help` runs
+`docker-compose (something) help`.
 
-`gojira compose exec db psql`  == `gojira run@db psql`
+To see what's under the hood, run the `compose config` action with any set of
+flags and configuration ENV vars.
+
+```bash
+$ gojira compose config
+$ GOJIRA_IMAGE=foo gojira compose config
+$ gojira compose config -t 2.1.0
+```
+
+To go further down the rabbit hole, try the following
+
+```bash
+$ docker-compose -f <(gojira compose config) up
+```
 
 ### plugin development
 
 Set `KONG_PLUGINS` and mount your plugin path to `/kong-plugin/`
 
-```
-KONG_PLUGINS=rate-limiting-advanced gojira up --volume /absolute/path/:/kong-plugin/
-gojira run bin/busted /kong-plugin/specs/
-gojira shell
-  kong migrations bootstrap
-  kong start
-  http :8001/ | jq '.["plugins"]["available_on_server"]["rate-limiting-advanced"]  # true!
+```bash
+$ KONG_PLUGINS=rate-limiting-advanced gojira up --volume /absolute/path/:/kong-plugin/
+$ gojira run bin/busted /kong-plugin/specs/
+$ gojira shell
+> kong migrations bootstrap
+> kong start
+> http :8001/ | jq '.["plugins"]["available_on_server"]["rate-limiting-advanced"]
+"true"
 ```
 
 ### Access database console
 
 ```
-gojira run@db psql -U kong      # Postgres
-gojira run@db cqlsh             # Cassandra
+$ gojira run@db psql -U kong      # Postgres
+$ gojira run@db cqlsh             # Cassandra
 ```
 
 ### Run an sql file in the db
@@ -527,14 +541,14 @@ gojira run@db cqlsh             # Cassandra
 `/root/` is also shared by the database containers, so you keep your
 cassandra history and psql history.
 
-```
-gojira run@db psql -- -U kong -d kong_tests -f'/root/foo.sql'
+```bash
+$ gojira run@db psql -- -U kong -d kong_tests -f'/root/foo.sql'
 ```
 
 ### Remove all gojira images (including snapshots)
 
-```
-docker rmi $(gojira images -q)
+```bash
+$ docker rmi $(gojira images -q)
 ```
 
 
@@ -562,25 +576,27 @@ kong cluster of 5 nodes.
 ```bash
 # First let's make sure we have a snapshot for the node we want to bring up
 # skip this step if you know that you have an snapshot
-gojira up --alone
-gojira run make dev
-gojira snapshot
-gojira down
+$ gojira up --alone
+$ gojira run make dev
+$ gojira snapshot
+$ gojira down
 
 # Now, start gojira with 5 kong nodes
-gojira up --scale kong=5
+$ gojira up --scale kong=5
 
 # Run migrations on the first node
-gojira run kong migrations bootstrap
+$ gojira run kong migrations bootstrap
 # Start kong in all nodes
-gojira run --cluster kong start
+$ gojira run --cluster kong start
 ```
 
 Note that the following do more or less the same:
 
 ```bash
 gojira up --scale kong=5
-# and
+```
+
+```bash
 gojira up
 gojira compose scale kong=5
 ```
@@ -591,26 +607,28 @@ gojira compose scale kong=5
 #### Run a command on a particular node (ie: 3)
 
 ```bash
-gojira run --index 3 foobar
+$ gojira run --index 3 foobar
 ```
 
 #### Run a shell on a particular node (ie: 3)
 
 ```bash
-gojira shell --index 3
+$ gojira shell --index 3
 ```
 
 
 #### Scale any other service
 
 ```bash
-gojira up --scale db=9000 --scale kong=3000
-
-# Alternatively
-gojira up
-gojira compose scale db=9000
-gojira compose scale kong=3000
+$ gojira up --scale db=9000 --scale kong=3000
 ```
+```bash
+# Alternatively
+$ gojira up
+$ gojira compose scale db=9000
+$ gojira compose scale kong=3000
+```
+
 ### Extending gojira functionality
 
 One size fits all, except when it does not. Gojira is a development tool, and
@@ -620,9 +638,7 @@ others. Extend gojira functionality by:
 
 #### Using configuration environment variables
 
-Global settings might be useful to tune gojira. See: [environment variables]
-
-[environment variables]: /README.md#environment-variables
+Global settings might be useful to tune gojira. See: [configuration](/README.md#configuration)
 
 #### Gojira home
 

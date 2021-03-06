@@ -68,12 +68,13 @@ Commands:
                 Use with --cluster to run the command across all kong nodes.
                 Use with --index 4 to run the command on node #4.
 
-  run@[serv]    run a command on a specified service.
+  run@[s]       run a command on a specified service s.
                 example: 'gojira run@db psql -U kong'
 
   shell         get a shell on a running kong container.
 
-  shell@[serv]  get a shell on a specified service.
+  shell@[s]     get a shell on a specified service s.
+                example: 'gojira shell@db'
 
   cd            cd into a kong prefix repo
 
@@ -87,7 +88,7 @@ Commands:
 
   lay           make gojira lay an egg
 
-  snapshot      make a snapshot of a running gojira
+  snapshot[?!]  make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
 
@@ -97,36 +98,86 @@ Commands:
 
   nuke [-f]     remove all running gojiras. -f for removing all files
 
+  version       make a guess
+
 ```
 
 
 ## Installation
 
-gojira depends on docker (18.09.02) and docker-compose (1.23.2). As usual, the
-most recent, the better.
+gojira depends on `bash`, `git`, `docker` and `docker-compose`. Make sure your
+docker setup is compatible with [compose file v3.5](https://docs.docker.com/compose/compose-file/compose-file-v3/).
 
-> Note you need `~/.local/bin` on your `$PATH`.
-
-```
-PATH=$PATH:~/.local/bin
-git clone git@github.com:Kong/gojira.git
-mkdir -p ~/.local/bin
-ln -s $(realpath gojira/gojira.sh) ~/.local/bin/gojira
+```bash
+$ git clone git@github.com:Kong/gojira.git
+$ mkdir -p ~/.local/bin
+$ ln -s $(realpath gojira/gojira.sh) ~/.local/bin/gojira
 ```
 
-### Additional for OS X
+> Note you need `~/.local/bin` on your `$PATH`. Add them to `~/.profile`,
+`.zshrc`, `~/.bashrc` or `~/.bash_profile` depending on which shell you use.
+
+```bash
+export PATH=~/.local/bin:$PATH
+```
+
+### Additional OSX dependencies
+
+#### GNU core utilities
 
 ```
-brew install coreutils
+$ brew install coreutils
 ```
 
+#### Bash > 3
+
+OSX ships with old Bash versions. It's recommended to upgrade bash to an
+up-to-date version of Bash.
+
+```bash
+$ brew install bash
+```
+
+> Homebrew will symlink bash into `/usr/local/bin`.
+
+```bash
+$ /bin/bash --version
+GNU bash, version 3.2.57(1)-release (x86_64-apple-darwin19)
+Copyright (C) 2007 Free Software Foundation, Inc.
+$ /usr/local/bin/bash --version
+GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
+Copyright (C) 2020 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+```
+Make sure your `$PATH` gives higher precendence to the upgraded bash.
+
+```bash
+$ where bash
+/usr/local/bin/bash
+/bin/bash
+$ bash --version
+GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
+```
+
+If that's not the case, there are many ways of making sure
+`/usr/local/bin/bash` takes precedence over `/usr/bin/Hbash`. If unsure, the
+following should work without unintended side effects, assuming your `$PATH`
+contains `~/.local/bin` on the leftmost (highest) position.
+
+```bash
+$ export PATH=~/.local/bin:$PATH
+$ ln -s $(realpath /usr/local/bin/bash) ~/.local/bin/bash
+$ bash --version
+GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
+```
 
 ## Usage
 
-For the time being, we have a [guide](doc/manual.md)
-Also, a [vagrant to gojira guide](doc/vagrant.md)
+* [Getting started](docs/manual.md#getting-started)
+* [Usage patterns](docs/manual.md#usage-patterns)
+* [From vagrant to gojira](docs/vagrant.md)
 
-## Environment variables
+## Configuration
 
 Certain behaviours of gojira can be tamed by using the following environment
 variables.
@@ -161,7 +212,7 @@ Path to the shared home between gojiras
 ### GOJIRA_IMAGE
 
 Instead of building a development image, force this image to be used.
-[Docs](doc/manual.md#using-kong-release-images-with-gojira)
+[Docs](docs/manual.md#using-kong-release-images-with-gojira)
 
 ### GOJIRA_GIT_HTTPS
 
@@ -176,7 +227,7 @@ Use https instead of ssh for cloning `GOJIRA_REPO`
 
 Detects if the current path is a kong repository, providing an automatic `-k`
 flag.
-[Docs](doc/manual.md#detect-kong-in-path)
+[Docs](docs/manual.md#start-a-local-kong)
 
 ### GOJIRA_PIN_LOCAL_TAG
 
@@ -184,14 +235,14 @@ flag.
 
 When using a local path (-k or auto), it will always generate the same gojira
 prefix based on the md5 of the path.
-[Docs](doc/manual.md#detect-kong-in-path)
+[Docs](docs/manual.md#start-a-local-kong)
 
 ### GOJIRA_USE_SNAPSHOT
 
 > default: `1` (on)
 
 Try to use an automatic snapshot when available.
-[Docs](doc/manual.md#using-snapshots-to-store-the-state-of-a-running-container)
+[Docs](docs/manual.md#using-snapshots-to-store-the-state-of-a-running-container)
 
 ### GOJIRA_MAGIC_DEV
 
@@ -203,7 +254,7 @@ Together with `GOJIRA_USE_SNAPSHOT`, it will record a snapshot after so the
 next up can re-use that snapshot. On luarocks change, it will bring up a
 compatible base, and run 'make dev' again, which should be faster since it
 will be incremental, but will not record a snapshot to reduce disk usage.
-[Docs](doc/manual.md#gojira-magic-dev-mode)
+[Docs](docs/manual.md#gojira-magic-dev-mode)
 
 ### GOJIRA_KONG_PATH
 
@@ -222,7 +273,7 @@ export GOJIRA_KONG_PATH=full/path/to/some/kong
 Use `network_mode` to spin up containers. When no network mode is set, it will
 use docker's default (bridge), see https://docs.docker.com/network/#network-drivers
 for available modes.
-[Docs](doc/manual.md#bind-ports-on-the-host)
+[Docs](docs/manual.md#bind-ports-on-the-host)
 
 ## Credits
 
