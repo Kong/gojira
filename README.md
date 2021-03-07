@@ -160,7 +160,7 @@ GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
 ```
 
 If that's not the case, there are many ways of making sure
-`/usr/local/bin/bash` takes precedence over `/usr/bin/Hbash`. If unsure, the
+`/usr/local/bin/bash` takes precedence over `/bin/bash`. If unsure, the
 following should work without unintended side effects, assuming your `$PATH`
 contains `~/.local/bin` on the leftmost (highest) position.
 
