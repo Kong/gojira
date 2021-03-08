@@ -59,7 +59,8 @@ RUN apt-get update && \
         iputils-ping \
         less \
         cpanminus \
-        iproute2
+        iproute2 \
+        net-tools
 
 # Go and go-pluginserver
 ENV GO_VERSION=${GO_VERSION}
@@ -88,6 +89,15 @@ RUN [ ! -z ${KONG_GO_PLUGINSERVER} ] && ( \
       rm -r ${KONG_GO_PLUGINSERVER_INSTALL} && \
 	  go-pluginserver --version ) || \
     echo "Kong go pluginserver is not required"
+
+# ---------------
+# Test Enablement
+# ---------------
+# Add vegeta HTTP load testing tool for executing stress tests
+RUN [ ! -z ${GO_VERSION} ] && ( \
+      go get -u github.com/tsenart/vegeta && \
+      vegeta -version ) || \
+    echo "go has not been installed; vegeta requires golang"
 
 RUN cpanm --notest Test::Nginx
 RUN cpanm --notest local::lib
