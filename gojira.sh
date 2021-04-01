@@ -926,6 +926,14 @@ main() {
     fi
     p_compose config $EXTRA_ARGS
     ;;
+  port)
+    p_compose port $GOJIRA_TARGET $EXTRA_ARGS
+    ;;
+  port@*)
+    # remove shell@, anchored at the start
+    local where=${ACTION/#port@/}
+    p_compose port $where $EXTRA_ARGS
+    ;;
   version)
     echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
     ;;

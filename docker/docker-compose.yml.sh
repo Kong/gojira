@@ -24,16 +24,16 @@ if [[ -n $GOJIRA_HOSTNAME ]]; then
 EOF
 fi
 
-if [[ -n $GOJIRA_PORTS ]]; then
-  cat << EOF
+cat << EOF
     ports:
+      - 8000-8001
+      - 8443-8444
 EOF
-  for port in $GOJIRA_PORTS; do
-    cat << EOF
+for port in $GOJIRA_PORTS; do
+  cat << EOF
       - $port
 EOF
-  done
-fi
+done
 
 cat << EOF
     volumes:
@@ -139,6 +139,8 @@ EOF
   if [[ $GOJIRA_DATABASE == "postgres" ]]; then
     cat << EOF
     image: postgres:${POSTGRES:-9.5}
+    ports:
+      - 5432
     volumes:
       - ${DOCKER_CTX}/pg-entrypoint:/docker-entrypoint-initdb.d
       - ${GOJIRA_HOME}/:/root/
@@ -158,6 +160,11 @@ EOF
   elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
     cat << EOF
     image: cassandra:${CASSANDRA:-3.9}
+    ports:
+      - 7000-7001
+      - 7199
+      - 9042
+      - 9160
     volumes:
       - ${GOJIRA_HOME}/:/root/
     environment:
@@ -189,6 +196,8 @@ if [[ -n $GOJIRA_DATABASE ]]; then # --alone means alone
 cat << EOF
   redis:
     image: redis:5.0.4-alpine
+    ports:
+      - 6379
     restart: on-failure
     labels:
       com.konghq.gojira: True
