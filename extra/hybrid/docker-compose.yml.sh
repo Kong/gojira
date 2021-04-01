@@ -10,8 +10,6 @@ services:
       KONG_CLUSTER_CERT_KEY: /cluster/cluster.key
     volumes:
       - ${CLUSTER_KEY_PATH}:/cluster
-    ports:
-      - 8001
 
   kong-dp:
     environment:
@@ -23,7 +21,4 @@ services:
       KONG_DATABASE: "off"
     volumes:
       - ${CLUSTER_KEY_PATH}:/cluster
-    ports:
-      - 8000
-
 EOF
