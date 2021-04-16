@@ -466,6 +466,11 @@ Commands:
   shell@[s]     get a shell on a specified service s.
                 example: 'gojira shell@db'
 
+  port          get allocated random port for kong
+  port@[s]      or for a specified service s.
+                example: 'gojira port 8000'
+                         'gojira port@redis 6379'
+
   cd            cd into a kong prefix repo
 
   image         show current gojira image

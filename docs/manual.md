@@ -274,8 +274,31 @@ $ cd $(gojira cd -t 0.34-1)
 
 ### Bind ports on the host
 
-Gojira does not bind any port by default to not collide with other running
-gojira instances.
+Gojira does bind ports to random available ports on the host by default to not
+collide with other running gojira instances. Query these ports like:
+
+```bash
+$ gojira up
+$ gojira port 8000
+0.0.0.0:57305
+$ gojira scale kong=2
+$ gojira port --index 2
+0.0.0.0:57387
+$ http $(gojira port 8000)
+HTTP/1.1 404 Not Found
+Connection: keep-alive
+Content-Length: 48
+Content-Type: application/json; charset=utf-8
+...
+```
+
+Ports can be queried for any service by using `port@service` action, like
+
+```bash
+$ redis-cli -u redis://$(gojira port@redis 6379)
+0.0.0.0:57304>
+...
+```
 
 Ports on the target container (kong) can be binded by using the `-pp` flag:
 
@@ -294,20 +317,6 @@ $ http :8001
 ```
 
 Alternatively, extend any other port bind by [using eggs](#using-eggs).
-
-Note that docker allows binding to random available ports. The following
-example shows how to bind 8000 and 8001 to a random available ports and how to
-query for them
-
-```bash
-$ gojira up -pp 8000 -pp 8001
-$ gojira compose ports kong 8000
-0.0.0.0:55015
-$ gojira compose ports kong 8001
-0.0.0.0:55014
-# Query can be used with other commands too
-$ http $(gojira compose port kong 8001)/plugins
-```
 
 ### Kill Gojiras
 
