@@ -924,7 +924,7 @@ main() {
     fi
     p_compose config $EXTRA_ARGS
     ;;
-  port)
+  port|ports)
     p_compose port --index "$GOJIRA_CLUSTER_INDEX" "$GOJIRA_TARGET" $EXTRA_ARGS
     ;;
   version)
