@@ -148,6 +148,12 @@ function parse_args {
   # let it fail later. gojira --foo means "no action"
   ! [[ $1 =~ ^- ]] && ACTION=$1 && shift
 
+  # extract @smth from action as a target argument
+  # foo@bar -> action foo, target bar
+  [[ $ACTION =~ .*\@(.*) ]]
+  GOJIRA_TARGET=${BASH_REMATCH[1]:-$GOJIRA_TARGET}
+  ACTION=${ACTION/%@*}
+
   while [[ $# -gt 0 ]]; do
     key="$1"
     case $key in
@@ -835,12 +841,9 @@ main() {
     p_compose down -v
     ;;
   shell)
-    run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "gosh -l -i"
-    ;;
-  shell@*)
-    # remove shell@, anchored at the start
-    local where=${ACTION/#shell@/}
-    run_command "$where" "$GOJIRA_CLUSTER_INDEX" "sh -l -i"
+    local cmd="sh -l -i"
+    [[ $GOJIRA_TARGET == "kong" ]] && cmd="gosh -l -i"
+    run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "$cmd"
     ;;
   build)
     build
@@ -849,11 +852,6 @@ main() {
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
     echo $GOJIRA_KONG_PATH
     cd $GOJIRA_KONG_PATH 2> /dev/null
-    ;;
-  run@*)
-    # remove run@, anchored at the start
-    local where=${ACTION/#run@/}
-    run_command $where $GOJIRA_CLUSTER_INDEX
     ;;
   run)
     run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX
@@ -928,11 +926,6 @@ main() {
     ;;
   port)
     p_compose port $GOJIRA_TARGET $EXTRA_ARGS
-    ;;
-  port@*)
-    # remove shell@, anchored at the start
-    local where=${ACTION/#port@/}
-    p_compose port $where $EXTRA_ARGS
     ;;
   version)
     echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
