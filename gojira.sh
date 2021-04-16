@@ -925,7 +925,7 @@ main() {
     p_compose config $EXTRA_ARGS
     ;;
   port)
-    p_compose port $GOJIRA_TARGET $EXTRA_ARGS
+    p_compose port --index "$GOJIRA_CLUSTER_INDEX" "$GOJIRA_TARGET" $EXTRA_ARGS
     ;;
   version)
     echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
