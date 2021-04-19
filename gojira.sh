@@ -152,6 +152,11 @@ function parse_args {
   # foo@bar -> action foo, target bar
   [[ $ACTION =~ .*\@(.*) ]]
   GOJIRA_TARGET=${BASH_REMATCH[1]:-$GOJIRA_TARGET}
+
+  [[ $GOJIRA_TARGET =~ (.*)\:(.*) ]]
+  GOJIRA_TARGET=${BASH_REMATCH[1]:-$GOJIRA_TARGET}
+  GOJIRA_CLUSTER_INDEX=${BASH_REMATCH[2]:-$GOJIRA_CLUSTER_INDEX}
+
   ACTION=${ACTION/%@*}
 
   while [[ $# -gt 0 ]]; do
@@ -458,16 +463,16 @@ Commands:
                 Use with --cluster to run the command across all kong nodes.
                 Use with --index 4 to run the command on node #4.
 
-  run@[s]       run a command on a specified service.
+  run@[s:i]     run a command on a specified service (index i)
                 example: 'gojira run@db psql -U kong'
 
   shell         get a shell on a running kong container.
 
-  shell@[s]     get a shell on a specified service s.
+  shell@[s:i]   get a shell on a specified service s (index i)
                 example: 'gojira shell@db'
 
   port          get allocated random port for kong
-  port@[s]      or for a specified service s.
+  port@[s:i]    or for a specified service s (index i)
                 example: 'gojira port 8000'
                          'gojira port@redis 6379'
 
