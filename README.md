@@ -68,13 +68,19 @@ Commands:
                 Use with --cluster to run the command across all kong nodes.
                 Use with --index 4 to run the command on node #4.
 
-  run@[s]       run a command on a specified service s.
+  run@s[:i]     run a command on a specified service (node i)
                 example: 'gojira run@db psql -U kong'
 
   shell         get a shell on a running kong container.
 
-  shell@[s]     get a shell on a specified service s.
+  shell@s[:i]   get a shell on a specified service s (node i)
                 example: 'gojira shell@db'
+
+  port          get allocated random port for kong
+  port@s[:i]    or for a specified service s (node i)
+                example: 'gojira port 8000'
+                         'gojira port@kong:3 8000'
+                         'gojira port@redis 6379'
 
   cd            cd into a kong prefix repo
 
