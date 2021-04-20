@@ -780,7 +780,7 @@ load_plugins() {
   if [[ -z $_GOJIRA_PLUGINS_LOADED ]]; then
     for plugin in $GOJIRA_PLUGINS; do
       ! hash gojira-$plugin &> /dev/null && \
-        err "[plugins] gojira-$plugin not found"
+        warn "[plugins] gojira-$plugin not found" && continue
       source "gojira-$plugin" "plugin"
     done
     # Make sure we do not source them again ( XXX? )
