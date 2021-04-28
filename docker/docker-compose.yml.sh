@@ -58,11 +58,13 @@ cat << EOF
 EOF
 done
 
-if [[ -n $GOJIRA_DATABASE ]]; then
-  cat << EOF
+
+
+if [[ -n $GOJIRA_DATABASE ]] || [[ -n $GOJIRA_REDIS ]]; then
+cat << EOF
     depends_on:
-      - db
-      - redis
+      $([[ -n $GOJIRA_DATABASE ]] && echo "- db")
+      $([[ -n $GOJIRA_REDIS ]] && echo "- redis")
 EOF
 fi
 
@@ -192,7 +194,7 @@ EOF
   fi
 fi
 
-if [[ -n $GOJIRA_DATABASE ]]; then # --alone means alone
+if [[ -n $GOJIRA_REDIS ]]; then
 cat << EOF
   redis:
     image: redis:5.0.4-alpine
