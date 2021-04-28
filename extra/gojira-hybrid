@@ -4,12 +4,7 @@ HYBRID_PATH=$GOJIRA_PATH/extra/hybrid
 GOJIRA_TARGET=kong-cp
 
 kong_cp() {
-  # Ensure there is no database requested
-  if [[ -z $GOJIRA_DATABASE ]]; then
-    CP_DATABASE_ARGS=--alone
-  fi
-
-  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp $CP_DATABASE_ARGS
+  GOJIRA_TARGET=kong-cp $0 lay --host kong-cp
 }
 
 kong_dp() {
@@ -48,7 +43,11 @@ EOF
 hybrid_setup() {
   COMPOSE_FILE=$HYBRID_PATH/docker-compose.yml.sh
 
+  # Propagate setting flags
   export GOJIRA_DATABASE
+  export KONG_DATABASE
+  export GOJIRA_REDIS
+
   export GOJIRA_KONG_PATH
 
   if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi

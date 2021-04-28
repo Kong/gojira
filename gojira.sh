@@ -31,7 +31,9 @@ globals() {
 # Defaults and overloading
 GOJIRA_KONGS=${GOJIRA_KONGS:-~/.gojira/kongs}
 GOJIRA_HOME=${GOJIRA_HOME:-~/.gojira/home}
-GOJIRA_DATABASE=${GOJIRA_DATABASE:-postgres}
+# only set GOJIRA_DATABASE if it's explicitly not set (empty means empty)
+[[ -z ${GOJIRA_DATABASE+x} ]] && GOJIRA_DATABASE=${GOJIRA_DATABASE:-postgres}
+[[ -z ${GOJIRA_REDIS+x} ]] && GOJIRA_REDIS=${GOJIRA_REDIS:-1}
 GOJIRA_REPO=${GOJIRA_REPO:-kong}
 GOJIRA_TAG=${GOJIRA_TAG:-master}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
@@ -209,8 +211,13 @@ function parse_args {
         GOJIRA_DATABASE=${GOJIRA_DATABASE:+cassandra}
         KONG_DATABASE=cassandra
         ;;
+      --off)
+        GOJIRA_DATABASE=
+        KONG_DATABASE=off
+        ;;
       --alone)
         GOJIRA_DATABASE=
+        GOJIRA_REDIS=
         ;;
       --redis-cluster)
         GOJIRA_REDIS_MODE="cluster"
