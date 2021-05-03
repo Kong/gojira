@@ -36,7 +36,9 @@ GOJIRA_HOME=${GOJIRA_HOME:-~/.gojira/home}
 [[ -z ${GOJIRA_REDIS+x} ]] && GOJIRA_REDIS=${GOJIRA_REDIS:-1}
 GOJIRA_REPO=${GOJIRA_REPO:-kong}
 GOJIRA_TAG=${GOJIRA_TAG:-master}
+GOJIRA_GIT_REMOTE=${GOJIRA_GIT_REMOTE:-git@github.com:kong}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
+GOJIRA_GIT_HTTPS_REMOTE=${GOJIRA_GIT_HTTPS_REMOTE:-:-https://github.com/kong}
 GOJIRA_REDIS_MODE=""
 GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
 # Run gojira in "dev" mode or in "image" mode
@@ -332,6 +334,10 @@ function parse_args {
   if [[ $GOJIRA_NETWORK_MODE == "host" ]]; then
     add_egg "$GOJIRA_PATH/extra/host-mode.yml.sh"
   fi
+
+  if [[ $GOJIRA_GIT_HTTPS == 1 ]]; then
+    GOJIRA_GIT_REMOTE=$GOJIRA_GIT_HTTPS_REMOTE
+  fi
 }
 
 function get_envs {
@@ -355,19 +361,19 @@ function get_envs {
 function create_kong {
   [[ $GOJIRA_MODE == "image" ]] && return
 
-  mkdir -p $GOJIRA_KONGS
-  pushd $GOJIRA_KONGS
-    local $remote
-    if [[ "$GOJIRA_GIT_HTTPS" = 1 ]]; then
-      remote="https://github.com/kong"
-    else
-      remote="git@github.com:kong"
-    fi
-    git clone -b ${GOJIRA_TAG} $remote/$GOJIRA_REPO.git $PREFIX || {
-      git clone $remote/$GOJIRA_REPO.git $PREFIX
-      pushd $PREFIX;
-        git checkout $GOJIRA_TAG || exit
-      popd
+  mkdir -p $GOJIRA_KONGS/$PREFIX
+
+  local url=$GOJIRA_GIT_REMOTE/$GOJIRA_REPO.git
+
+  pushd $GOJIRA_KONGS/$PREFIX
+    # clone a branch / tag
+    git clone -b ${GOJIRA_TAG} $url $PWD || {
+      # checkout SHA
+      git clone -n $url $PWD
+      git checkout $GOJIRA_TAG
+    } || {
+      rm -rf $GOJIRA_KONGS/$PREFIX
+      err "[!] could not clone $url ($GOJIRA_TAG)"
     }
   popd
 }
