@@ -343,6 +343,7 @@ function get_envs {
   export GOJIRA_VOLUMES
   export GOJIRA_DATABASE
   export KONG_DATABASE
+  export GOJIRA_REDIS
   export GOJIRA_REDIS_MODE
   export DOCKER_CTX=$DOCKER_PATH
   export GOJIRA_HOSTNAME
