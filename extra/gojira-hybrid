@@ -2,13 +2,29 @@
 
 HYBRID_PATH=$GOJIRA_PATH/extra/hybrid
 GOJIRA_TARGET=kong-cp
+GOJIRA_DATAPLANE_IMAGE=${GOJIRA_DATAPLANE_IMAGE:-}
+GOJIRA_DATAPLANE_KONG_PATH=${GOJIRA_DATAPLANE_KONG_PATH:-}
 
 kong_cp() {
   GOJIRA_TARGET=kong-cp $0 lay --host kong-cp
 }
 
 kong_dp() {
-  GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone
+  local extra_dp_args=()
+  if [[ -n "$GOJIRA_DATAPLANE_IMAGE" ]]; then
+    extra_dp_args+=(--image)
+    extra_dp_args+=($GOJIRA_DATAPLANE_IMAGE)
+    unset GOJIRA_KONG_PATH
+    unset GOJIRA_PREFIX
+  elif [[ -n "$GOJIRA_DATAPLANE_KONG_PATH" ]]; then
+    extra_dp_args+=(--kong)
+    extra_dp_args+=($GOJIRA_DATAPLANE_KONG_PATH)
+    unset GOJIRA_MODE
+    unset GOJIRA_IMAGE
+    unset GOJIRA_PREFIX
+  fi
+
+  GOJIRA_TARGET=kong-dp $0 lay --host kong-dp --alone ${extra_dp_args[@]}
 }
 
 hybrid-usage () {
@@ -21,6 +37,10 @@ run kong in hybrid mode without the hassle
  - generate cluster keys
  - creates a kong-dp and a kong-cp service, based on gojira flags
  - seamlessly integrates and composes with other gojira modes
+
+Options:
+  -di, --dataplane-image  image to use for kong dataplane
+  -dk, --dataplane-kong   PATH for a kong dataplane folder
 
 Examples:
 
@@ -35,6 +55,10 @@ $ gojira hybrid shell@kong-cp
 $ gojira hybrid shell@kong-dp
 
 $ gojira hybrid logs kong-cp kong-dp
+
+$ gojira hybrid up -i kong:2.4 --di kong:2.3
+
+$ gojira hybrid up -dk path/to/some/kong
 
 EOF
 }
@@ -52,8 +76,51 @@ hybrid_setup() {
 
   if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
-  add_egg kong_cp
+  local actions=()
+  while [[ $# -gt 0 ]]; do
+    if [[ ! $1 =~ ^- ]]; then
+      actions+=($1)
+    else
+      break
+    fi
+    shift
+  done
+
+  local unparsed_args=()
+  while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+      -di|--dataplane-image)
+        GOJIRA_DATAPLANE_IMAGE=$2
+        shift
+        ;;
+      -dk|--dataplane-kong)
+        GOJIRA_DATAPLANE_KONG_PATH=$2
+        shift
+        ;;
+      *)
+        unparsed_args+=("$1")
+        ;;
+    esac
+    shift
+  done
+
+  if [[ -n $GOJIRA_DATAPLANE_IMAGE ]] && [[ -n $GOJIRA_DATAPLANE_KONG_PATH ]]; then
+    >&2 echo "--dataplane-image and --dataplane-kong cannot be used together"
+    hybrid-usage
+    exit 1
+  fi
+
+  # Determine if the dataplane image should attempt to be built
+  if [[ -n "$GOJIRA_DATAPLANE_KONG_PATH" ]] && [[ "${actions[*]}" =~ (up|build) ]]; then
+    unset GOJIRA_MODE
+    unset GOJIRA_IMAGE
+    unset GOJIRA_PREFIX
+    $0 build --kong $GOJIRA_DATAPLANE_KONG_PATH
+  fi
+
   add_egg kong_dp
+  add_egg kong_cp
   add_egg "$COMPOSE_FILE"
 
   if [[ ! -d $HYBRID_PATH/cluster_keys ]]; then
@@ -77,7 +144,7 @@ hybrid_setup() {
       ;;
   esac
 
-  [[ $1 != "plugin" ]] && main "$@"
+  [[ $1 != "plugin" ]] && main "${actions[@]}" "${unparsed_args[@]}"
 }
 
 hybrid_setup "$@"
