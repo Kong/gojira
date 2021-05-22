@@ -861,7 +861,7 @@ main() {
     ;;
   shell)
     local cmd="sh -l -i"
-    [[ $GOJIRA_TARGET == "kong" ]] && cmd="gosh -l -i"
+    [[ $GOJIRA_TARGET =~ kong(-[cd]p)? ]] && cmd="gosh -l -i"
     run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "$cmd"
     ;;
   build)
