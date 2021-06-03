@@ -52,7 +52,7 @@ ENV PATH=${OPENSSL_INSTALL}/bin:$PATH
 ENV LD_LIBRARY_PATH=${OPENSSL_INSTALL}/lib:${LD_LIBRARY_PATH}
 
 # Extra tools
-RUN apt-get update && \
+RUN apt-get update --fix-missing && \
     apt-get install -y  \
         jq \
         httpie \
@@ -60,7 +60,7 @@ RUN apt-get update && \
         less \
         cpanminus \
         iproute2 \
-        net-tools
+        net-tools 
 
 # Go and go-pluginserver
 ENV GO_VERSION=${GO_VERSION}
