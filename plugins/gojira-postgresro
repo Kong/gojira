@@ -1,0 +1,93 @@
+#!/usr/bin/env bash
+
+POSTGRES_RO_PATH=$(dirname ${BASH_SOURCE[0]})/postgresro
+
+#  Add commands to usage
+function gojira-postgresro-commands {
+  cat << EOF
+[postgresro] Commands:
+  up                       gojira's up command is annotated
+
+EOF
+}
+
+function gojira-postgresro-usage {
+  cat << EOF
+
+This plugin adds a read-only replica in addition to the primary postgres database.
+
+EOF
+}
+
+replica_egg() {
+  cat << EOF
+version: '3.5'
+services:
+  # add some PG_RO_HOST and point it to the replica
+  ${GOJIRA_TARGET:-kong}:
+    environment:
+      KONG_PG_RO_HOST: postgresro
+
+  # set replica parameters on the db container
+  db:
+    environment:
+      PG_REP_USER: ${KONG_PG_REP_USER:-kongreplica}
+      PG_REP_PASSWORD: 123456
+    # overwrite the entrypoint
+    volumes:
+    - ${POSTGRES_RO_PATH}/pg-entrypoint/primary:/docker-entrypoint-initdb.d:rw
+  # Add new readonly replica postgres instance
+  postgresro:
+    image: postgres
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+      POSTGRES_USER: ${KONG_PG_USER:-kong}
+      PG_REP_USER:  ${KONG_PG_REP_USER:-kongreplica}
+      PG_REP_PASSWORD: 123456
+    healthcheck:
+      interval: 5s
+      retries: 10
+      test:
+      - CMD
+      - pg_isready
+      - -U
+      - ${KONG_PG_USER:-kong}
+      timeout: 10s
+    image: postgres:latest
+    labels:
+      com.konghq.gojira: "True"
+    networks:
+      gojira: {}
+    ports:
+    - target: 5432
+    restart: on-failure
+    stdin_open: true
+    tty: true
+    volumes:
+    - ${POSTGRES_RO_PATH}/pg-entrypoint/replica:/docker-entrypoint-initdb.d:rw
+EOF
+
+}
+
+postgresro-init() {
+  # include compose file modifications
+  # by using a function
+  GOJIRA_EGGS+=("replica_egg")
+
+  # transform an existing gojira action
+  case $ACTION in
+    up)
+      inf "[postgresro] Adding a read-only replica postgres database"
+      ;;
+  esac
+
+  # This only runs on "mode", not in plugin mode. Thus, makes it the plugin
+  # action call
+  case $1 in
+    help)
+      gojira-postgresro-usage
+      ;;
+  esac
+}
+
+postgresro-init "$@"
