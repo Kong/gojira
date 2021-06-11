@@ -42,6 +42,7 @@ ENV LUAROCKS_INSTALL=${BUILD_PREFIX}/luarocks
 RUN mkdir -p ${BUILD_PREFIX}
 COPY build.sh ${BUILD_PREFIX}
 COPY silent ${BUILD_PREFIX}/silent
+COPY install_tools.sh ${BUILD_PREFIX}
 RUN ${BUILD_PREFIX}/build.sh
 
 ENV OPENSSL_DIR=${OPENSSL_INSTALL}
@@ -61,6 +62,8 @@ RUN apt-get update && \
         cpanminus \
         iproute2 \
         net-tools
+
+RUN ${BUILD_PREFIX}/install_tools.sh
 
 # Go and go-pluginserver
 ENV GO_VERSION=${GO_VERSION}
