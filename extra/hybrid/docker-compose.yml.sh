@@ -10,7 +10,15 @@ services:
       KONG_CLUSTER_CERT_KEY: /cluster/cluster.key
     volumes:
       - ${CLUSTER_KEY_PATH}:/cluster
+EOF
 
+for volume in $GOJIRA_VOLUMES; do
+cat << EOF
+      - $volume
+EOF
+done
+
+cat << EOF
   kong-dp:
     environment:
       KONG_ROLE: data_plane
@@ -22,3 +30,9 @@ services:
     volumes:
       - ${CLUSTER_KEY_PATH}:/cluster
 EOF
+
+for volume in $GOJIRA_VOLUMES; do
+cat << EOF
+      - $volume
+EOF
+done
