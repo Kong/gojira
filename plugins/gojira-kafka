@@ -1,0 +1,111 @@
+#!/bin/bash
+
+#  Add commands to usage
+function gojira-kafka-commands {
+  cat << EOF
+[kafka] Commands:
+  up                       gojira's up command is annotated
+
+EOF
+}
+
+function gojira-postgresro-usage {
+  cat << EOF
+
+This plugin adds a kafka instance (plus zookeeper and a rest-proxy) to the kong cluster
+
+EOF
+}
+
+kafka_egg() {
+  cat << EOF
+version: '3.5'
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.1.1
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      gojira: {}
+    stop_signal: SIGKILL
+
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest:6.1.1
+    ports:
+      - 8082:8082
+    hostname: localhost
+    environment:
+      KAFKA_REST_HOST_NAME: localhost
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_LISTENERS: "http://0.0.0.0:8082"
+    healthcheck:
+      interval: 20s
+      retries: 10
+      timeout: 5s
+      test:
+      - CMD
+      - curl
+      - -f
+      - localhost:8082/v3/clusters
+    networks:
+      gojira: {}
+    stop_signal: SIGKILL
+
+  kafka:
+    image: confluentinc/cp-server:6.1.1
+    hostname: broker
+    depends_on:
+      - zookeeper
+      - rest-proxy
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+    networks:
+      gojira: {}
+    stop_signal: SIGKILL
+EOF
+}
+
+kafka-init() {
+  # include compose file modifications
+  # by using a function
+  GOJIRA_EGGS+=("kafka_egg")
+
+  # transform an existing gojira action
+  case $ACTION in
+    up)
+      inf "[kafka] Adding kafka"
+      ;;
+  esac
+
+  # This only runs on "mode", not in plugin mode. Thus, makes it the plugin
+  # action call
+  case $1 in
+    help)
+      gojira-kafka-usage
+      ;;
+  esac
+}
+
+kafka-init "$@"
+
