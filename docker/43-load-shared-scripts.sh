@@ -1,0 +1,8 @@
+#!/bin/bash
+
+PATH="$PATH:$GOJIRA_SHARED_FUNCTIONS_PATH"
+
+for f in $GOJIRA_SHARED_FUNCTIONS_PATH/*
+do
+  . "$f"
+done

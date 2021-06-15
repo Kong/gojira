@@ -5,6 +5,7 @@
 GOJIRA=$(basename $0)
 GOJIRA_PATH=$(dirname $(realpath $0))
 DOCKER_PATH=$GOJIRA_PATH/docker
+GOJIRA_SHARED_FUNCTIONS_PATH=$GOJIRA_PATH/shared-functions
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
 
@@ -352,6 +353,7 @@ function get_envs {
   export GOJIRA_REDIS
   export GOJIRA_REDIS_MODE
   export DOCKER_CTX=$DOCKER_PATH
+  export GOJIRA_SHARED_FUNCTIONS_PATH
   export GOJIRA_HOSTNAME
   export GOJIRA_HOME
   export GOJIRA_PREFIX=$PREFIX

@@ -43,6 +43,9 @@ cat << EOF
       - ${DOCKER_CTX}/gosh.sh:/bin/gosh:ro
       # Inject env vars, since images might not have them
       - ${DOCKER_CTX}/42-kong-envs.sh:/etc/profile.d/42-kong-envs.sh
+      - ${DOCKER_CTX}/43-load-shared-scripts.sh:/etc/profile.d/43-load-shared-scripts.sh
+      # Add shared lib dir
+      - ${GOJIRA_SHARED_FUNCTIONS_PATH}:/usr/local/lib/gojira:ro
 EOF
 
 # Mount Kong path ONLY if it has been supplied
@@ -96,6 +99,7 @@ cat << EOF
       # name for the db server, we need to set up the DNS resolver, is set
       # to 8.8.8.8 on the spec conf
       KONG_TEST_DNS_RESOLVER: 127.0.0.11
+      GOJIRA_SHARED_FUNCTIONS_PATH: /usr/local/lib/gojira
 EOF
 
 # Some tests do not like KONG_TEST_PLUGINS being set
