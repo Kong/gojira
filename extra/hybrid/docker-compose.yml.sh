@@ -18,6 +18,17 @@ cat << EOF
 EOF
 done
 
+if [[ -n $GOJIRA_PORTS ]]; then
+  cat << EOF
+    ports:
+EOF
+  for port in $GOJIRA_PORTS; do
+    cat << EOF
+        - $port
+EOF
+  done
+fi
+
 cat << EOF
   kong-dp:
     environment:
