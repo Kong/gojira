@@ -549,6 +549,9 @@ function image_name {
     KONG_NGX_MODULE=${KONG_NGX_MODULE:-$(req_find $req_file KONG_NGINX_MODULE_BRANCH)}
     KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS_BRANCH:-$(req_find $req_file KONG_BUILD_TOOLS_BRANCH)}
     KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER_VERSION:-$(req_find $req_file KONG_GO_PLUGINSERVER_VERSION)}
+    KONG_LIBGMP=${GMP_VERSION:-$(req_find $req_file KONG_GMP_VERSION)}
+    KONG_LIBNETTLE=${NETTLE_VERSION:-$(req_find $req_file KONG_DEP_NETTLE_VERSION)}
+    KONG_LIBJQ=${JQ_VERSION:-$(req_find $req_file KONG_DEP_LIBJQ_VERSION)}
   fi
 
   if [[ -f $yaml_file ]]; then
@@ -573,15 +576,31 @@ function image_name {
     "knm-$KONG_NGX_MODULE"
     "kbt-$KONG_BUILD_TOOLS"
   )
-  if [[ ! -z $KONG_GO_PLUGINSERVER ]]; then
+  if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
     GO_VERSION=${GO_VERSION:-1.13.12}
     components+=(
       "go-$GO_VERSION"
       "gps-$KONG_GO_PLUGINSERVER"
     )
   fi
+  if [[ -n "$KONG_LIBGMP" ]]; then
+    components+=(
+      "libgmp-$KONG_LIBGMP"
+    )
+  fi
+  if [[ -n "$KONG_LIBNETTLE" ]]; then
+    components+=(
+      "libnettle-$KONG_LIBNETTLE"
+    )
+  fi
+  if [[ -n "$KONG_LIBJQ" ]]; then
+    components+=(
+      "libjq-$KONG_LIBJQ"
+    )
+  fi
 
-  GOJIRA_IMAGE=gojira:$(IFS="-" ; echo "${components[*]}")
+  read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | shasum)"
+  GOJIRA_IMAGE=gojira:$components_sha
 }
 
 
@@ -590,10 +609,15 @@ function build {
 
   BUILD_ARGS=(
     "--build-arg LUAROCKS=$LUAROCKS"
+    "--label LUAROCKS=$LUAROCKS"
     "--build-arg OPENSSL=$OPENSSL"
+    "--label OPENSSL=$OPENSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
+    "--label OPENRESTY=$OPENRESTY"
     "--build-arg KONG_NGX_MODULE=$KONG_NGX_MODULE"
+    "--label KONG_NGX_MODULE=$KONG_NGX_MODULE"
     "--build-arg KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
+    "--label KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
   )
 
   >&2 echo "Building $GOJIRA_IMAGE"
@@ -605,13 +629,36 @@ function build {
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo " * Kong NM:     $KONG_NGX_MODULE"
   >&2 echo " * Kong BT:     $KONG_BUILD_TOOLS"
-  if [[ ! -z $KONG_GO_PLUGINSERVER ]]; then
+  if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
     BUILD_ARGS+=(
       "--build-arg GO_VERSION=$GO_VERSION"
+      "--label GO_VERSION=$GO_VERSION"
       "--build-arg KONG_GO_PLUGINSERVER=$KONG_GO_PLUGINSERVER"
+      "--label KONG_GO_PLUGINSERVER=$KONG_GO_PLUGINSERVER"
     )
     >&2 echo " * Go:          $GO_VERSION"
     >&2 echo " * Kong GPS:    $KONG_GO_PLUGINSERVER"
+  fi
+  if [[ -n "$KONG_LIBGMP" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg KONG_LIBGMP=$KONG_LIBGMP"
+      "--label KONG_LIBGMP=$KONG_LIBGMP"
+    )
+    >&2 echo " * libgmp:      $KONG_LIBGMP"
+  fi
+  if [[ -n "$KONG_LIBNETTLE" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg KONG_LIBNETTLE=$KONG_LIBNETTLE"
+      "--label KONG_LIBNETTLE=$KONG_LIBNETTLE"
+    )
+    >&2 echo " * libnettle:   $KONG_LIBNETTLE"
+  fi
+  if [[ -n "$KONG_LIBJQ" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg KONG_LIBJQ=$KONG_LIBJQ"
+      "--label KONG_LIBJQ=$KONG_LIBJQ"
+    )
+    >&2 echo " * libjq:       $KONG_LIBJQ"
   fi
   >&2 echo "=========================="
   >&2 echo ""
