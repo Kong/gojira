@@ -28,8 +28,59 @@ function download_lua-kong-nginx-module {
             | tar -C ${KONG_NGX_MODULE_INSTALL} -xz --strip-components=1
 }
 
+function download_libgmp {
+  mkdir -p "${LIBGMP_INSTALL}"
+  curl -sSL "https://ftp.gnu.org/gnu/gmp/gmp-${KONG_LIBGMP}.tar.bz2" \
+            | tar -C "${LIBGMP_INSTALL}" -xj --strip-components=1
+}
+
+function download_libnettle {
+  mkdir -p "${LIBNETTLE_INSTALL}"
+  curl -sSL "https://ftp.gnu.org/gnu/nettle/nettle-${KONG_LIBNETTLE}.tar.gz" \
+            | tar -C "${LIBNETTLE_INSTALL}" -xz --strip-components=1
+}
+
+function download_libjq {
+  mkdir -p "${LIBJQ_INSTALL}"
+  curl -sSL "https://github.com/stedolan/jq/releases/download/jq-${KONG_LIBJQ}/jq-${KONG_LIBJQ}.tar.gz" \
+            | tar -C "${LIBJQ_INSTALL}" -xz --strip-components=1
+}
+
 function make_kong_ngx_module {
   make -C ${KONG_NGX_MODULE_INSTALL} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
+}
+
+function make_libgmp {
+  (
+    cd "${LIBGMP_INSTALL}" || return
+    ./configure \
+      --build=x86_64-linux-gnu \
+      --enable-static=no \
+      --prefix="${LIBGMP_INSTALL}"
+    make install
+  )
+}
+
+function make_libnettle {
+  (
+    cd "${LIBNETTLE_INSTALL}" || return
+    sed -i 's/for (size_t i = 0; i < limbs; i++)/size_t i;for (i = 0; i < limbs; i++)/' rsa-sign-tr.c
+    LDFLAGS="-Wl,-rpath,/build/usr/local/kong/lib" \
+      ./configure --disable-static \
+        --with-include-path="${LIBGMP_INSTALL}" \
+        --with-lib-path="${LIBGMP_INSTALL}/lib" \
+        --prefix="${LIBNETTLE_INSTALL}"
+    make install
+  )
+}
+
+function make_libjq {
+  (
+    cd "${LIBJQ_INSTALL}" || return
+    ./configure \
+      --prefix="${LIBJQ_INSTALL}"
+    make install
+  )
 }
 
 function build {
@@ -67,6 +118,19 @@ function build {
     else
       flags+=("--kong-nginx-module $KONG_NGX_MODULE")
     fi
+  fi
+
+  if [[ -n "$KONG_LIBGMP" ]]; then
+    download_libgmp
+    after+=(make_libgmp)
+  fi
+  if [[ -n "$KONG_LIBNETTLE" ]]; then
+    download_libnettle
+    after+=(make_libnettle)
+  fi
+  if [[ -n "$KONG_LIBJQ" ]]; then
+    download_libjq
+    after+=(make_libjq)
   fi
 
   local cmd="${BUILD_TOOLS_CMD} ${flags[*]}"
