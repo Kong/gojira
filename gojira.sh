@@ -826,6 +826,9 @@ function run_command {
     fi
   fi
 
+  # Remove arguments not allowed by exec
+  args=$(echo $args | sed "s:'*--scale[ \t']*[a-zA-Z0-9_.-]*=[0-9]*'*::g")
+
   if [[ -n $GOJIRA_RUN_CLUSTER ]]; then
     nodes=$(p_compose ps | awk '{ print $1 }' | grep -c "${where}_[0-9]*$")
     nodes=$(seq 1 "$nodes")
