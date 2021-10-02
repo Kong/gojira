@@ -131,6 +131,14 @@ else
 EOF
 fi
 
+if [[ "$GOJIRA_NETWORK_MODE" != "host" ]]; then
+  cat << EOF
+    # Enable IPv6 inside the container for executing tests
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 0
+EOF
+
+fi
 if [[ -n $GOJIRA_DATABASE ]]; then
 cat << EOF
   db:
