@@ -148,7 +148,7 @@ EOF
 
   if [[ $GOJIRA_DATABASE == "postgres" ]]; then
     cat << EOF
-    image: postgres:${POSTGRES:-9.5}
+    image: postgres:${POSTGRES:-12.2}
     ports:
       - 5432
     volumes:

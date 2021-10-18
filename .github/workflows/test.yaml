@@ -1,0 +1,47 @@
+name: Gojira CI
+
+on:
+  push:
+    branches:
+      - "master"
+  pull_request:
+
+jobs:
+
+  test-up-traditional:
+    runs-on: ubuntu-latest
+    env: 
+      # FOO: ${{ secrets.FOO }}
+      GOJIRA_IMAGE: kong:2.5.1-alpine
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: up
+      run: ./gojira.sh up
+    - name: migrations
+      run: ./gojira.sh run@kong kong migrations bootstrap
+    - name: start kong
+      run: ./gojira.sh run@kong kong start
+    - name: Check running containers
+      run: test $(docker ps --format '{{.Names}}'| wc -l) -eq 3
+    - name: teardown
+      run: ./gojira.sh down
+
+  test-up-hybrid:
+    runs-on: ubuntu-latest
+    env: 
+      # FOO: ${{ secrets.FOO }}
+      GOJIRA_IMAGE: kong:2.5.1-alpine
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: up
+      run: ./gojira.sh hybrid up
+    - name: migrations
+      run: ./gojira.sh hybrid run kong migrations bootstrap
+    - name: start kong
+      run: ./gojira.sh hybrid run kong start
+    - name: Check running containers
+      run: test $(docker ps --format '{{.Names}}'| wc -l) -eq 4
+    - name: teardown
+      run: ./gojira.sh hybrid down
