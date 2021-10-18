@@ -37,8 +37,6 @@ jobs:
     - uses: actions/checkout@v2
     - name: up
       run: ./gojira.sh up --alone
-    - name: migrations
-      run: ./gojira.sh run@kong kong migrations bootstrap
     - name: start kong
       run: ./gojira.sh run@kong kong start
     - name: Check running containers
@@ -57,9 +55,9 @@ jobs:
     - name: up
       run: ./gojira.sh up --cassandra
     - name: migrations
-      run: ./gojira.sh run@kong kong migrations bootstrap
+      run: ./gojira.sh run --cassandra kong migrations bootstrap
     - name: start kong
-      run: ./gojira.sh run@kong kong start
+      run: ./gojira.sh run --cassandra kong start
     - name: Check running containers
       run: test $(docker ps --format '{{.Names}}'| wc -l) -eq 3
     - name: teardown
