@@ -38,7 +38,7 @@ jobs:
     - name: up
       run: ./gojira.sh up --alone
     - name: start kong
-      run: ./gojira.sh run@kong kong start
+      run: ./gojira.sh run --alone kong start
     - name: Check running containers
       run: test $(docker ps --format '{{.Names}}'| wc -l) -eq 1
     - name: teardown
