@@ -27,6 +27,25 @@ jobs:
     - name: teardown
       run: ./gojira.sh down
 
+  test-up-alone:
+    runs-on: ubuntu-latest
+    env: 
+      # FOO: ${{ secrets.FOO }}
+      GOJIRA_IMAGE: kong:2.5.1-alpine
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: up
+      run: ./gojira.sh up --alone
+    - name: migrations
+      run: ./gojira.sh run@kong kong migrations bootstrap
+    - name: start kong
+      run: ./gojira.sh run@kong kong start
+    - name: Check running containers
+      run: test $(docker ps --format '{{.Names}}'| wc -l) -eq 1
+    - name: teardown
+      run: ./gojira.sh down
+
   test-up-cassandra:
     runs-on: ubuntu-latest
     env: 
