@@ -42,7 +42,7 @@ services:
 
   add-kafka-users:
     image: confluentinc/cp-kafka:${GOJIRA_KAFKA_VERSION:-6.2.0}
-    depends_on: 
+    depends_on:
       - rest-proxy
     networks:
       gojira: {}
@@ -128,7 +128,7 @@ services:
       test: ["CMD", "curl" ,"http://0.0.0.0:8082/topics"]
       interval: 10s
       timeout: 10s
-      retries: 50 
+      retries: 50
     environment:
       KAFKA_REST_HOST_NAME: rest-proxy
       KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:9092'
@@ -158,6 +158,3 @@ kafka-init() {
 }
 
 kafka-init "$@"
-
-
-

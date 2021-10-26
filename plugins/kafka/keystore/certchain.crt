@@ -1,6 +1,6 @@
 Bag Attributes
     friendlyName: localhost
-    localKeyID: 54 69 6D 65 20 31 36 32 35 38 33 30 32 30 31 39 35 38 
+    localKeyID: 54 69 6D 65 20 31 36 32 35 38 33 30 32 30 31 39 35 38
 subject=CN = client, O = FOO, L = NUE, ST = BY, C = DE
 
 issuer=C = DE, ST = BY, L = NUE, O = FOO, CN = broker
