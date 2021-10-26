@@ -111,6 +111,20 @@ Commands:
 
 ## Installation
 
+### Using Docker
+
+```bash
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock hutchic/temp:gojira
+```
+
+alternatively assign it an alias
+
+```bash
+alias gojira="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock hutchic/temp:gojira"
+```
+
+### Natively
+
 gojira depends on `bash`, `git`, `docker` and `docker-compose`. Make sure your
 docker setup is compatible with [compose file v3.5](https://docs.docker.com/compose/compose-file/compose-file-v3/).
 
