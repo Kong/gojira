@@ -114,13 +114,13 @@ Commands:
 ### Using Docker
 
 ```bash
-docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock hutchic/temp:gojira
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock hutchic/gojira
 ```
 
 alternatively assign it an alias
 
 ```bash
-alias gojira="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock hutchic/temp:gojira"
+alias gojira="docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock hutchic/gojira"
 ```
 
 ### Natively
