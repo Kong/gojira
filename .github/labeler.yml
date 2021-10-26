@@ -1,0 +1,15 @@
+---
+docs:
+- '**/*.md'
+
+github_actions:
+- .github/**
+
+python:
+- '**/*.py'
+
+docker:
+- docker/**
+
+bash:
+- '**/*.sh'
