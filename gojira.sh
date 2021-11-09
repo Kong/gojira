@@ -716,7 +716,7 @@ function p_compose {
     fi
   done
 
-  docker-compose -f <($COMPOSE_FILE) ${flags[*]} -p $PREFIX "$@"
+  docker compose -f <($COMPOSE_FILE) ${flags[*]} -p $PREFIX "$@"
   res=$?
 
   rm -f "${tmps[@]}"
@@ -800,7 +800,7 @@ function setup {
 }
 
 function snapshot {
-  local c_id=$(p_compose ps -q $GOJIRA_TARGET)
+  local c_id=$(docker ps -f "name=${PREFIX}_${GOJIRA_TARGET}" -q)
   if [[ -n $GOJIRA_BASE_SNAPSHOT ]]; then
     docker commit $c_id $GOJIRA_BASE_SNAPSHOT || exit 1
     >&2 echo "Created base snapshot: $GOJIRA_BASE_SNAPSHOT"
