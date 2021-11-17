@@ -69,6 +69,14 @@ cat << EOF
 EOF
 fi
 
+
+if [[ -n $GOJIRA_KONG_PATH ]]; then
+  cat << EOF
+    working_dir: "${KONG_PATH:-/kong}"
+EOF
+fi
+
+
 cat << EOF
     environment:
       KONG_ROLE: traditional
