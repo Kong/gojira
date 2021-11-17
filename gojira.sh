@@ -871,6 +871,10 @@ load_plugins() {
         warn "[plugins] gojira-$plugin not found" && continue
       source "gojira-$plugin" "plugin"
     done
+
+    # XXX hack for  default plugins idk
+    source "gojira-yml" "plugin"
+
     # Make sure we do not source them again ( XXX? )
     export _GOJIRA_PLUGINS_LOADED=1
   fi
