@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+GOJIRA_TTY=0
+
+gojira_watch() {
+  local cmd
+
+  if hash fswatch &> /dev/null; then
+    cmd="fswatch -x --event=Updated -o $(eval echo $1)"
+  elif hash inotifywait &> /dev/null; then
+    cmd="inotifywait -m $(eval echo $1) -q -e modify --exclude '*'"
+  else
+    warn "[!] install 'fswatch' (OS X) or inotify-tools for watching"
+    return 1
+  fi
+
+  inf "[-] watching $1 for changes"
+
+  shift
+
+  $cmd | while read -r; do
+    inf "[+] $*"
+    run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX "$@"
+  done
+}
+
+gojira_watch "$@"

@@ -493,6 +493,11 @@ Commands:
                          'gojira port@kong:3 8000'
                          'gojira port@redis 6379'
 
+  watch         watch a file or a pattern for changes and run an action on the
+                target container
+                example: 'gojira watch kong.yml "kong reload"'
+                         'gojira watch "* **/**/*"  "kong reload"'
+
   cd            cd into a kong prefix repo
 
   image         show current gojira image
