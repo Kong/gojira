@@ -41,6 +41,7 @@ cat << EOF
       - ${GOJIRA_HOME}/:/root/
       - ${DOCKER_CTX}/follow-log.sh:/bin/follow-kong-log
       - ${DOCKER_CTX}/gosh.sh:/bin/gosh:ro
+      - ${DOCKER_CTX}/kong-att.sh:/bin/kong-att:ro
       # Inject env vars, since images might not have them
       - ${DOCKER_CTX}/42-kong-envs.sh:/etc/profile.d/42-kong-envs.sh
 EOF

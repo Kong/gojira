@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+
+GOJIRA_YML_FILE=${GOJIRA_YML_FILE}
+
+gojira-yml-usage() {
+  cat << EOF
+
+The very useful 'yml' plugin. Use this plugin to start kong on dbless mode
+using a declarative config file. It will start kong right away and show proxy
+and admin logs on STDIN.
+
+'gojira up --yml path/to/declarative.yml'
+
+'gojira up --yml <(something_that_outputs_a_yml)'
+
+By default, it starts attached. Ctrl-C to stop the container.
+
+Start it dettached by running: 'gojira up --yml declarative.yml -d'
+
+EOF
+}
+
+gojira-yml-egg() {
+cat << EOF
+version: '3.5'
+services:
+  ${GOJIRA_TARGET:-kong}:
+    command: kong-att
+    environment:
+      KONG_DECLARATIVE_CONFIG: "/tmp/gojira_kong.yml"
+      KONG_DATABASE: "off"
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+    volumes:
+      - $1:/tmp/gojira_kong.yml
+EOF
+}
+
+gojira-yml-add() {
+  [[ -n $1 ]] || err "[!] please provide a yml argument"
+
+  GOJIRA_DATABASE=""
+  unset GOJIRA_DETACH_UP
+
+  local file
+  # It's a file
+  if [[ -f $1 ]]; then
+    file=$1
+    add_egg "gojira-yml-egg $1"
+  elif [[ -r $1 ]]; then
+    file=$(mktemp "/tmp/gojira-yml.XXX")
+    cat $1 > $file
+  else
+    err "[!] '$1' is not a file"
+  fi
+
+  add_egg "gojira-yml-egg $file"
+  GOJIRA_YML_FILE=$file
+}
+
+gojira-yml-setup() {
+  case $1 in
+    help)
+      gojira-yml-usage
+      ;;
+  esac
+
+  # very ugly hack to grok arguments out from global args
+  set -- ${EXTRA_ARGS}
+  local params=()
+
+  while [[ $# -gt 0 ]]; do
+    case $1 in
+      --yml)
+        GOJIRA_YML_FILE=$(realpath $2)
+        shift
+        ;;
+      *)
+        params+=("$1")
+        ;;
+    esac
+    shift
+  done
+
+  EXTRA_ARGS="${params[@]}"
+
+  if [[ -n $GOJIRA_YML_FILE ]]; then
+    gojira-yml-add $GOJIRA_YML_FILE
+  fi
+
+}
+
+gojira-yml-setup "$@"

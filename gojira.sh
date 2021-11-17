@@ -41,6 +41,7 @@ GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_GIT_HTTPS_REMOTE=${GOJIRA_GIT_HTTPS_REMOTE:-:-https://github.com/kong}
 GOJIRA_REDIS_MODE=""
 GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
+GOJIRA_DETACH_UP=${GOJIRA_DETACH_UP:-"--detach"}
 # Run gojira in "dev" mode or in "image" mode
 GOJIRA_MODE=${GOJIRA_MODE:-dev}
 GOJIRA_NETWORK_MODE=${GOJIRA_NETWORK_MODE}
@@ -459,6 +460,7 @@ Options:
   --git-https           use https to clone repos
   --egg                 add a compose egg to make things extra yummy
   --network-mode        set docker network mode
+  --yml FILE            kong yml file
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -905,7 +907,7 @@ main() {
              "compatible base, but remember to run 'make dev'!"
     fi
 
-    p_compose up -d $EXTRA_ARGS || exit 1
+    p_compose up $GOJIRA_DETACH_UP $EXTRA_ARGS || exit 1
 
     if [[ $GOJIRA_MAGIC_DEV == 1 ]]; then
       magic_dev
