@@ -41,6 +41,7 @@ GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_GIT_HTTPS_REMOTE=${GOJIRA_GIT_HTTPS_REMOTE:-:-https://github.com/kong}
 GOJIRA_REDIS_MODE=""
 GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
+GOJIRA_DETACH_UP=${GOJIRA_DETACH_UP:-"--detach"}
 # Run gojira in "dev" mode or in "image" mode
 GOJIRA_MODE=${GOJIRA_MODE:-dev}
 GOJIRA_NETWORK_MODE=${GOJIRA_NETWORK_MODE}
@@ -459,6 +460,7 @@ Options:
   --git-https           use https to clone repos
   --egg                 add a compose egg to make things extra yummy
   --network-mode        set docker network mode
+  --yml FILE            kong yml file
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -490,6 +492,11 @@ Commands:
                 example: 'gojira port 8000'
                          'gojira port@kong:3 8000'
                          'gojira port@redis 6379'
+
+  watch         watch a file or a pattern for changes and run an action on the
+                target container
+                example: 'gojira watch kong.yml "kong reload"'
+                         'gojira watch "* **/**/*"  "kong reload"'
 
   cd            cd into a kong prefix repo
 
@@ -864,6 +871,10 @@ load_plugins() {
         warn "[plugins] gojira-$plugin not found" && continue
       source "gojira-$plugin" "plugin"
     done
+
+    # XXX hack for  default plugins idk
+    source "gojira-yml" "plugin"
+
     # Make sure we do not source them again ( XXX? )
     export _GOJIRA_PLUGINS_LOADED=1
   fi
@@ -905,7 +916,7 @@ main() {
              "compatible base, but remember to run 'make dev'!"
     fi
 
-    p_compose up -d $EXTRA_ARGS || exit 1
+    p_compose up $GOJIRA_DETACH_UP $EXTRA_ARGS || exit 1
 
     if [[ $GOJIRA_MAGIC_DEV == 1 ]]; then
       magic_dev
