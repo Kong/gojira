@@ -214,7 +214,7 @@ fi
 if [[ -n $GOJIRA_REDIS ]]; then
 cat << EOF
   redis:
-    image: redis:5.0.4-alpine
+    image: redis:${REDIS_VERSION:-5.0.4-alpine}
     ports:
       - 6379
     restart: on-failure
@@ -227,6 +227,13 @@ EOF
     environment:
       - IP
       - REDIS_CLUSTER_NODES=${REDIS_CLUSTER_NODES:-6}
+EOF
+    if [[ -n $REDIS_PASSWORD ]]; then
+      cat << EOF
+      - REDIS_PASSWORD
+EOF
+    fi
+cat << EOF
     volumes:
       - ${DOCKER_CTX}/redis-cluster.sh:/usr/local/bin/redis-cluster.sh
     command: ["sh", "/usr/local/bin/redis-cluster.sh"]
@@ -244,6 +251,12 @@ EOF
       timeout: 10s
       retries: 10
 EOF
+
+    if [[ -n $REDIS_PASSWORD ]]; then
+      cat << EOF
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "$REDIS_PASSWORD"]
+EOF
+    fi
   fi
 
   if [[ -z $GOJIRA_NETWORK_MODE ]]; then
