@@ -115,7 +115,7 @@ gojira depends on `bash`, `git`, `docker` and `docker-compose`. Make sure your
 docker setup is compatible with [compose file v3.5](https://docs.docker.com/compose/compose-file/compose-file-v3/).
 
 ```bash
-$ git clone git@github.com:Kong/gojira.git
+$ git clone https://github.com/Kong/gojira.git
 $ mkdir -p ~/.local/bin
 $ ln -s $(realpath gojira/gojira.sh) ~/.local/bin/gojira
 ```
