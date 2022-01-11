@@ -39,7 +39,7 @@ GOJIRA_TAG=${GOJIRA_TAG:-master}
 GOJIRA_GIT_REMOTE=${GOJIRA_GIT_REMOTE:-git@github.com:kong}
 GOJIRA_GIT_HTTPS=${GOJIRA_GIT_HTTPS:-0}
 GOJIRA_GIT_HTTPS_REMOTE=${GOJIRA_GIT_HTTPS_REMOTE:-https://github.com/kong}
-GOJIRA_REDIS_MODE=""
+GOJIRA_REDIS_MODE=${GOJIRA_REDIS_MODE:-""}
 GOJIRA_CLUSTER_INDEX=${GOJIRA_CLUSTER_INDEX:-1}
 GOJIRA_DETACH_UP=${GOJIRA_DETACH_UP:-"--detach"}
 # Run gojira in "dev" mode or in "image" mode
@@ -224,7 +224,6 @@ function parse_args {
         ;;
       --redis-cluster)
         GOJIRA_REDIS_MODE="cluster"
-        shift
         ;;
       --image)
         GOJIRA_IMAGE=$2

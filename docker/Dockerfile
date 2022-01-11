@@ -1,5 +1,7 @@
 FROM ubuntu:bionic
 
+ENV DEBIAN_FRONTEND noninteractive
+
 # Build tools
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
