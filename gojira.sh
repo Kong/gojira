@@ -224,7 +224,6 @@ function parse_args {
         ;;
       --redis-cluster)
         GOJIRA_REDIS_MODE="cluster"
-        shift
         ;;
       --image)
         GOJIRA_IMAGE=$2
