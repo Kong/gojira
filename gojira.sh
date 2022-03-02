@@ -701,6 +701,14 @@ function executable {
 }
 
 
+function cleanup {
+  local pids=`jobs -p`
+  if [[ "$pids" != "" ]]; then
+    kill $pids
+  fi
+}
+
+
 function p_compose {
   local res
   get_envs
@@ -1038,3 +1046,4 @@ pushd() { builtin pushd $1 > /dev/null; }
 popd() { builtin popd > /dev/null; }
 
 main "$@"
+cleanup   # make sure we clean up
