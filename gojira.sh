@@ -545,7 +545,7 @@ function image_name {
   if [[ -n $GOJIRA_IMAGE ]]; then return; fi
 
   # No supplied dependency versions
-  if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
+  if [[ -z $LUAROCKS || (-z $OPENSSL && -z $BORINGSSL) || -z $OPENRESTY ]]; then
     # No supplied local kong path and kong prefix does not exist
     if [[ -z "$GOJIRA_LOC_PATH" && ! -d "$GOJIRA_KONGS/$PREFIX" ]]; then
       create_kong
@@ -561,6 +561,7 @@ function image_name {
     LUAROCKS=${LUAROCKS:-$(req_find $req_file RESTY_LUAROCKS_VERSION)}
     OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
     RESTY_EVENTS=${RESTY_EVENTS:-$(req_find $req_file RESTY_EVENTS_VERSION)}
+    BORINGSSL=${BORINGSSL:-$(req_find $req_file RESTY_BORINGSSL_VERSION)}
     KONG_NGX_MODULE=${KONG_NGX_MODULE:-$(req_find $req_file KONG_NGINX_MODULE_BRANCH)}
     KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS_BRANCH:-$(req_find $req_file KONG_BUILD_TOOLS_BRANCH)}
     KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER_VERSION:-$(req_find $req_file KONG_GO_PLUGINSERVER_VERSION)}
@@ -580,21 +581,27 @@ function image_name {
     RESTY_EVENTS=${RESTY_EVENTS:-$(yaml_find $yaml_file RESTY_EVENTS_VERSION)}
     RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(yaml_find $yaml_file RESTY_WEBSOCKET_VERSION)}
     ATC_ROUTER=${ATC_ROUTER:-$(yaml_find $yaml_file ATC_ROUTER_VERSION)}
+    BORINGSSL=${BORINGSSL:-$(yaml_find $yaml_file BORINGSSL)}
   fi
 
-  if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
+  if [[ -z $LUAROCKS || (-z $OPENSSL && -z $BORINGSSL) || -z $OPENRESTY ]]; then
     err "${GOJIRA}: Could not guess version dependencies in" \
         "$req_file or $yaml_file. " \
-        "Specify versions as LUAROCKS, OPENSSL, and OPENRESTY envs"
+        "Specify versions as LUAROCKS, OPENSSL/BORINGSSL, and OPENRESTY envs"
   fi
 
   KONG_NGX_MODULE=${KONG_NGX_MODULE:-master}
   KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS:-master}
 
+  ssl_provider="openssl-$OPENSSL"
+  if [[ ! -z $BORINGSSL ]]; then
+    ssl_provider="boriongssl-$BORINGSSL"
+  fi
+
   local components=(
     "luarocks-$LUAROCKS"
     "openresty-${OPENRESTY}"
-    "openssl-$OPENSSL"
+    "$ssl_provider"
     "knm-$KONG_NGX_MODULE"
     "kbt-$KONG_BUILD_TOOLS"
   )
@@ -640,6 +647,11 @@ function image_name {
       "atc-router-${ATC_ROUTER}"
     )
   fi
+  if [[ -n "$BORINGSSL" ]]; then
+    components+=(
+      "boring-ssl-${$BORINGSSL}"
+    )
+  fi
 
   read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | sha1sum)"
   GOJIRA_IMAGE=gojira:$components_sha
@@ -654,6 +666,8 @@ function build {
     "--label LUAROCKS=$LUAROCKS"
     "--build-arg OPENSSL=$OPENSSL"
     "--label OPENSSL=$OPENSSL"
+    "--build-arg BORINGSSL=$BORINGSSL"
+    "--label BORINGSSL=$BORINGSSL"
     "--build-arg OPENRESTY=$OPENRESTY"
     "--label OPENRESTY=$OPENRESTY"
     "--build-arg KONG_NGX_MODULE=$KONG_NGX_MODULE"
@@ -663,11 +677,16 @@ function build {
     "--build-arg APT_MIRROR=$GOJIRA_APT_MIRROR"
   )
 
+  ssl_provider=" * OpenSSL:     $OPENSSL  "
+  if [[ ! -z $BORINGSSL ]]; then
+    ssl_provider=" * BoringSSL:   $BORINGSSL  "
+  fi
+
   >&2 echo "Building $GOJIRA_IMAGE"
   >&2 echo ""
   >&2 echo "       Version info"
   >&2 echo "=========================="
-  >&2 echo " * OpenSSL:     $OPENSSL  "
+  >&2 echo "$ssl_provider"
   >&2 echo " * OpenResty:   $OPENRESTY"
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo " * Kong NM:     $KONG_NGX_MODULE"

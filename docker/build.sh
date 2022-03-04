@@ -95,7 +95,6 @@ function build {
   local flags=(
     "--prefix    ${BUILD_PREFIX}"
     "--openresty ${OPENRESTY}"
-    "--openssl   ${OPENSSL}"
     "--luarocks  ${LUAROCKS}"
   )
 
@@ -113,6 +112,10 @@ function build {
 
   if [[ ! -z "${ATC_ROUTER}" ]]; then
     flags+=("--atc-router ${ATC_ROUTER}")
+  if [[ ! -z $BORINGSSL ]]; then
+    flags+=("--boringssl ${BORINGSSL}")
+  else
+    flags+=("--openssl   ${OPENSSL}")
   fi
 
   local after=()
