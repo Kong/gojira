@@ -87,9 +87,14 @@ function build {
   local flags=(
     "--prefix    ${BUILD_PREFIX}"
     "--openresty ${OPENRESTY}"
-    "--openssl   ${OPENSSL}"
     "--luarocks  ${LUAROCKS}"
   )
+
+  if [[ ! -z $BORINGSSL ]]; then
+    flags+=("--boringssl ${BORINGSSL}")
+  else
+    flags+=("--openssl   ${OPENSSL}")
+  fi
 
   local after=()
 
