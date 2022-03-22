@@ -54,7 +54,6 @@ function make_libgmp {
   (
     cd "${LIBGMP_INSTALL}" || return
     ./configure \
-      --build=x86_64-linux-gnu \
       --enable-static=no \
       --prefix="${LIBGMP_INSTALL}"
     make install
