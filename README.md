@@ -28,6 +28,7 @@ Spin up as many Kong instances as you want. On different commits at the same
 time. With different OpenSSL, OpenResty and LuaRocks versions. Run a shell
 inside of the containers, make Kong roar. Make Kong fail, cd into the repo, fix
 it. Make Kong start again. Commit it. Push it, ship it!
+
 ## Synopsis
 
 ```
@@ -50,6 +51,8 @@ Options:
   --git-https           use https to clone repos
   --egg                 add a compose egg to make things extra yummy
   --network-mode        set docker network mode
+  --yml FILE            kong yml file
+  --apt-mirror DOMAIN   use customized Ubuntu apt mirror (such as --apt-mirror apt-mirror.example.com)
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -82,6 +85,11 @@ Commands:
                          'gojira port@kong:3 8000'
                          'gojira port@redis 6379'
 
+  watch         watch a file or a pattern for changes and run an action on the
+                target container
+                example: 'gojira watch kong.yml "kong reload"'
+                         'gojira watch "* **/**/*"  "kong reload"'
+
   cd            cd into a kong prefix repo
 
   image         show current gojira image
@@ -105,7 +113,6 @@ Commands:
   nuke [-f]     remove all running gojiras. -f for removing all files
 
   version       make a guess
-
 ```
 
 

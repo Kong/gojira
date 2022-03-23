@@ -46,6 +46,7 @@ GOJIRA_DETACH_UP=${GOJIRA_DETACH_UP:-"--detach"}
 GOJIRA_MODE=${GOJIRA_MODE:-dev}
 GOJIRA_NETWORK_MODE=${GOJIRA_NETWORK_MODE}
 GOJIRA_TARGET=${GOJIRA_TARGET:-kong}
+GOJIRA_APT_MIRROR=${GOJIRA_APT_MIRROR:-"none"}
 
 # Feature flags. Use the new cool stuff by default. Set it off to the ancient
 # one if it does not work for you
@@ -259,6 +260,10 @@ function parse_args {
         GOJIRA_NETWORK_MODE=$2
         shift
         ;;
+      --apt-mirror)
+        GOJIRA_APT_MIRROR=$2
+        shift
+        ;;
       -)
         _EXTRA_ARGS+=("$(cat $2)")
         _RAW_INPUT=1
@@ -460,6 +465,7 @@ Options:
   --egg                 add a compose egg to make things extra yummy
   --network-mode        set docker network mode
   --yml FILE            kong yml file
+  --apt-mirror DOMAIN   use customized Ubuntu apt mirror (such as --apt-mirror apt-mirror.example.com)
   -V,  --verbose        echo every command that gets executed
   -h,  --help           display this help
 
@@ -624,6 +630,7 @@ function build {
     "--label KONG_NGX_MODULE=$KONG_NGX_MODULE"
     "--build-arg KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
     "--label KONG_BUILD_TOOLS=$KONG_BUILD_TOOLS"
+    "--build-arg APT_MIRROR=$GOJIRA_APT_MIRROR"
   )
 
   >&2 echo "Building $GOJIRA_IMAGE"
