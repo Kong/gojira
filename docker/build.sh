@@ -51,7 +51,6 @@ function make_kong_ngx_module {
 }
 
 function make_libgmp {
-  local kernel
   local machine
   machine="$(uname -m)"
 
