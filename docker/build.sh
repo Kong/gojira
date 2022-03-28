@@ -56,7 +56,7 @@ function make_libgmp {
   machine="$(uname -m)"
 
   local build_arg="--build=x86_64-linux-gnu"
-  if [[ "$machine" = "aarch64" ]] || [[ "$machine" == "arm64" ]]; then
+  if [[ "$machine" == "aarch64" ]] || [[ "$machine" == "arm64" ]]; then
     build_arg=""
   fi
 
