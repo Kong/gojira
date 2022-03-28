@@ -53,12 +53,20 @@ services:
     hostname: broker
     depends_on:
       - zookeeper
+EOF
+
+if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
+    cat << EOF
     ports:
       - "29092:29092"
       - "19093:19093"
       - "9092:9092"
       - "9093:9093"
       - "9101:9101"
+EOF
+fi
+
+cat << EOF
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -121,8 +129,16 @@ services:
     image: confluentinc/cp-kafka-rest:${GOJIRA_KAFKA_VERSION:-6.2.0}
     depends_on:
       - broker
+EOF
+
+if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
+    cat << EOF
     ports:
       - 8082:8082
+EOF
+fi
+
+cat << EOF
     hostname: rest-proxy
     healthcheck:
       test: ["CMD", "curl" ,"http://0.0.0.0:8082/topics"]
