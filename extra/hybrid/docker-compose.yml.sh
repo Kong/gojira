@@ -18,15 +18,17 @@ cat << EOF
 EOF
 done
 
-if [[ -n $GOJIRA_PORTS ]]; then
-  cat << EOF
-    ports:
-EOF
-  for port in $GOJIRA_PORTS; do
+if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
+  if [[ -n $GOJIRA_PORTS ]]; then
     cat << EOF
-        - $port
-EOF
-  done
+      ports:
+  EOF
+    for port in $GOJIRA_PORTS; do
+      cat << EOF
+          - $port
+  EOF
+    done
+  fi
 fi
 
 cat << EOF
