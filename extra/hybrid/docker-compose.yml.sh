@@ -22,11 +22,11 @@ if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
   if [[ -n $GOJIRA_PORTS ]]; then
     cat << EOF
       ports:
-  EOF
+EOF
     for port in $GOJIRA_PORTS; do
       cat << EOF
           - $port
-  EOF
+EOF
     done
   fi
 fi
