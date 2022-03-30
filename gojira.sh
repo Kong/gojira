@@ -564,12 +564,14 @@ function image_name {
     KONG_LIBGMP=${GMP_VERSION:-$(req_find $req_file KONG_GMP_VERSION)}
     KONG_LIBNETTLE=${NETTLE_VERSION:-$(req_find $req_file KONG_DEP_NETTLE_VERSION)}
     KONG_LIBJQ=${JQ_VERSION:-$(req_find $req_file KONG_DEP_LIBJQ_VERSION)}
+    RESTY_LMDB=${RESTY_LMDB:-$(req_find $req_file RESTY_LMDB_VERSION)}
   fi
 
   if [[ -f $yaml_file ]]; then
     OPENRESTY=${OPENRESTY:-$(yaml_find $yaml_file OPENRESTY)}
     LUAROCKS=${LUAROCKS:-$(yaml_find $yaml_file LUAROCKS)}
     OPENSSL=${OPENSSL:-$(yaml_find $yaml_file OPENSSL)}
+    RESTY_LMDB=${RESTY_LMDB:-$(yaml_find $yaml_file RESTY_LMDB)}
   fi
 
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
@@ -642,6 +644,13 @@ function build {
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo " * Kong NM:     $KONG_NGX_MODULE"
   >&2 echo " * Kong BT:     $KONG_BUILD_TOOLS"
+  if [[ -n "$RESTY_LMDB" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg RESTY_LMDB=$RESTY_LMDB"
+      "--label RESTY_LMDB=$RESTY_LMDB"
+    )
+    >&2 echo " * Resty LMDB:  $RESTY_LMDB"
+  fi
   if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
     BUILD_ARGS+=(
       "--build-arg GO_VERSION=$GO_VERSION"
