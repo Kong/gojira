@@ -189,7 +189,7 @@ EOF
 
   elif [[ $GOJIRA_DATABASE == "cassandra" ]]; then
     cat << EOF
-    image: cassandra:${CASSANDRA:-3.9}
+    image: cassandra:${CASSANDRA:-3.11}
 EOF
 
     if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
