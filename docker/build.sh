@@ -99,6 +99,10 @@ function build {
     "--luarocks  ${LUAROCKS}"
   )
 
+  if [[ ! -z "${RESTY_LMDB}" ]]; then
+    flags+=("--resty-lmdb ${RESTY_LMDB}")
+  fi
+
   local after=()
 
   if version_lte $OPENSSL 1.0; then
