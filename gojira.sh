@@ -612,6 +612,11 @@ function image_name {
       "libjq-$KONG_LIBJQ"
     )
   fi
+  if [[ -n "$RESTY_LMDB" ]]; then
+    components+=(
+      "resty-lmdb-$RESTY_LMDB"
+    )
+  fi
 
   read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | shasum)"
   GOJIRA_IMAGE=gojira:$components_sha
