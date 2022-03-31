@@ -233,13 +233,14 @@ fi
 if [[ -n $GOJIRA_REDIS ]]; then
   cat << EOF
   redis:
-    image: redis:${REDIS_VERSION:-5.0.4-alpine}
+    image: redis:${REDIS_VERSION:-6.2.6-alpine}
 EOF
 
   if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
     cat << EOF
     ports:
       - 6379
+      - 6380
 EOF
   fi
 
@@ -272,6 +273,16 @@ cat << EOF
 EOF
   else
     cat << EOF
+    volumes:
+      - ${DOCKER_CTX}/redis_server.crt:/usr/local/etc/redis/server.crt
+      - ${DOCKER_CTX}/redis_server.key:/usr/local/etc/redis/server.key
+    command: >-
+      --tls-port 6380 
+      --tls-cert-file /usr/local/etc/redis/server.crt 
+      --tls-key-file /usr/local/etc/redis/server.key 
+      --tls-cluster no 
+      --tls-replication no 
+      --tls-auth-clients no 
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
