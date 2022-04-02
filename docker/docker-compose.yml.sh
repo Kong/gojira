@@ -263,7 +263,7 @@ EOF
     fi
 cat << EOF
     volumes:
-      - ${DOCKER_CTX}/redis-cluster.sh:/usr/local/bin/redis-cluster.sh
+      - ${DOCKER_CTX}/redis/cluster.sh:/usr/local/bin/redis-cluster.sh
     command: ["sh", "/usr/local/bin/redis-cluster.sh"]
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "7005", "ping"]
@@ -274,8 +274,8 @@ EOF
   else
     cat << EOF
     volumes:
-      - ${DOCKER_CTX}/redis_server.crt:/usr/local/etc/redis/server.crt
-      - ${DOCKER_CTX}/redis_server.key:/usr/local/etc/redis/server.key
+      - ${DOCKER_CTX}/redis/server.crt:/usr/local/etc/redis/server.crt
+      - ${DOCKER_CTX}/redis/server.key:/usr/local/etc/redis/server.key
     command: >-
       --tls-port 6380 
       --tls-cert-file /usr/local/etc/redis/server.crt 
