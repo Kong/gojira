@@ -537,7 +537,7 @@ function image_name {
   if [[ -n $GOJIRA_IMAGE ]]; then return; fi
 
   # No supplied dependency versions
-  if [[ -z $LUAROCKS || (-z $OPENSSL && -z $BORINGSSL) || -z $OPENRESTY ]]; then
+  if [[ -z $LUAROCKS || -z "${OPENSSL}${BORINGSSL}" || -z $OPENRESTY ]]; then
     # No supplied local kong path and kong prefix does not exist
     if [[ -z "$GOJIRA_LOC_PATH" && ! -d "$GOJIRA_KONGS/$PREFIX" ]]; then
       create_kong
@@ -568,7 +568,7 @@ function image_name {
     BORINGSSL=${BORINGSSL:-$(yaml_find $yaml_file BORINGSSL)}
   fi
 
-  if [[ -z $LUAROCKS || (-z $OPENSSL && -z $BORINGSSL) || -z $OPENRESTY ]]; then
+  if [[ -z $LUAROCKS || -z "${OPENSSL}${BORINGSSL}" || -z $OPENRESTY ]]; then
     err "${GOJIRA}: Could not guess version dependencies in" \
         "$req_file or $yaml_file. " \
         "Specify versions as LUAROCKS, OPENSSL/BORINGSSL, and OPENRESTY envs"
@@ -578,7 +578,7 @@ function image_name {
   KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS:-master}
 
   ssl_provider="openssl-$OPENSSL"
-  if [[ ! -z $BORINGSSL ]]; then
+  if [[ -n $BORINGSSL ]]; then
     ssl_provider="boriongssl-$BORINGSSL"
   fi
 
@@ -636,7 +636,7 @@ function build {
   )
 
   ssl_provider=" * OpenSSL:     $OPENSSL  "
-  if [[ ! -z $BORINGSSL ]]; then
+  if [[ -n $BORINGSSL ]]; then
     ssl_provider=" * BoringSSL:   $BORINGSSL  "
   fi
 
