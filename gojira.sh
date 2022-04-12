@@ -565,6 +565,7 @@ function image_name {
     KONG_LIBNETTLE=${NETTLE_VERSION:-$(req_find $req_file KONG_DEP_NETTLE_VERSION)}
     KONG_LIBJQ=${JQ_VERSION:-$(req_find $req_file KONG_DEP_LIBJQ_VERSION)}
     RESTY_LMDB=${RESTY_LMDB:-$(req_find $req_file RESTY_LMDB_VERSION)}
+    RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(req_find $req_file RESTY_WEBSOCKET_VERSION)}
   fi
 
   if [[ -f $yaml_file ]]; then
@@ -572,6 +573,7 @@ function image_name {
     LUAROCKS=${LUAROCKS:-$(yaml_find $yaml_file LUAROCKS)}
     OPENSSL=${OPENSSL:-$(yaml_find $yaml_file OPENSSL)}
     RESTY_LMDB=${RESTY_LMDB:-$(yaml_find $yaml_file RESTY_LMDB)}
+    RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(yaml_find $yaml_file RESTY_WEBSOCKET_VERSION)}
   fi
 
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
@@ -618,6 +620,12 @@ function image_name {
     )
   fi
 
+  if [[ -n "$RESTY_WEBSOCKET" ]]; then
+    components+=(
+      "resty-websocket-${RESTY_WEBSOCKET}"
+    )
+  fi
+
   read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | shasum)"
   GOJIRA_IMAGE=gojira:$components_sha
 }
@@ -649,6 +657,14 @@ function build {
   >&2 echo " * LuaRocks:    $LUAROCKS "
   >&2 echo " * Kong NM:     $KONG_NGX_MODULE"
   >&2 echo " * Kong BT:     $KONG_BUILD_TOOLS"
+
+  if [[ -n "$RESTY_WEBSOCKET" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg RESTY_WEBSOCKET=$RESTY_WEBSOCKET"
+      "--label RESTY_WEBSOCKET=$RESTY_WEBSOCKET"
+    )
+    >&2 echo " * Resty WEBSOCKET:  $RESTY_WEBSOCKET"
+  fi
   if [[ -n "$RESTY_LMDB" ]]; then
     BUILD_ARGS+=(
       "--build-arg RESTY_LMDB=$RESTY_LMDB"
