@@ -103,6 +103,11 @@ function build {
     flags+=("--resty-lmdb ${RESTY_LMDB}")
   fi
 
+  if [[ ! -z "${RESTY_WEBSOCKET}" ]]; then
+    flags+=("--resty-websocket ${RESTY_WEBSOCKET}")
+  fi
+
+
   local after=()
 
   if version_lte $OPENSSL 1.0; then
