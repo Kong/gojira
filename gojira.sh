@@ -545,7 +545,7 @@ function image_name {
   if [[ -n $GOJIRA_IMAGE ]]; then return; fi
 
   # No supplied dependency versions
-  if [[ -z $LUAROCKS || -z "${OPENSSL}${BORINGSSL}" || -z $OPENRESTY ]]; then
+  if [[ -z $LUAROCKS ]] || [[ -z "${OPENSSL}${BORINGSSL}" ]] || [[ -z $OPENRESTY ]]; then
     # No supplied local kong path and kong prefix does not exist
     if [[ -z "$GOJIRA_LOC_PATH" && ! -d "$GOJIRA_KONGS/$PREFIX" ]]; then
       create_kong
@@ -605,10 +605,15 @@ function image_name {
     "knm-$KONG_NGX_MODULE"
     "kbt-$KONG_BUILD_TOOLS"
   )
+  if [[ -n "$KONG_GO_PLUGINSERVER" ]] || [[ -n "$BORINGSSL" ]]; then
+  GO_VERSION=${GO_VERSION:-1.13.12}
+    components+=(
+      "go-$GO_VERSION"
+    )
+  fi
   if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
     GO_VERSION=${GO_VERSION:-1.13.12}
     components+=(
-      "go-$GO_VERSION"
       "gps-$KONG_GO_PLUGINSERVER"
     )
   fi
@@ -720,14 +725,19 @@ function build {
     )
     >&2 echo " * Resty Events:  $RESTY_EVENTS"
   fi
-  if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
+
+  if [[ -n "$KONG_GO_PLUGINSERVER" ]] || [[ -n "$BORINGSSL" ]]; then
     BUILD_ARGS+=(
       "--build-arg GO_VERSION=$GO_VERSION"
       "--label GO_VERSION=$GO_VERSION"
+    )
+    >&2 echo " * Go:          $GO_VERSION"
+  fi
+  if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
+    BUILD_ARGS+=(
       "--build-arg KONG_GO_PLUGINSERVER=$KONG_GO_PLUGINSERVER"
       "--label KONG_GO_PLUGINSERVER=$KONG_GO_PLUGINSERVER"
     )
-    >&2 echo " * Go:          $GO_VERSION"
     >&2 echo " * Kong GPS:    $KONG_GO_PLUGINSERVER"
   fi
   if [[ -n "$KONG_LIBGMP" ]]; then

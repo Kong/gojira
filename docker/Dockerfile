@@ -35,7 +35,8 @@ RUN apt-get update && \
         libyaml-dev \
         cmake \
         clang \
-        ninja-build
+        ninja-build \
+        libunwind-dev
 
 # LuaRocks - OpenSSL - OpenResty
 ARG LUAROCKS
@@ -69,7 +70,7 @@ ENV GOPATH=${BUILD_PREFIX}/gopath
 ENV PATH=$GOPATH/bin:${GOROOT}/bin:$PATH
 RUN mkdir -p ${GOROOT} ${GOPATH}
 
-RUN bash -c "[[ ! -z ${GO_VERSION} || ! -z ${BORINGSSL} ]]" && ( \
+RUN bash -c '[[ ! -z "${GO_VERSION}" ]]' && echo https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz && ( \
       curl -L https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
 	  tar -xf /tmp/go.tar.gz -C ${GOROOT} --strip-components=1 && \
       rm /tmp/go.tar.gz ) || \
@@ -127,7 +128,7 @@ RUN [ ! -z ${KONG_GO_PLUGINSERVER} ] && ( \
 # Test Enablement
 # ---------------
 # Add vegeta HTTP load testing tool for executing stress tests
-RUN [ ! -z ${GO_VERSION} ] && ( \
+RUN [ ! -z "${GO_VERSION}" ] && ( \
       go get -u github.com/tsenart/vegeta && \
       vegeta -version ) || \
     echo "go has not been installed; vegeta requires golang"
