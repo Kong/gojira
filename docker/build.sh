@@ -112,7 +112,9 @@ function build {
 
   if [[ ! -z "${ATC_ROUTER}" ]]; then
     flags+=("--atc-router ${ATC_ROUTER}")
-  if [[ ! -z $BORINGSSL ]]; then
+  fi
+
+  if [[ ! -z "${BORINGSSL}" ]]; then
     flags+=("--boringssl ${BORINGSSL}")
   else
     flags+=("--openssl   ${OPENSSL}")
