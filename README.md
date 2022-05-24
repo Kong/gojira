@@ -288,6 +288,14 @@ use docker's default (bridge), see https://docs.docker.com/network/#network-driv
 for available modes.
 [Docs](docs/manual.md#bind-ports-on-the-host)
 
+### LUAROCKS
+
+> default: the value of `RESTY_LUAROCKS_VERSION` defined in `.requirements` file
+
+Use the provided LuaRocks version instead the one from the `.requirements` file.
+
+**Example:** `LUAROCKS=x.x.x gojira up`
+
 ## Credits
 
 * gojira artwork by ascii artist [ldb](http://asciiartist.com).
