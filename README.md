@@ -195,6 +195,12 @@ GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
 Certain behaviours of gojira can be tamed by using the following environment
 variables.
 
+### LUAROCKS
+
+> default: the value of RESTY_LUAROCKS_VERSION in .requirements file
+
+Declare the specific LuaRocks version.
+
 ### GOJIRA_REPO
 
 > default: `kong`
