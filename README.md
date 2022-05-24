@@ -199,7 +199,7 @@ variables.
 
 > default: the value of RESTY_LUAROCKS_VERSION in .requirements file
 
-Declare the specific LuaRocks version.
+Use the provided LuaRocks version instead the one from the `.requirements` file.
 
 ### GOJIRA_REPO
 
