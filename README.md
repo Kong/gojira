@@ -195,12 +195,6 @@ GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
 Certain behaviours of gojira can be tamed by using the following environment
 variables.
 
-### LUAROCKS
-
-> default: the value of `RESTY_LUAROCKS_VERSION` defined in `.requirements` file
-
-Use the provided LuaRocks version instead the one from the `.requirements` file.
-
 ### GOJIRA_REPO
 
 > default: `kong`
@@ -293,6 +287,14 @@ Use `network_mode` to spin up containers. When no network mode is set, it will
 use docker's default (bridge), see https://docs.docker.com/network/#network-drivers
 for available modes.
 [Docs](docs/manual.md#bind-ports-on-the-host)
+
+### LUAROCKS
+
+> default: the value of `RESTY_LUAROCKS_VERSION` defined in `.requirements` file
+
+Use the provided LuaRocks version instead the one from the `.requirements` file.
+
+**Example:** `LUAROCKS=x.x.x gojira up`
 
 ## Credits
 
