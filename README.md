@@ -197,7 +197,7 @@ variables.
 
 ### LUAROCKS
 
-> default: the value of RESTY_LUAROCKS_VERSION in .requirements file
+> default: the value of `RESTY_LUAROCKS_VERSION` defined in `.requirements` file
 
 Use the provided LuaRocks version instead the one from the `.requirements` file.
 
