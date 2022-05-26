@@ -173,6 +173,7 @@ EOF
     volumes:
       - ${DOCKER_CTX}/pg-entrypoint:/docker-entrypoint-initdb.d
       - ${GOJIRA_HOME}/:/root/
+    command: postgres -c 'max_connections=3000'
     environment:
       POSTGRES_DBS: ${KONG_PG_DATABASE:-kong},${KONG_TEST_PG_DATABASE:-kong_tests}
       POSTGRES_USER: ${KONG_PG_USER:-kong}
