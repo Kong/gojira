@@ -462,7 +462,7 @@ Options:
   --redis-cluster       run redis in cluster mode
   --host                specify hostname for kong container
   --git-https           use https to clone repos
-  --egg                 add a compose egg to make things extra yummy
+  --egg FILE            add a docker-compose configuration file to use
   --network-mode        set docker network mode
   --yml FILE            kong yml file
   --apt-mirror DOMAIN   use customized Ubuntu apt mirror (such as --apt-mirror apt-mirror.example.com)
@@ -513,13 +513,13 @@ Commands:
 
   ls            list stored prefixes in \$GOJIRA_KONGS
 
-  lay           make gojira lay an egg
+  lay           create docker-compose file to use with --egg
 
   snapshot[?!]  make a snapshot of a running gojira
 
   compose       alias for docker-compose, try: gojira compose help
 
-  roar          make gojira go all gawo wowo
+  roar          print a decorated dinosaur
 
   logs          follow container logs
 
