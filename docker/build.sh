@@ -103,10 +103,13 @@ function build {
     flags+=("--resty-lmdb ${RESTY_LMDB}")
   fi
 
+  if [[ ! -z "${RESTY_EVENTS}" ]]; then
+    flags+=("--resty-events ${RESTY_EVENTS}")
+  fi
+
   if [[ ! -z "${RESTY_WEBSOCKET}" ]]; then
     flags+=("--resty-websocket ${RESTY_WEBSOCKET}")
   fi
-
 
   local after=()
 
