@@ -102,7 +102,10 @@ cat << EOF
       KONG_TEST_PG_HOST: ${KONG_TEST_PG_HOST:-db}
       KONG_TEST_PG_DATABASE: ${KONG_TEST_PG_DATABASE:-kong_tests}
       KONG_TEST_CASSANDRA_CONTACT_POINTS: ${KONG_TEST_CASSANDRA_CONTACT_POINTS:-db}
-      KONG_SPEC_REDIS_HOST: ${KONG_SPEC_REDIS_HOST:-redis}
+      KONG_SPEC_TEST_REDIS_HOST: ${KONG_SPEC_TEST_REDIS_HOST:-redis}
+      KONG_SPEC_TEST_REDIS_PORT: ${KONG_SPEC_TEST_REDIS_PORT:-6379}
+      KONG_SPEC_TEST_REDIS_SSL_PORT: ${KONG_SPEC_TEST_REDIS_SSL_PORT:-6380}
+      KONG_SPEC_TEST_REDIS_SSL_SNI: ${KONG_SPEC_TESR_REDIS_SSL_SNI:-test-redis.example.com}
       # DNS resolution on docker always has this ip. Since we have a qualified
       # name for the db server, we need to set up the DNS resolver, is set
       # to 8.8.8.8 on the spec conf
@@ -233,13 +236,14 @@ fi
 if [[ -n $GOJIRA_REDIS ]]; then
   cat << EOF
   redis:
-    image: redis:${REDIS_VERSION:-5.0.4-alpine}
+    image: redis:${REDIS_VERSION:-6.2.6-alpine}
 EOF
 
   if [ "$GOJIRA_NETWORK_MODE" != "host" ]; then
     cat << EOF
     ports:
       - 6379
+      - 6380
 EOF
   fi
 
@@ -262,7 +266,7 @@ EOF
     fi
 cat << EOF
     volumes:
-      - ${DOCKER_CTX}/redis-cluster.sh:/usr/local/bin/redis-cluster.sh
+      - ${DOCKER_CTX}/redis/cluster.sh:/usr/local/bin/redis-cluster.sh
     command: ["sh", "/usr/local/bin/redis-cluster.sh"]
     healthcheck:
       test: ["CMD", "redis-cli", "-p", "7005", "ping"]
@@ -272,6 +276,16 @@ cat << EOF
 EOF
   else
     cat << EOF
+    volumes:
+      - ${DOCKER_CTX}/redis/server.crt:/usr/local/etc/redis/server.crt
+      - ${DOCKER_CTX}/redis/server.key:/usr/local/etc/redis/server.key
+    command: >-
+      --tls-port 6380 
+      --tls-cert-file /usr/local/etc/redis/server.crt 
+      --tls-key-file /usr/local/etc/redis/server.key 
+      --tls-cluster no 
+      --tls-replication no 
+      --tls-auth-clients no 
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
