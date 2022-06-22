@@ -558,6 +558,7 @@ function image_name {
     OPENRESTY=${OPENRESTY:-$(req_find $req_file RESTY_VERSION)}
     LUAROCKS=${LUAROCKS:-$(req_find $req_file RESTY_LUAROCKS_VERSION)}
     OPENSSL=${OPENSSL:-$(req_find $req_file RESTY_OPENSSL_VERSION)}
+    RESTY_EVENTS=${RESTY_EVENTS:-$(req_find $req_file RESTY_EVENTS_VERSION)}
     KONG_NGX_MODULE=${KONG_NGX_MODULE:-$(req_find $req_file KONG_NGINX_MODULE_BRANCH)}
     KONG_BUILD_TOOLS=${KONG_BUILD_TOOLS_BRANCH:-$(req_find $req_file KONG_BUILD_TOOLS_BRANCH)}
     KONG_GO_PLUGINSERVER=${KONG_GO_PLUGINSERVER_VERSION:-$(req_find $req_file KONG_GO_PLUGINSERVER_VERSION)}
@@ -573,6 +574,7 @@ function image_name {
     LUAROCKS=${LUAROCKS:-$(yaml_find $yaml_file LUAROCKS)}
     OPENSSL=${OPENSSL:-$(yaml_find $yaml_file OPENSSL)}
     RESTY_LMDB=${RESTY_LMDB:-$(yaml_find $yaml_file RESTY_LMDB)}
+    RESTY_EVENTS=${RESTY_EVENTS:-$(yaml_find $yaml_file RESTY_EVENTS_VERSION)}
     RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(yaml_find $yaml_file RESTY_WEBSOCKET_VERSION)}
   fi
 
@@ -619,7 +621,11 @@ function image_name {
       "resty-lmdb-$RESTY_LMDB"
     )
   fi
-
+  if [[ -n "$RESTY_EVENTS" ]]; then
+    components+=(
+      "resty-events-${RESTY_EVENTS}"
+    )
+  fi
   if [[ -n "$RESTY_WEBSOCKET" ]]; then
     components+=(
       "resty-websocket-${RESTY_WEBSOCKET}"
@@ -671,6 +677,13 @@ function build {
       "--label RESTY_LMDB=$RESTY_LMDB"
     )
     >&2 echo " * Resty LMDB:  $RESTY_LMDB"
+  fi
+  if [[ -n "$RESTY_EVENTS" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg RESTY_EVENTS=$RESTY_EVENTS"
+      "--label RESTY_EVENTS=$RESTY_EVENTS"
+    )
+    >&2 echo " * Resty Events:  $RESTY_EVENTS"
   fi
   if [[ -n "$KONG_GO_PLUGINSERVER" ]]; then
     BUILD_ARGS+=(
