@@ -325,7 +325,7 @@ function parse_args {
 
   PREFIX=$(IFS="-" ; echo "${components[*]}")
   # Allowed docker image characters / compose container naming
-  PREFIX=$(echo $PREFIX | sed "s:[^a-zA-Z0-9_.-]:-:g")
+  PREFIX=$(echo $PREFIX | sed "s:[^a-zA-Z0-9_-]:-:g")
 
   if [[ $GOJIRA_MODE != "image" ]]; then
     GOJIRA_KONG_PATH=${GOJIRA_KONG_PATH:-$GOJIRA_KONGS/$PREFIX}
@@ -523,9 +523,11 @@ Commands:
 
   logs          follow container logs
 
+  prefix        show prefix for selected gojira
+
   nuke [-f]     remove all running gojiras. -f for removing all files
 
-  version       make a guess
+  version       show gojira's version number
 
 EOF
 
@@ -987,6 +989,7 @@ main() {
     local cmd="sh -l -i"
     [[ $GOJIRA_TARGET =~ kong(-[cd]p)? ]] && cmd="gosh -l -i"
     run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "$cmd"
+    exit_status=$?
     ;;
   build)
     build
@@ -998,6 +1001,7 @@ main() {
     ;;
   run)
     run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX
+    exit_status=$?
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
@@ -1073,6 +1077,9 @@ main() {
   version)
     echo $GOJIRA $GOJIRA_VERSION ${GOJIRA_ROARS[-1]}
     ;;
+  prefix)
+    echo $PREFIX
+    ;;
   nuke)
     # Do not show docker rm error when there's nothing
 
@@ -1097,3 +1104,4 @@ popd() { builtin popd > /dev/null; }
 
 main "$@"
 cleanup   # make sure we clean up
+exit $exit_status

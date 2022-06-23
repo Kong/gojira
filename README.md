@@ -110,6 +110,8 @@ Commands:
 
   logs          follow container logs
 
+  prefix        show prefix for selected gojira
+
   nuke [-f]     remove all running gojiras. -f for removing all files
 
   version       show gojira's version number
