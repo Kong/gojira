@@ -753,14 +753,6 @@ function executable {
 }
 
 
-function cleanup {
-  local pids=`jobs -p`
-  if [[ "$pids" != "" ]]; then
-    kill $pids
-  fi
-}
-
-
 function p_compose {
   local res
   get_envs
@@ -785,7 +777,11 @@ function p_compose {
   docker-compose -f <($COMPOSE_FILE) ${flags[*]} -p $PREFIX "$@"
   res=$?
 
+  # force flush on fifos
+  cat ${tmps[@]} &> /dev/null
+  wait
   rm -f "${tmps[@]}"
+
   return $res
 }
 
@@ -989,7 +985,6 @@ main() {
     local cmd="sh -l -i"
     [[ $GOJIRA_TARGET =~ kong(-[cd]p)? ]] && cmd="gosh -l -i"
     run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "$cmd"
-    exit_status=$?
     ;;
   build)
     build
@@ -1001,7 +996,6 @@ main() {
     ;;
   run)
     run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX
-    exit_status=$?
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
@@ -1103,5 +1097,3 @@ pushd() { builtin pushd $1 > /dev/null; }
 popd() { builtin popd > /dev/null; }
 
 main "$@"
-cleanup   # make sure we clean up
-exit $exit_status
