@@ -111,6 +111,10 @@ function build {
     flags+=("--resty-websocket ${RESTY_WEBSOCKET}")
   fi
 
+  if [[ ! -z "${ATC_ROUTER}" ]]; then
+    flags+=("--atc-router ${ATC_ROUTER}")
+  fi
+
   local after=()
 
   if version_lte $OPENSSL 1.0; then
@@ -151,6 +155,11 @@ function build {
   if [[ -n "$KONG_LIBJQ" ]]; then
     download_libjq
     after+=(make_libjq)
+  fi
+
+  # `rustc` for atc-router
+  if [[ -n "$ATC_ROUTER" ]]; then
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   fi
 
   local cmd="${BUILD_TOOLS_CMD} ${flags[*]}"

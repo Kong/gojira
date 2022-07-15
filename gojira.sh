@@ -569,6 +569,7 @@ function image_name {
     KONG_LIBJQ=${JQ_VERSION:-$(req_find $req_file KONG_DEP_LIBJQ_VERSION)}
     RESTY_LMDB=${RESTY_LMDB:-$(req_find $req_file RESTY_LMDB_VERSION)}
     RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(req_find $req_file RESTY_WEBSOCKET_VERSION)}
+    ATC_ROUTER=${ATC_ROUTER:-$(req_find $req_file ATC_ROUTER_VERSION)}
   fi
 
   if [[ -f $yaml_file ]]; then
@@ -578,6 +579,7 @@ function image_name {
     RESTY_LMDB=${RESTY_LMDB:-$(yaml_find $yaml_file RESTY_LMDB)}
     RESTY_EVENTS=${RESTY_EVENTS:-$(yaml_find $yaml_file RESTY_EVENTS_VERSION)}
     RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(yaml_find $yaml_file RESTY_WEBSOCKET_VERSION)}
+    ATC_ROUTER=${ATC_ROUTER:-$(yaml_find $yaml_file ATC_ROUTER_VERSION)}
   fi
 
   if [[ -z $LUAROCKS || -z $OPENSSL || -z $OPENRESTY ]]; then
@@ -633,6 +635,11 @@ function image_name {
       "resty-websocket-${RESTY_WEBSOCKET}"
     )
   fi
+  if [[ -n "$ATC_ROUTER" ]]; then
+    components+=(
+      "atc-router-${ATC_ROUTER}"
+    )
+  fi
 
   read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | shasum)"
   GOJIRA_IMAGE=gojira:$components_sha
@@ -666,6 +673,13 @@ function build {
   >&2 echo " * Kong NM:     $KONG_NGX_MODULE"
   >&2 echo " * Kong BT:     $KONG_BUILD_TOOLS"
 
+  if [[ -n "$ATC_ROUTER" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg ATC_ROUTER=$ATC_ROUTER"
+      "--label ATC_ROUTER=$ATC_ROUTER"
+    )
+    >&2 echo " * ATC ROUTER:  $ATC_ROUTER"
+  fi
   if [[ -n "$RESTY_WEBSOCKET" ]]; then
     BUILD_ARGS+=(
       "--build-arg RESTY_WEBSOCKET=$RESTY_WEBSOCKET"
