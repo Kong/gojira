@@ -976,7 +976,9 @@ main() {
     if [[ ! -d "$GOJIRA_KONG_PATH" ]]; then create_kong; fi
 
     if [[ -z $GOJIRA_IMAGE ]]; then
-      build || exit 1
+      image_name
+      docker pull kong/kong-build-tools:test
+      docker tag kong/kong-build-tools:test $GOJIRA_IMAGE
     fi
 
     if [[ "$GOJIRA_USE_SNAPSHOT" == 1 ]]; then
