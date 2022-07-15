@@ -783,6 +783,8 @@ function p_compose {
 
   local tmps=()
 
+  trap "cleanup" EXIT
+
   for egg in "${GOJIRA_EGGS[@]}"; do
     # Have not found an alternative to this that does not involve a potential
     # dangerous eval
@@ -1003,7 +1005,6 @@ main() {
     local cmd="sh -l -i"
     [[ $GOJIRA_TARGET =~ kong(-[cd]p)? ]] && cmd="gosh -l -i"
     run_command "$GOJIRA_TARGET" "$GOJIRA_CLUSTER_INDEX" "$cmd"
-    exit_status=$?
     ;;
   build)
     build
@@ -1015,7 +1016,6 @@ main() {
     ;;
   run)
     run_command $GOJIRA_TARGET $GOJIRA_CLUSTER_INDEX
-    exit_status=$?
     ;;
   images)
     docker images --filter=reference='gojira*' $EXTRA_ARGS
@@ -1117,5 +1117,3 @@ pushd() { builtin pushd $1 > /dev/null; }
 popd() { builtin popd > /dev/null; }
 
 main "$@"
-cleanup   # make sure we clean up
-exit $exit_status
