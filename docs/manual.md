@@ -647,7 +647,8 @@ others. Extend gojira functionality by:
 
 #### Using configuration environment variables
 
-Global settings might be useful to tune gojira. See: [configuration](/README.md#configuration)
+Global settings might be useful to tune gojira. See:
+[configuration](../README.md#Environment variables)
 
 #### Gojira home
 

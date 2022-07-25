@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Copyright 2019-2020 Kong Inc.
+# Copyright 2019-2022 Kong Inc.
 
 GOJIRA=$(basename $0)
 GOJIRA_PATH=$(dirname $(realpath $0))
@@ -369,7 +369,7 @@ function create_kong {
 
   mkdir -p $GOJIRA_KONGS/$PREFIX
 
-  local url=$GOJIRA_GIT_REMOTE/$GOJIRA_REPO.git
+  local url=${GOJIRA_KONG_REPO_URL:-$GOJIRA_GIT_REMOTE/$GOJIRA_REPO.git}
 
   pushd $GOJIRA_KONGS/$PREFIX
     # clone a branch / tag
