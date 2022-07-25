@@ -192,51 +192,76 @@ GNU bash, version 5.1.4(1)-release (x86_64-apple-darwin19.6.0)
 * [Usage patterns](docs/manual.md#usage-patterns)
 * [From vagrant to gojira](docs/vagrant.md)
 
-## Configuration
+## Environment variables
 
-Certain behaviours of gojira can be tamed by using the following environment
-variables.
+Certain behaviours of gojira can be influenced by setting the
+following environment variables.
 
-### GOJIRA_REPO
+### Repository related
+
+A number of variables exist that determine how gojira constructs the
+URL of the Git repository that it clones Kong from.
+
+#### GOJIRA_REPO
 
 > default: `kong`
 
-Default repository to clone from.
+Default repository name.
 
-### GOJIRA_TAG
+
+#### GOJIRA_GIT_HTTPS
+
+> default: `0` (off)
+
+Use https instead of ssh for cloning `GOJIRA_REPO`.
+
+
+#### GOJIRA_GIT_HTTPS_REMOTE
+
+> Default: 'https://github.com/kong'
+
+Base URL to use for repository if `GOJIRA_GIT_HTTPS` is `1`.
+
+
+#### GOJIRA_KONG_REPO_URL
+
+> Default: not set
+
+If this environment variable is set, it disables the use of the
+`GOJIRA_REPO`, `GOJIRA_GIT_HTTPS` and `GOJIRA_GIT_HTTPS_REMOTE`
+environment variables and instead uses this URL.
+
+
+### Other environment variables
+
+#### GOJIRA_TAG
 
 > default: `master`
 
 Default tag to clone from `GOJIRA_REPO` when no `-t` has been provided
 
 
-### GOJIRA_KONGS
+#### GOJIRA_KONGS
 
 > default: `~/.gojira/kongs`
 
 Path where prefixes are stored
 
 
-### GOJIRA_HOME
+#### GOJIRA_HOME
 
 > default: `~/.gojira/home`
 
 Path to the shared home between gojiras
 
 
-### GOJIRA_IMAGE
+#### GOJIRA_IMAGE
 
 Instead of building a development image, force this image to be used.
 [Docs](docs/manual.md#using-kong-release-images-with-gojira)
 
-### GOJIRA_GIT_HTTPS
 
-> default: `0` (off)
-
-Use https instead of ssh for cloning `GOJIRA_REPO`
-
-
-### GOJIRA_DETECT_LOCAL
+#### GOJIRA_DETECT_LOCAL
 
 > default: `1` (on)
 
@@ -244,7 +269,8 @@ Detects if the current path is a kong repository, providing an automatic `-k`
 flag.
 [Docs](docs/manual.md#start-a-local-kong)
 
-### GOJIRA_PIN_LOCAL_TAG
+
+#### GOJIRA_PIN_LOCAL_TAG
 
 > default: `1` (on)
 
@@ -252,14 +278,16 @@ When using a local path (-k or auto), it will always generate the same gojira
 prefix based on the md5 of the path.
 [Docs](docs/manual.md#start-a-local-kong)
 
-### GOJIRA_USE_SNAPSHOT
+
+#### GOJIRA_USE_SNAPSHOT
 
 > default: `1` (on)
 
 Try to use an automatic snapshot when available.
 [Docs](docs/manual.md#using-snapshots-to-store-the-state-of-a-running-container)
 
-### GOJIRA_MAGIC_DEV
+
+#### GOJIRA_MAGIC_DEV
 
 > default: `0` (off)
 
@@ -271,7 +299,8 @@ compatible base, and run 'make dev' again, which should be faster since it
 will be incremental, but will not record a snapshot to reduce disk usage.
 [Docs](docs/manual.md#gojira-magic-dev-mode)
 
-### GOJIRA_KONG_PATH
+
+#### GOJIRA_KONG_PATH
 
 Set this to a **full** kong path so gojira always references it no matter what
 This effectively hardcodes all the gojira magic to always, always use this path,
@@ -281,7 +310,8 @@ without having to reference it by `-k`. ie
 export GOJIRA_KONG_PATH=full/path/to/some/kong
 ```
 
-### GOJIRA_NETWORK_MODE
+
+#### GOJIRA_NETWORK_MODE
 
 > default: (empty)
 
@@ -290,13 +320,15 @@ use docker's default (bridge), see https://docs.docker.com/network/#network-driv
 for available modes.
 [Docs](docs/manual.md#bind-ports-on-the-host)
 
-### LUAROCKS
+
+#### LUAROCKS
 
 > default: the value of `RESTY_LUAROCKS_VERSION` defined in `.requirements` file
 
 Use the provided LuaRocks version instead the one from the `.requirements` file.
 
 **Example:** `LUAROCKS=x.x.x gojira up`
+
 
 ## Credits
 
