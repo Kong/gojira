@@ -11,7 +11,7 @@ services:
     user: root
     command: "follow-kong-log"
     labels:
-      com.konghq.gojira: True
+      com.konghq.gojira: "True"
     # Add net admin capabilities to containers to allow manipulating traffic
     # control settings (like adding network latency)
     cap_add:
@@ -155,7 +155,7 @@ if [[ -n $GOJIRA_DATABASE ]]; then
 cat << EOF
   db:
     labels:
-      com.konghq.gojira: True
+      com.konghq.gojira: "True"
 EOF
 
   if [[ $GOJIRA_DATABASE == "postgres" ]]; then
@@ -247,7 +247,7 @@ EOF
   cat << EOF
     restart: on-failure
     labels:
-      com.konghq.gojira: True
+      com.konghq.gojira: "True"
 EOF
 
   if [[ $GOJIRA_REDIS_MODE == "cluster" ]]; then
