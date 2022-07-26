@@ -641,7 +641,7 @@ function image_name {
     )
   fi
 
-  read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | shasum)"
+  read -r components_sha rest <<<"$(IFS="-" ; echo -n "${components[*]}" | sha1sum)"
   GOJIRA_IMAGE=gojira:$components_sha
 }
 
