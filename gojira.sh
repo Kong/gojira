@@ -2,8 +2,8 @@
 
 # Copyright 2019-2022 Kong Inc.
 
-GOJIRA=$(basename $0)
-GOJIRA_PATH=$(dirname $(realpath $0))
+GOJIRA=$(basename ${BASH_SOURCE[0]:-$0})
+GOJIRA_PATH=$(dirname $(realpath ${BASH_SOURCE[0]:-$0}))
 DOCKER_PATH=$GOJIRA_PATH/docker
 DOCKER_FILE=$DOCKER_PATH/Dockerfile
 COMPOSE_FILE=$DOCKER_PATH/docker-compose.yml.sh
