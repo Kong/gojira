@@ -595,7 +595,7 @@ function image_name {
 
   ssl_provider="openssl-$OPENSSL"
   if [[ -n $BORINGSSL ]]; then
-    ssl_provider="boriongssl-$BORINGSSL"
+    ssl_provider="boringssl-$BORINGSSL"
   fi
 
   local components=(
@@ -654,7 +654,7 @@ function image_name {
   fi
   if [[ -n "$BORINGSSL" ]]; then
     components+=(
-      "boring-ssl-${$BORINGSSL}"
+      "boring-ssl-${BORINGSSL}"
     )
   fi
 
