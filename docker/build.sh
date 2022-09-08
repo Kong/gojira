@@ -117,9 +117,8 @@ function build {
   if [[ ! -z "${BORINGSSL}" ]]; then
     flags+=("--ssl-provider boringssl")
     flags+=("--boringssl ${BORINGSSL}")
-  else
-    flags+=("--openssl   ${OPENSSL}")
   fi
+  flags+=("--openssl ${OPENSSL}")
 
   local after=()
 
