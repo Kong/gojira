@@ -104,7 +104,7 @@ cat << EOF
       KONG_TEST_CASSANDRA_CONTACT_POINTS: ${KONG_TEST_CASSANDRA_CONTACT_POINTS:-db}
       KONG_SPEC_REDIS_HOST: ${KONG_SPEC_REDIS_HOST:-redis}
       KONG_SPEC_TEST_REDIS_HOST: ${KONG_SPEC_TEST_REDIS_HOST:-redis}
-      KONG_SPEC_TEST_REDIS_CLUSTER_ADDRESSES="${KONG_SPEC_TEST_REDIS_CLUSTER_ADDRESSES:-'node-1:6379,node-2:6379,node-3:6379'}"
+      KONG_SPEC_TEST_REDIS_CLUSTER_ADDRESSES: "${KONG_SPEC_TEST_REDIS_CLUSTER_ADDRESSES:-'node-1:6379,node-2:6379,node-3:6379'}"
       # DNS resolution on docker always has this ip. Since we have a qualified
       # name for the db server, we need to set up the DNS resolver, is set
       # to 8.8.8.8 on the spec conf
