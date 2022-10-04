@@ -46,6 +46,18 @@ function download_libjq {
             | tar -C "${LIBJQ_INSTALL}" -xz --strip-components=1
 }
 
+function download_expat {
+  mkdir -p "${EXPAT_INSTALL}"
+  curl -sSL "https://github.com/libexpat/libexpat/releases/download/R_$(echo $KONG_EXPAT | tr . _)/expat-${KONG_EXPAT}.tar.gz" \
+            | tar -C "${EXPAT_INSTALL}" -xz --strip-components=1
+}
+
+function download_libxml2 {
+  mkdir -p "${LIBXML2_INSTALL}"
+  curl -sSL "https://download.gnome.org/sources/libxml2/$(echo ${KONG_LIBXML2} | sed -e 's/\.[0-9]*$//')/libxml2-${KONG_LIBXML2}.tar.xz" \
+            | tar -C "${LIBXML2_INSTALL}" -xJ --strip-components=1
+}
+
 function make_kong_ngx_module {
   make -C ${KONG_NGX_MODULE_INSTALL} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
 }
@@ -87,6 +99,41 @@ function make_libjq {
     cd "${LIBJQ_INSTALL}" || return
     ./configure \
       --prefix="${LIBJQ_INSTALL}"
+    make install
+  )
+}
+
+function make_expat {
+  (
+    cd "${EXPAT_INSTALL}" || return
+    ./configure --disable-static \
+        --prefix="${EXPAT_INSTALL}"
+
+    make
+    make install
+  )
+}
+
+function make_libxml2 {
+  (
+      cd "${LIBXML2_INSTALL}" || return
+      ./configure --disable-static              \
+                  --prefix="${LIBXML2_INSTALL}" \
+                  --without-catalog             \
+                  --without-debug               \
+                  --without-html                \
+                  --without-http                \
+                  --without-iconv               \
+                  --without-python              \
+                  --without-sax1                \
+                  --without-schemas             \
+                  --without-schematron          \
+                  --without-valid               \
+                  --without-xinclude            \
+                  --without-xptr                \
+                  --without-modules
+
+    make
     make install
   )
 }
@@ -155,6 +202,14 @@ function build {
   if [[ -n "$KONG_LIBJQ" ]]; then
     download_libjq
     after+=(make_libjq)
+  fi
+  if [[ -n "$KONG_EXPAT" ]]; then
+    download_expat
+    after+=(make_expat)
+  fi
+  if [[ -n "$KONG_LIBXML2" ]]; then
+    download_libxml2
+    after+=(make_libxml2)
   fi
 
   # `rustc` for atc-router
