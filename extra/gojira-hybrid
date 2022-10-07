@@ -56,7 +56,7 @@ $ gojira hybrid shell@kong-dp
 
 $ gojira hybrid logs kong-cp kong-dp
 
-$ gojira hybrid up -i kong:2.4 --di kong:2.3
+$ gojira hybrid up --image kong:2.4 -di kong:2.3
 
 $ gojira hybrid up -dk path/to/some/kong
 

@@ -751,7 +751,32 @@ on the path would be executed by calling `gojira db`. See: [gojira-db]
 #### Modes
 
 Using the same principle as a command, it's possible to summarize a special
-gojira behavior. See: [gojira-hybrid] mode.
+gojira behavior using _Modes_.
+
+##### Gojira Hybrid Mode
+
+The `gojira-hybrid` _Mode_ can be used to run Kong in hybrid mode.
+
+###### Examples:
+
+```bash
+# Start Gojira in Hybrid mode:
+$ gojira hybrid up -k path/to/some/kong
+
+# Open a shell into the Control Plane container:
+$ gojira hybrid shell@kong-cp
+
+# Print logs of Control Plane and Data Plane:
+$ gojira hybrid logs kong-cp kong-dp
+
+# Specify a Kong Data Plane folder:
+$ gojira hybrid up -dk path/to/some/kong
+
+# Specify different images for Control Plane and Data Plane:
+$ gojira hybrid up --image kong:2.4 -di kong:2.3
+```
+
+See: [gojira-hybrid] mode.
 
 [gojira-hybrid]: /extra/gojira-hybrid
 
