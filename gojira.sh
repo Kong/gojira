@@ -59,6 +59,7 @@ _EXTRA_ARGS=()
 _GOJIRA_VOLUMES=()
 _GOJIRA_PORTS=()
 _GOJIRA_CLI_ENVS=()
+_GOJIRA_ENV_FILES=()
 
 unset FORCE
 unset PREFIX
@@ -149,6 +150,27 @@ EOF
   done
 }
 
+function cli_env_files {
+  local extracted_envs=()
+  for file in "${_GOJIRA_ENV_FILES[@]}"; do
+    while IFS= read -r line; do
+      extracted_envs+=($line)
+    done < $file
+  done
+
+  cat << EOF
+version: '3.5'
+services:
+  ${GOJIRA_TARGET:-kong}:
+    environment:
+EOF
+  for env in "${extracted_envs[@]}"; do
+    cat << EOF
+      - $env
+EOF
+  done
+}
+
 function parse_args {
   # Do not parse a starting --help|-h as an action
   # let it fail later. gojira --foo means "no action"
@@ -205,6 +227,10 @@ function parse_args {
         ;;
       -e|--env)
         _GOJIRA_CLI_ENVS+=("$2")
+        shift
+        ;;
+       --env-file)
+        _GOJIRA_ENV_FILES+=("$2")
         shift
         ;;
       --postgres)
@@ -336,6 +362,10 @@ function parse_args {
     add_egg cli_envs
   fi
 
+  if [[ ${#_GOJIRA_ENV_FILES} -gt 0 ]]; then
+    add_egg cli_env_files
+  fi
+
   if [[ $GOJIRA_NETWORK_MODE == "host" ]]; then
     add_egg "$GOJIRA_PATH/extra/host-mode.yml.sh"
   fi
@@ -456,6 +486,7 @@ Options:
   -pp, --port           expose a port for a kong container
   -v,  --volume         add a volume to kong container
   -e,  --env KEY=VAL    add environment variable binding to kong container
+  --env-file .env       read a local environment file and bind the variables to the kong container
   --image               image to use for kong
   --cassandra           use cassandra
   --alone               do not spin up any db
