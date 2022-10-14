@@ -43,6 +43,7 @@ Options:
   -pp, --port           expose a port for a kong container
   -v,  --volume         add a volume to kong container
   -e,  --env KEY=VAL    add environment variable binding to kong container
+  --env-file .env        read a local environment file and bind the variables to the kong container
   --image               image to use for kong
   --cassandra           use cassandra
   --alone               do not spin up any db
