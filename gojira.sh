@@ -567,6 +567,8 @@ function image_name {
     KONG_LIBGMP=${GMP_VERSION:-$(req_find $req_file KONG_GMP_VERSION)}
     KONG_LIBNETTLE=${NETTLE_VERSION:-$(req_find $req_file KONG_DEP_NETTLE_VERSION)}
     KONG_LIBJQ=${JQ_VERSION:-$(req_find $req_file KONG_DEP_LIBJQ_VERSION)}
+    KONG_EXPAT=${EXPAT_VERSION:-$(req_find $req_file KONG_DEP_EXPAT_VERSION)}
+    KONG_LIBXML2=${LIBXML2_VERSION:-$(req_find $req_file KONG_DEP_LIBXML2_VERSION)}
     RESTY_LMDB=${RESTY_LMDB:-$(req_find $req_file RESTY_LMDB_VERSION)}
     RESTY_WEBSOCKET=${RESTY_WEBSOCKET:-$(req_find $req_file RESTY_WEBSOCKET_VERSION)}
     ATC_ROUTER=${ATC_ROUTER:-$(req_find $req_file ATC_ROUTER_VERSION)}
@@ -618,6 +620,16 @@ function image_name {
   if [[ -n "$KONG_LIBJQ" ]]; then
     components+=(
       "libjq-$KONG_LIBJQ"
+    )
+  fi
+  if [[ -n "$KONG_EXPAT" ]]; then
+    components+=(
+      "expat-$KONG_EXPAT"
+    )
+  fi
+  if [[ -n "$KONG_LIBXML2" ]]; then
+    components+=(
+      "libxml2-$KONG_LIBXML2"
     )
   fi
   if [[ -n "$RESTY_LMDB" ]]; then
@@ -731,6 +743,20 @@ function build {
       "--label KONG_LIBJQ=$KONG_LIBJQ"
     )
     >&2 echo " * libjq:       $KONG_LIBJQ"
+  fi
+  if [[ -n "$KONG_EXPAT" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg KONG_EXPAT=$KONG_EXPAT"
+      "--label KONG_EXPAT=$KONG_EXPAT"
+    )
+    >&2 echo " * expat:       $KONG_EXPAT"
+  fi
+  if [[ -n "$KONG_LIBXML2" ]]; then
+    BUILD_ARGS+=(
+      "--build-arg KONG_LIBXML2=$KONG_LIBXML2"
+      "--label KONG_LIBXML2=$KONG_LIBXML2"
+    )
+    >&2 echo " * libxml2:       $KONG_LIBXML2"
   fi
   >&2 echo "=========================="
   >&2 echo ""
