@@ -58,6 +58,12 @@ function download_libxml2 {
             | tar -C "${LIBXML2_INSTALL}" -xJ --strip-components=1
 }
 
+function download_libxslt {
+  mkdir -p "${LIBXSLT_INSTALL}"
+  curl -sSL "https://download.gnome.org/sources/libxslt/$(echo ${KONG_LIBXSLT} | sed -e 's/\.[0-9]*$//')/libxslt-${KONG_LIBXSLT}.tar.xz" \
+            | tar -C "${LIBXSLT_INSTALL}" -xJ --strip-components=1
+}
+
 function make_kong_ngx_module {
   make -C ${KONG_NGX_MODULE_INSTALL} LUA_LIB_DIR=${OPENRESTY_INSTALL}/lualib install
 }
@@ -121,17 +127,26 @@ function make_libxml2 {
                   --prefix="${LIBXML2_INSTALL}" \
                   --without-catalog             \
                   --without-debug               \
-                  --without-html                \
                   --without-http                \
                   --without-iconv               \
                   --without-python              \
                   --without-sax1                \
-                  --without-schemas             \
-                  --without-schematron          \
-                  --without-valid               \
                   --without-xinclude            \
                   --without-xptr                \
                   --without-modules
+
+    make
+    make install
+  )
+}
+
+function make_libxslt {
+  (
+      cd "${LIBXSLT_INSTALL}" || return
+      PATH=${LIBXML2_INSTALL}/bin:$PATH         \
+          ./configure --disable-static          \
+	  --without-python                      \
+          --prefix="${LIBXSLT_INSTALL}"
 
     make
     make install
@@ -210,6 +225,10 @@ function build {
   if [[ -n "$KONG_LIBXML2" ]]; then
     download_libxml2
     after+=(make_libxml2)
+  fi
+  if [[ -n "$KONG_LIBXSLT" ]]; then
+    download_libxslt
+    after+=(make_libxslt)
   fi
 
   # `rustc` for atc-router
