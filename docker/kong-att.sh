@@ -1,5 +1,7 @@
 #!/usr/bin/env sh
 
+. /etc/profile.d/42-kong-envs.sh
+
 hash nginx 2> /dev/null && ngx='nginx'
 ngx=${ngx:-"/usr/local/openresty/nginx/sbin/nginx"}
 
